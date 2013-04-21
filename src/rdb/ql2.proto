@@ -34,89 +34,6 @@ message VersionDummy { // We need to wrap it like this for some
     }
 }
 
-// You send one of:
-// * A [START] query with a [Term] to evaluate and a unique-per-connection token.
-// * A [CONTINUE] query with the same token as a [START] query that returned
-//   [SUCCESS_PARTIAL] in its [Response].
-// * A [STOP] query with the same token as a [START] query that you want to stop.
-message Query {
-    enum QueryType {
-        START    = 1; // Start a new query.
-        CONTINUE = 2; // Continue a query that returned [SUCCESS_PARTIAL]
-                      // (see [Response]).
-        STOP     = 3; // Stop a query partway through executing.
-    }
-    optional QueryType type = 1;
-    // A [Term] is how we represent the operations we want a query to perform.
-    optional Term query = 2; // only present when [type] = [START]
-    optional int64 token = 3;
-    optional bool noreply = 4 [default = false]; // CURRENTLY IGNORED, NO SERVER SUPPORT
-
-    message AssocPair {
-        optional string key = 1;
-        optional Term val = 2;
-    }
-    repeated AssocPair global_optargs = 6;
-}
-
-// A backtrace frame (see `backtrace` in Response below)
-message Frame {
-    enum FrameType {
-        POS = 1; // Error occured in a positional argument.
-        OPT = 2; // Error occured in an optional argument.
-    }
-    optional FrameType type = 1;
-    optional int64 pos = 2; // The index of the positional argument.
-    optional string opt = 3; // The name of the optional argument.
-}
-message Backtrace {
-    repeated Frame frames = 1;
-}
-
-// You get back a response with the same [token] as your query.
-message Response {
-    enum ResponseType {
-        // These response types indicate success.
-        SUCCESS_ATOM     = 1; // Query returned a single RQL datatype.
-        SUCCESS_SEQUENCE = 2; // Query returned a sequence of RQL datatypes.
-        SUCCESS_PARTIAL  = 3; // Query returned a partial sequence of RQL
-                              // datatypes.  If you send a [CONTINUE] query with
-                              // the same token as this response, you will get
-                              // more of the sequence.  Keep sending [CONTINUE]
-                              // queries until you get back [SUCCESS_SEQUENCE].
-
-        // These response types indicate failure.
-        CLIENT_ERROR  = 16; // Means the client is buggy.  An example is if the
-                            // client sends a malformed protobuf, or tries to
-                            // send [CONTINUE] for an unknown token.
-        COMPILE_ERROR = 17; // Means the query failed during parsing or type
-                            // checking.  For example, if you pass too many
-                            // arguments to a function.
-        RUNTIME_ERROR = 18; // Means the query failed at runtime.  An example is
-                            // if you add together two values from a table, but
-                            // they turn out at runtime to be booleans rather
-                            // than numbers.
-    }
-    optional ResponseType type = 1;
-    optional int64 token = 2; // Indicates what [Query] this response corresponds to.
-
-    // [response] contains 1 RQL datum if [type] is [SUCCESS_ATOM], or many RQL
-    // data if [type] is [SUCCESS_SEQUENCE] or [SUCCESS_PARTIAL].  It contains 1
-    // error message (of type [R_STR]) in all other cases.
-    repeated Datum response = 3;
-
-    // If [type] is [CLIENT_ERROR], [TYPE_ERROR], or [RUNTIME_ERROR], then a
-    // backtrace will be provided.  The backtrace says where in the query the
-    // error occured.  Ideally this information will be presented to the user as
-    // a pretty-printed version of their query with the erroneous section
-    // underlined.  A backtrace is a series of 0 or more [Frame]s, each of which
-    // specifies either the index of a positional argument or the name of an
-    // optional argument.  (Those words will make more sense if you look at the
-    // [Term] message below.)
-
-    optional Backtrace backtrace = 4; // Contains n [Frame]s when you get back an error.
-}
-
 // A [Datum] is a chunk of data that can be serialized to disk or returned to
 // the user in a Response.  Currently we only support JSON types, but we may
 // support other types in the future (e.g., a date type or an integer type).
@@ -331,11 +248,11 @@ message Term {
 
         // * Secondary indexes OPs
         // Creates a new secondary index with a particular name and definition.
-        INDEX_CREATE = 75; // Table, STRING, Function(1) -> OBJECT
-        // Drops a secondary index with a particular name from the specified table.
-        INDEX_DROP   = 76; // Table, STRING -> OBJECT
+        SINDEX_CREATE = 75; // Table, STRING, Function(1) -> OBJECT
+        // Drops a table with a particular name.
+        SINDEX_DROP   = 76; // Table, STRING -> OBJECT
         // Lists all secondary indexes on a particular table.
-        INDEX_LIST   = 77; // Table -> ARRAY
+        SINDEX_LIST   = 77; // Table -> ARRAY
 
         // * Control Operators
         // Calls a function on data
@@ -418,6 +335,89 @@ message Term {
     extensions 10000 to 20000;
 }
 
+// You send one of:
+// * A [START] query with a [Term] to evaluate and a unique-per-connection token.
+// * A [CONTINUE] query with the same token as a [START] query that returned
+//   [SUCCESS_PARTIAL] in its [Response].
+// * A [STOP] query with the same token as a [START] query that you want to stop.
+message Query {
+    enum QueryType {
+        START    = 1; // Start a new query.
+        CONTINUE = 2; // Continue a query that returned [SUCCESS_PARTIAL]
+                      // (see [Response]).
+        STOP     = 3; // Stop a query partway through executing.
+    }
+    optional QueryType type = 1;
+    // A [Term] is how we represent the operations we want a query to perform.
+    optional Term query = 2; // only present when [type] = [START]
+    optional int64 token = 3;
+    optional bool noreply = 4 [default = false]; // CURRENTLY IGNORED, NO SERVER SUPPORT
+
+    message AssocPair {
+        optional string key = 1;
+        optional Term val = 2;
+    }
+    repeated AssocPair global_optargs = 6;
+}
+
+// A backtrace frame (see `backtrace` in Response below)
+message Frame {
+    enum FrameType {
+        POS = 1; // Error occured in a positional argument.
+        OPT = 2; // Error occured in an optional argument.
+    }
+    optional FrameType type = 1;
+    optional int64 pos = 2; // The index of the positional argument.
+    optional string opt = 3; // The name of the optional argument.
+}
+message Backtrace {
+    repeated Frame frames = 1;
+}
+
+// You get back a response with the same [token] as your query.
+message Response {
+    enum ResponseType {
+        // These response types indicate success.
+        SUCCESS_ATOM     = 1; // Query returned a single RQL datatype.
+        SUCCESS_SEQUENCE = 2; // Query returned a sequence of RQL datatypes.
+        SUCCESS_PARTIAL  = 3; // Query returned a partial sequence of RQL
+                              // datatypes.  If you send a [CONTINUE] query with
+                              // the same token as this response, you will get
+                              // more of the sequence.  Keep sending [CONTINUE]
+                              // queries until you get back [SUCCESS_SEQUENCE].
+
+        // These response types indicate failure.
+        CLIENT_ERROR  = 16; // Means the client is buggy.  An example is if the
+                            // client sends a malformed protobuf, or tries to
+                            // send [CONTINUE] for an unknown token.
+        COMPILE_ERROR = 17; // Means the query failed during parsing or type
+                            // checking.  For example, if you pass too many
+                            // arguments to a function.
+        RUNTIME_ERROR = 18; // Means the query failed at runtime.  An example is
+                            // if you add together two values from a table, but
+                            // they turn out at runtime to be booleans rather
+                            // than numbers.
+    }
+    optional ResponseType type = 1;
+    optional int64 token = 2; // Indicates what [Query] this response corresponds to.
+
+    // [response] contains 1 RQL datum if [type] is [SUCCESS_ATOM], or many RQL
+    // data if [type] is [SUCCESS_SEQUENCE] or [SUCCESS_PARTIAL].  It contains 1
+    // error message (of type [R_STR]) in all other cases.
+    repeated Datum response = 3;
+
+    // If [type] is [CLIENT_ERROR], [TYPE_ERROR], or [RUNTIME_ERROR], then a
+    // backtrace will be provided.  The backtrace says where in the query the
+    // error occured.  Ideally this information will be presented to the user as
+    // a pretty-printed version of their query with the erroneous section
+    // underlined.  A backtrace is a series of 0 or more [Frame]s, each of which
+    // specifies either the index of a positional argument or the name of an
+    // optional argument.  (Those words will make more sense if you look at the
+    // [Term] message below.)
+
+    optional Backtrace backtrace = 4; // Contains n [Frame]s when you get back an error.
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                  EXAMPLE                                   //
 ////////////////////////////////////////////////////////////////////////////////
@@ -464,3 +464,4 @@ message Term {
 //     response = [Datum { type = R_STR; r_str = "The table `tbl` doesn't exist!"; }];
 //     backtrace = [Frame { type = POS; pos = 0; }, Frame { type = POS; pos = 0; }];
 //   }
+
