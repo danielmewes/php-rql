@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -15,17 +16,18 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>PHP-RQL</h1>
-        <p>A PHP client driver for the RethinkDB query language (RQL).</p>
-
-        <p class="view"><a href="https://github.com/danielmewes/php-rql">View the Project on GitHub <small>danielmewes/php-rql</small></a></p>
-
+        <h1 class="header">PHP-RQL</h1>
+        <p class="header">A PHP client driver for the RethinkDB query language (RQL).</p>
 
         <ul>
-          <li><a href="https://github.com/danielmewes/php-rql/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/danielmewes/php-rql/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/danielmewes/php-rql">View On <strong>GitHub</strong></a></li>
+          <li class="download"><a class="buttons" href="https://github.com/danielmewes/php-rql/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/danielmewes/php-rql/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/danielmewes/php-rql">View On GitHub</a></li>
         </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/danielmewes">danielmewes</a></p>
+
+
       </header>
       <section>
         <h1>PHP-RQL</h1>
@@ -52,9 +54,8 @@
 <h2>Installing</h2>
 
 <ul>
-<li>Download the ZIP file of this repository: <a href="https://github.com/danielmewes/php-rql/archive/master.zip">https://github.com/danielmewes/php-rql/archive/master.zip</a>
-or clone it using git.</li>
-<li>Unpack it</li>
+<li>Download the ZIP file of this repository or clone it using git.</li>
+<li>Unpack it.</li>
 <li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project.</li>
 </ul><h2>Example</h2>
 
@@ -70,14 +71,16 @@ or clone it using git.</li>
 
     <span class="c1">// Insert a document</span>
     <span class="nv">$document</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'someKey'</span> <span class="o">=&gt;</span> <span class="s1">'someValue'</span><span class="p">);</span>
-    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">insert</span><span class="p">(</span><span class="nv">$document</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">insert</span><span class="p">(</span><span class="nv">$document</span><span class="p">)</span>
+        <span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
     <span class="k">echo</span> <span class="s2">"Insert: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
 
     <span class="c1">// How many documents are in the table?</span>
     <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
     <span class="k">echo</span> <span class="s2">"Count: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
 
-    <span class="c1">// List the someKey values of the documents in the table (using a mapping-function)</span>
+    <span class="c1">// List the someKey values of the documents in the table</span>
+    <span class="c1">// (using a mapping-function)</span>
     <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">map</span><span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="nv">$x</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">return</span> <span class="nv">$x</span><span class="p">(</span><span class="s1">'someKey'</span><span class="p">);</span>
         <span class="p">})</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
@@ -101,11 +104,10 @@ or clone it using git.</li>
 </ul>
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/danielmewes">danielmewes</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
