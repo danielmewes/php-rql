@@ -48,7 +48,7 @@ commands:
                  function(err, conn) { ... })
           py: conn = r.connect(db='heroes')
           rb: conn = r.connect('localhost', 28015, 'heroes')
-          ph: $conn = r\connect(array('host' => 'localhost', 'port' => 28015, 'db' => 'heroes'));
+          ph: $conn = r\connect('localhost', 28015, 'heroes');
 
     py:
       examples:
