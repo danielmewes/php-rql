@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PHP-RQL by danielmewes</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>PHP-RQL</h1>
+        <p>A PHP client driver for the RethinkDB query language (RQL).</p>
+
+        <p class="view"><a href="https://github.com/danielmewes/php-rql">View the Project on GitHub <small>danielmewes/php-rql</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/danielmewes/php-rql/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/danielmewes/php-rql/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/danielmewes/php-rql">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>PHP-RQL</h1>
+
+<p>A PHP client driver for the RethinkDB query language (RQL).</p>
+
+<p>PHP-RQL is licensed under the terms of the Apache License 2.0 <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+
+<h2>Overview</h2>
+
+<p>PHP-RQL provides a driver to access RethinkDB databases from PHP code.</p>
+
+<p>It currently implements the query language and wire protocol of RethinkDB 1.4.x</p>
+
+<p>The API of the driver is generally close to that of the official RethinkDB JavaScript driver.</p>
+
+<p>Preliminary documentation is available at: <a href="http://dmewes.com/%7Edaniel/php-rql-api/#ph">http://dmewes.com/~daniel/php-rql-api/#ph</a>
+(except for the PHP examples, the documentation is a copy of the official RethinkDB API docs)</p>
+
+<h2>Requirements</h2>
+
+<p>PHP 5.3</p>
+
+<h2>Installing</h2>
+
+<ul>
+<li>Download the ZIP file of this repository: <a href="https://github.com/danielmewes/php-rql/archive/master.zip">https://github.com/danielmewes/php-rql/archive/master.zip</a>
+or clone it using git.</li>
+<li>Unpack it</li>
+<li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project.</li>
+</ul><h2>Example</h2>
+
+<div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
+    <span class="c1">// Load the driver</span>
+    <span class="k">require_once</span><span class="p">(</span><span class="s2">"rdb/rdb.php"</span><span class="p">);</span>
+
+    <span class="c1">// Connect to localhost</span>
+    <span class="nv">$conn</span> <span class="o">=</span> <span class="nx">r\connect</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">);</span>
+
+    <span class="c1">// Create a test table</span>
+    <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">tableCreate</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+
+    <span class="c1">// Insert a document</span>
+    <span class="nv">$document</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'someKey'</span> <span class="o">=&gt;</span> <span class="s1">'someValue'</span><span class="p">);</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">insert</span><span class="p">(</span><span class="nv">$document</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+    <span class="k">echo</span> <span class="s2">"Insert: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+
+    <span class="c1">// How many documents are in the table?</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+    <span class="k">echo</span> <span class="s2">"Count: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+
+    <span class="c1">// List the someKey values of the documents in the table (using a mapping-function)</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">map</span><span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="nv">$x</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nv">$x</span><span class="p">(</span><span class="s1">'someKey'</span><span class="p">);</span>
+        <span class="p">})</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$result</span> <span class="k">as</span> <span class="nv">$doc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">echo</span> <span class="s2">"Doc: </span><span class="si">$doc</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Delete the test table</span>
+    <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">tableDrop</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+
+<h2>Attributions</h2>
+
+<ul>
+<li>PHP-RQL uses pb4php <a href="http://code.google.com/p/pb4php/">http://code.google.com/p/pb4php/</a> by Nikolai Kordulla.</li>
+<li>A patch for support of doubles in protocol buffers comes from Dmitry Vorobyev <a href="https://code.google.com/p/pb4php/issues/detail?id=16">https://code.google.com/p/pb4php/issues/detail?id=16</a>
+</li>
+<li>The documentation system and most of the API documentation (except for PHP-specific parts) are from RethinkDB <a href="http://rethinkdb.com">http://rethinkdb.com</a> , as is the protocol buffer specification used.</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/danielmewes">danielmewes</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
