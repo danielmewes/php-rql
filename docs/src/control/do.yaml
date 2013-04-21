@@ -21,6 +21,13 @@ commands:
             r.do(r.table('marvel').get('IronMan'),
                  lambda ironman: ironman['name']).run(conn)
           rb: r.do(r.table('marvel').get('IronMan')) { |ironman| ironman[:name] }.run(conn)
+          ph: |
+            r\rDo(r\table('marvel')->get('IronMan'),
+                function ($ironman) { return $ironman('name'); })->run($conn);
+
+    ph:
+      name: rDo
+      body: arg|array(arg1, arg,...), inExpr
 
     js:
       examples:

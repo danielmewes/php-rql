@@ -23,6 +23,9 @@ commands:
              .run(conn, callback)
           py: "r.table('marvel').get('superman').replace({ 'id': 'superman', 'age': 30 }).run(conn)"
           rb: r.table('marvel').get('superman').replace{ {:id => 'superman', :age => 30} }.run(conn)
+          ph: |
+            r\table('marvel')->get('superman')->replace(
+              array( 'id' => 'superman', 'age' => 30 ))->run($conn);
       - description: Allow the server to run non-atomic operations.
         code:
           js: |
@@ -35,6 +38,10 @@ commands:
           rb: |
             r.table('marvel').get('superman').replace(
                :non_atomic, {:id => 'superman', :age => 30}).run(conn)
+          ph: |
+            r\table('marvel')->get('superman')->replace(
+                array( 'id' => 'superman', 'age' => 30 ),
+                true)->run($conn);
       - description: Mark all Marvel heroes as favorites.
         code:
           js: |
@@ -48,6 +55,10 @@ commands:
             r.table('heroes').filter { |hero| hero[:universe].eq 'marvel'
              }.replace { |hero| hero.merge(:is_fav => true)
              }.run(conn)
+          ph: |
+            r\table('heroes')->filter(array('universe' => 'marvel'))
+              ->replace( function($doc) { return $doc->merge(array('is_fav' => true)); } )
+              ->run($conn);
 
     js:
       examples:

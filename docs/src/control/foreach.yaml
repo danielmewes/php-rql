@@ -6,6 +6,7 @@ commands:
 
     body:
       js: queryFunction
+      ph: queryFunction
       py: query_function
       rb: query_function
     parent: r
@@ -27,6 +28,13 @@ commands:
             r.table('marvel').for_each {|hero|
               r.table('villains').get(hero[:villain_defeated]).delete
             }.run(conn)
+          ph: |
+            r\table('marvel')->rForeach(function($hero) {
+                return r\table('villains')->get($hero('villainDefeated'))->delete();
+              })->run($conn);
+    
+    ph:
+      name: rForeach
 
     js:
       examples:

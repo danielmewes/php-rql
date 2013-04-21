@@ -19,6 +19,16 @@ commands:
       - description: Convert a number to a string.
         code: r.expr(1).coerce_to('string').run(conn)
 
+    ph:
+      name: coerceTo
+      examples:
+        0:
+          code: r\table('marvel')->coerceTo('array')->run($conn);
+        1:
+          code: r\expr(array(array('name', 'Ironman'), array('victories', 2000)))->coerceTo('object')->run($conn);
+        2:
+          code: r\expr(1)->coerceTo('string')->run($conn);
+
     js:
       name: coerceTo
       examples:

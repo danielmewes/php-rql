@@ -24,6 +24,11 @@ commands:
           can_try: true
           dataset: marvel
           code: r.db('heroes').table('marvel').run(conn, callback)
+          
+    ph:
+      examples:
+        0:
+          code: r\db('heroes')->table('marvel')->run($conn);
 
   - tag: table
     section: select
@@ -51,6 +56,7 @@ commands:
           js: "r.db('heroes').table('marvel', {useOutdated: true}).run(conn, callback)"
           py: r.db('heroes').table('marvel', True).run(conn)
           rb: r.db('heroes').table('marvel', {:use_outdated => true}).run(conn)
+          ph: r\db('heroes')->table('marvel', true)->run($conn);
 
     js:
       examples:
@@ -65,6 +71,13 @@ commands:
         2:
           can_try: true
           dataset: marvel
+          
+    ph:
+      examples:
+        0:
+          code: r\table('marvel')->run($conn);
+        1:
+          code: r\db('heroes')->table('marvel')->run($conn);
 
   - tag: get
     section: select
@@ -84,6 +97,10 @@ commands:
           can_try: true
           dataset: marvel
           code: r.table('marvel').get('superman').run(conn, callback)
+    ph:
+      examples:
+        0:
+          code: r\table('marvel')->get('superman')->run($conn);
 
   - tag: between
     section: select
@@ -103,6 +120,11 @@ commands:
           can_try: true
           dataset: marvel
           code: r.table('marvel').between(10, 20).run(conn, callback)
+          
+    ph:
+      examples:
+        0:
+          code: r\table('marvel')->between(10, 20)->run($conn);
 
   - tag: filter
     section: select
@@ -118,11 +140,16 @@ commands:
           js: "r.table('users').filter({active: true, age: 30}).run(conn, callback)"
           py: "r.table('users').filter({'active': True, 'age': 30}).run(conn)"
           rb: r.table('users').filter('active' => true, 'age' => 30).run(conn)
+          ph: r\table('users')->filter(array('active' => true, 'age' => 30))->run($conn);
       - description: Select all documents where the 'magazines' field is greater than 5.
         code:
           js: r.table('marvel').filter(r.row('magazines').gt(5)).run(conn, callback)
           py: r.table('users').filter(r.row['magazines'] > 5).run(conn)
           rb: r.table('users').filter{|user| user[:magazines] > 5}.run(conn)
+          ph: |
+            r\table('users')->filter(function($user) {
+                return $user('magazines')->gt(5);
+              })->run($conn);
       - description: Select all documents where the 'abilities' embedded document has an attribute called 'super-strength'.
         code:
           js: |
@@ -136,6 +163,10 @@ commands:
             r.table('marvel').filter {|hero|
               hero[:abilities].contains('super-strength')
             }.run(conn)
+          ph: |
+            r\table('marvel')->filter(function($hero) {
+                return $hero('abilities')->contains('super-strength'); 
+              })->run($conn);
 
     rb:
       dont_need_parenthesis: true

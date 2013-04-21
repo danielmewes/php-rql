@@ -8,6 +8,7 @@ commands:
       js: test, trueBranch, falseBranch
       py: test, true_branch, false_branch
       rb: test, true_branch, false_branch
+      ph: test, trueBranch, falseBranch
     parent: r
     returns: query
 
@@ -29,6 +30,11 @@ commands:
                 row[:name] + ' is a superhero',
                 row[:name] + ' is a hero')
             }.run(conn)
+          ph: |
+            r\table('marvel')->map(r\branch(r\row('victories')->gt(100),
+                r\row('name')->add(' is a superhero'),
+                r\row('name')->add(' is a hero'))
+              )->run($conn);
 
     js:
       examples:

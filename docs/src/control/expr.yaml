@@ -14,6 +14,7 @@ commands:
           js: r.expr({a:'b'}).merge({b:[1,2,3]}).run(conn, callback)
           py: r.expr({'a':'b'}).merge({'b':[1,2,3]}).run(conn)
           rb: r.expr({:a => 'b'}).merge({:b => [1,2,3]}).run(conn)
+          ph: r\expr(array('a' => 'b'))->merge(array('b' => array(1,2,3)))->run($conn);
 
       - description:
           js: In JavaScript, you can also do this with just r.
@@ -25,6 +26,10 @@ commands:
     py:
       examples:
         1: {} # This turns off example 1 for python as it does not apply
+        
+    ph:
+      examples:
+        1: {}
 
     js:
       examples:

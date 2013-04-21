@@ -18,3 +18,9 @@ commands:
           code: r.expr("foo").typeOf().run(conn, callback)
           can_try: true
           dataset: marvel
+          
+    ph:
+      name: typeOf
+      examples:
+        0:
+          code: r\expr('foo')->typeOf()->run($conn);

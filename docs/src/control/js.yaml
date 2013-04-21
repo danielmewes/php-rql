@@ -16,6 +16,15 @@ commands:
         code: |-
           r.table('marvel').filter(
             r.js('(function (row) { return row.magazines > 5; })')).run(conn)
+            
+    ph:
+      examples:
+        0:
+          code: r\js("'str1' + 'str2'")->run($conn);
+        1:
+          code: |
+            r\table('marvel')->filter(
+              r\js('(function (row) { return row.magazines > 5; })'))->run($conn);
 
     js:
       examples:

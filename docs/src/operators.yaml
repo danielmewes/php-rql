@@ -21,11 +21,17 @@ commands:
           js: r.expr(2).add(2).run(conn, callback)
           py: (r.expr(2) + 2).run(conn)
           rb: (r(2) + 2).run(conn)
+          ph: r\expr(2)->add(2)->run($conn);
       - description: Strings can be concatenated too.
         code:
           js: r.expr("foo").add("bar").run(conn, callback)
           py: (r.expr("foo") + "bar").run(conn)
           rb: (r("foo") + "bar").run(conn)
+          ph: r\expr('foo')->add('bar')->run($conn);
+    
+    ph:
+      name: add
+      is_operator: false
 
     js:
       name: add
@@ -54,6 +60,11 @@ commands:
           js: r.expr(2).sub(2).run(conn, callback)
           py: (r.expr(2) - 2).run(conn)
           rb: (r(2) - 2).run(conn)
+          ph: r\expr(2)->sub(2)->run($conn);
+
+    ph:
+      name: sub
+      is_operator: false
 
     js:
       name: sub
@@ -79,6 +90,11 @@ commands:
           js: r.expr(2).mul(2).run(conn, callback)
           py: (r.expr(2) * 2).run(conn)
           rb: (r(2) * 2).run(conn)
+          ph: r\expr(2)->mul(2)->run($conn);
+
+    ph:
+      name: mul
+      is_operator: false
 
     js:
       name: mul
@@ -104,6 +120,11 @@ commands:
           js: r.expr(2).div(2).run(conn, callback)
           py: (r.expr(2) / 2).run(conn)
           rb: (r(2) / 2).run(conn)
+          ph: r\expr(2)->div(2)->run($conn);
+
+    ph:
+      name: div
+      is_operator: false
 
     js:
       name: div
@@ -129,6 +150,11 @@ commands:
           js: r.expr(2).mod(2).run(conn, callback)
           py: (r.expr(2) % 2).run(conn)
           rb: (r(2) % 2).run(conn)
+          ph: r\expr(2)->mod(2)->run($conn);
+             
+    ph:
+      name: mod
+      is_operator: false
 
     js:
       name: mod
@@ -154,6 +180,11 @@ commands:
           js: r.expr(true).and(false).run(conn, callback)
           py: (r.expr(True) & False).run(conn)
           rb: (r(true) & false).run(conn)
+          ph: r\expr(true)->rAnd(false)->run($conn);
+
+    ph:
+      name: rAnd
+      is_operator: false
 
     js:
       name: and
@@ -180,6 +211,11 @@ commands:
           js: r.expr(true).or(false).run(conn, callback)
           py: (r.expr(True) | False).run(conn)
           rb: (r(true) | false).run(conn)
+          ph: r\expr(true)->rOr(false)->run($conn);
+
+    ph:
+      name: rOr
+      is_operator: false
 
     js:
       name: or
@@ -204,9 +240,13 @@ commands:
           js: r.expr(2).eq(2).run(conn, callback)
           py: (r.expr(2) == 2).run(conn)
           rb: (r(2).eq 2).run(conn)
+          ph: r\expr(2)->eq(2)->run($conn);
 
     py:
       name: '=='
+      
+    ph:
+      is_operator: false
 
     js:
       is_operator: false
@@ -230,9 +270,13 @@ commands:
           js: r.expr(2).ne(2).run(conn, callback)
           py: (r.expr(2) != 2).run(conn)
           rb: (r(2).ne 2).run(conn)
+          ph: r\expr(2)->ne(2)->run($conn);
 
     py:
       name: '!='
+      
+    ph:
+      is_operator: false
 
     js:
       is_operator: false
@@ -258,6 +302,11 @@ commands:
           js: r.expr(2).gt(2).run(conn, callback)
           py: (r.expr(2) > 2).run(conn)
           rb: (r(2) > 2).run(conn)
+          ph: r\expr(2)->gt(2)->run($conn);
+
+    ph:
+      name: gt
+      is_operator: false
 
     js:
       name: gt
@@ -283,6 +332,11 @@ commands:
           js: r.expr(2).ge(2).run(conn, callback)
           py: (r.expr(2) >= 2).run(conn)
           rb: (r(2) >= 2).run(conn)
+          ph: r\expr(2)->ge(2)->run($conn);
+
+    ph:
+      name: ge
+      is_operator: false
 
     js:
       name: ge
@@ -308,6 +362,11 @@ commands:
           js: r.expr(2).lt(2).run(conn, callback)
           py: (r.expr(2) < 2).run(conn)
           rb: (r(2) < 2).run(conn)
+          ph: r\expr(2)->lt(2)->run($conn);
+
+    ph:
+      name: lt
+      is_operator: false
 
     js:
       name: lt
@@ -333,6 +392,11 @@ commands:
           js: r.expr(2).le(2).run(conn, callback)
           py: (r.expr(2) <= 2).run(conn)
           rb: (r(2) <= 2).run(conn)
+          ph: r\expr(2)->le(2)->run($conn);
+
+    ph:
+      name: le
+      is_operator: false
 
     js:
       name: le
@@ -356,6 +420,10 @@ commands:
           js: r.expr(true).not().run(conn, callback)
           py: (~r.expr(True)).run(conn)
           rb: r(true).not.run(conn)
+          ph: r\expr(true)->not()->run($conn);
+
+    ph:
+      is_operator: false
 
     rb:
       dont_need_parenthesis: true

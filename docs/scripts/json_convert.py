@@ -58,7 +58,7 @@ for section in sections:
                 'langs': {}
             }
 
-            for lang in ['py', 'js', 'rb']:
+            for lang in ['py', 'js', 'rb', 'ph']:
                 def or_override(obj, attr, default):
                     if not attr in obj:
                         # Use default

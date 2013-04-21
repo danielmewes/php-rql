@@ -17,11 +17,13 @@ commands:
           js: r.table('marvel').get('superman').delete().run(conn, callback)
           py: r.table('marvel').get('superman').delete().run(conn)
           rb: r.table('marvel').get('superman').delete.run(conn)
+          ph: r\table('marvel')->get('superman')->delete()->run($conn);
       - description: Delete every document from the table 'marvel'.
         code:
           js: r.table('marvel').delete().run(conn, callback)
           py: r.table('marvel').delete().run(conn)
           rb: r.table('marvel').delete.run(conn)
+          ph: r\table('marvel')->delete()->run($conn);
 
     rb:
       dont_need_parenthesis: true

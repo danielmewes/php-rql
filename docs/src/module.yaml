@@ -22,6 +22,7 @@ commands:
           rb: |
             require 'rethinkdb'
             include RethinkDB::Shortcuts
+          ph: require_once('rdb/rdb.php');
 
   - tag: connect
     section: module
@@ -34,6 +35,7 @@ commands:
       js: opts, callback
       py: host='localhost', port=28015, db='test'
       rb: host='localhost', port=28015, default_db='test'
+      ph: host, port=28015[, db]
     parent: r
     returns: connection
 
@@ -46,6 +48,7 @@ commands:
                  function(err, conn) { ... })
           py: conn = r.connect(db='heroes')
           rb: conn = r.connect('localhost', 28015, 'heroes')
+          ph: $conn = r\connect(array('host' => 'localhost', 'port' => 28015, 'db' => 'heroes'));
 
     py:
       examples:
@@ -82,6 +85,7 @@ commands:
             r.table('users').run
 
     js: false
+    ph: false
 
   - tag: close
     section: module
@@ -97,6 +101,10 @@ commands:
         validate: false
         code: conn.close()
 
+    ph:
+      examples:
+        0:
+          code: $conn->close();
     rb:
       examples:
         0:
@@ -118,6 +126,7 @@ commands:
           js: conn.reconnect(function(err, conn) { ... })
           py: conn.reconnect()
           rb: conn.reconnect
+          ph: $conn->reconnect();
 
   - tag: use
     section: module
@@ -132,6 +141,11 @@ commands:
           Change the default database so that we don't need
           to specify the database when referencing a table.
         code: conn.use('heroes')
+        
+    ph:
+      examples:
+        0:
+          code: $conn->useDb('heroes');
 
   - tag: run
     section: module
@@ -141,6 +155,7 @@ commands:
       js: conn[, callback]
       py: conn[, use_outdated=False]
       rb: conn[, opts]
+      ph: conn
 
     parent: query
     returns: cursor
@@ -156,6 +171,10 @@ commands:
             for doc in r.table('marvel').run(conn):
               print doc
           rb: r.table('marvel').run(conn).each{|x| p x}
+          ph: |
+            $cur = r\table('marvel')->run($conn);
+            foreach ($cur as $doc)
+              echo "$doc\n";
       - description: |
           If you are OK with potentially out of date data from all the tables
           involved in this query and want potentially faster reads, pass a flag
@@ -169,6 +188,10 @@ commands:
                                   function (err, cursor) { ... });
           py: r.table('marvel').run(conn, use_outdated=True)
           rb: r.table('marvel').run({:connection => conn, :use_outdated => true})
+          
+    ph:
+      examples:
+        1: {}
 
   - tag: next
     section: module
@@ -187,6 +210,7 @@ commands:
 
     py: false
     rb: false
+    ph: false
 
   - tag: hasNext
     section: module
@@ -201,6 +225,7 @@ commands:
 
     py: false
     rb: false
+    ph: false
 
   - tag: each
     section: module
@@ -220,6 +245,7 @@ commands:
 
     py: false
     rb: false
+    ph: false
 
   - tag: toArray
     section: module
@@ -231,12 +257,14 @@ commands:
 
     examples:
       - description: For small result sets it may be more convenient to process them at once as an array.
-        code: |
-          cur.toArray(function(err, results) {
-            for(var i in results) {
-              processRow(results[i]);
-            }
-          });
+        code:
+          js: |
+            cur.toArray(function(err, results) {
+              for(var i in results) {
+                processRow(results[i]);
+              }
+            });
+          ph: print_r($cur->toArray());
 
     py: false
     rb: false

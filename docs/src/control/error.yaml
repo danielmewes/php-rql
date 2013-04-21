@@ -29,6 +29,12 @@ commands:
                 r.error('impossible code path'),
                 ironman)
             }.run(conn)
+          ph: |
+            r\table('marvel')->get('IronMan')->rDo(function($ironman) {
+                return r\branch($ironman('victories')->lt($ironman('battles')),
+                  r\error('impossible code path'),
+                  $ironman);
+              })->run($conn);
 
     js:
       examples:

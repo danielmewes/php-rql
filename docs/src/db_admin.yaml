@@ -20,6 +20,12 @@ commands:
     examples:
       - description: Create a database named 'superheroes'.
         code: r.db_create('superheroes').run(conn)
+        
+    ph:
+      name: dbCreate
+      examples:
+        0:
+          code: r\dbCreate('superheroes')->run($conn);
 
     js:
       name: dbCreate
@@ -45,6 +51,12 @@ commands:
     examples:
       - description: Drop a database named 'superheroes'.
         code: r.db_drop('superheroes').run(conn)
+        
+    ph:
+      name: dbDrop
+      examples:
+        0:
+          code: r\dbDrop('superheroes')->run($conn);
 
     js:
       name: dbDrop
@@ -68,6 +80,10 @@ commands:
           js: r.dbList().run(conn, callback)
           py: r.db_list().run(conn)
           rb: r.db_list.run(conn)
+          ph: r\dbList()->run($conn);
+          
+    ph:
+      name: dbList
 
     js:
       name: dbList

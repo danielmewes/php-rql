@@ -31,6 +31,9 @@ commands:
           rb: |
             r.table('marvel').insert(
                 { :superhero => 'Iron Man', :superpower => 'Arc Reactor' }).run(conn)
+          ph: |
+            r\table('marvel')->insert( 
+                array( 'superhero' => 'Iron Man', 'superpower' => 'Arc Reactor' ))->run($conn);
       - description: Insert multiple rows into a table named 'marvel'.
         code:
           js: |
@@ -48,6 +51,11 @@ commands:
               {:superhero => 'Wolverine', :superpower => 'Adamantium'},
               {:superhero => 'Spiderman', :superpower => 'spidy sense'}
             ]).run(conn)
+          ph: |
+            r\table('marvel')->insert(array(
+                array( 'superhero' => 'Wolverine', 'superpower' => 'Adamantium' ),
+                array( 'superhero' => 'Spiderman', 'superpower' => 'spidy sense' ),
+              ))->run($conn);
       - description: Insert a row into a table named 'marvel', overwriting if the document already exists.
         code:
           js: |
@@ -65,6 +73,10 @@ commands:
               {:superhero => 'Iron Man', :superpower => 'Arc Reactor' },
               :upsert
             ).run(conn)
+          ph: |
+            r\table('marvel')->insert( 
+                array( 'superhero' => 'Iron Man', 'superpower' => 'Arc Reactor' ),
+                true)->run($conn);
 
     js:
       examples:

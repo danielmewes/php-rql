@@ -18,6 +18,7 @@ commands:
       js: innerJoin
       py: inner_join
       rb: inner_join
+      ph: innerJoin
     body: othersequence, predicate
     parent: sequence
     returns: sequence
@@ -36,6 +37,10 @@ commands:
             r.table('marvel').inner_join(r.table('dc')) {|marvel_row, dc_row|
              marvel_row[:strength] < dc_row[:strength]
             }.run(conn)
+          ph: |
+            r\table('marvel')->innerJoin(r\table('dc'), function($marvelRow, $dcRow) {
+                return $marvelRow('strength')->lt($dcRow('strength'));
+              })->run($conn);
 
     js:
       examples:
@@ -52,6 +57,7 @@ commands:
       js: outerJoin
       py: outer_join
       rb: outer_join
+      ph: outerJoin
     body: othersequence, predicate
     parent: sequence
     returns: sequence
@@ -72,6 +78,10 @@ commands:
             r.table('marvel').outer_join(r.table('dc')) {|marvel_row, dc_row|
              marvel_row[:strength] < dc_row[:strength]
             }.run(conn)
+          ph: |
+            r\table('marvel')->outerJoin(r\table('dc'), function($marvelRow, $dcRow) {
+                return $marvelRow('strength')->lt($dcRow('strength'));
+              })->run($conn);
 
     js:
       examples:
@@ -95,6 +105,7 @@ commands:
           js: r.table('marvel').eqJoin('main_dc_collaborator', r.table('dc')).run(conn, callback)
           py: r.table('marvel').eq_join('main_dc_collaborator', r.table('dc')).run(conn)
           rb: r.table('marvel').eq_join(:main_dc_collaborator, r.table('dc')).run(conn)
+          ph: r\table('marvel')->eqJoin('main_dc_collaborator', r\table('dc'))->run($conn);
       - description: The above query is equivalent to this inner join but runs
           in O(n log(m)) time rather than the O(n * m) time the inner join takes.
         code:
@@ -109,6 +120,13 @@ commands:
             r.table('marvel').inner_join(r.table('dc')) {|left, right|
              left[:main_dc_collaborator].eq(right[:hero_name])
             }.run(conn)
+          ph: |
+            r\table('marvel')->innerJoin(r\table('dc'), function($left, $right) {
+                return $left('main_dc_collaborator')->eq($right('hero_name'));
+              })->run($conn);
+
+    ph:
+      name: eqJoin
 
     js:
       name: eqJoin
@@ -136,6 +154,7 @@ commands:
           js: r.table('t1').eqJoin('t2', 'id').zip().run(conn, callback)
           py: r.table('t1').eq_join('t2', 'id').zip().run(conn)
           rb: r.table(:t1).eq_join(:t2, :id).zip.run(conn)
+          ph: r\table('t1')->eqJoin('id', r\table('t2'))->zip()->run($conn);
 
     rb:
       dont_need_parenthesis: true

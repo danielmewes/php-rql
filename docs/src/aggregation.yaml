@@ -30,6 +30,9 @@ commands:
           rb: |-
             r.table('marvel').map {|hero| hero['monstersKilled']}.reduce(0) {
                 |acc, val| acc + val }.run(conn)
+          ph: |
+            r\table('marvel')->map(function($row) { return $row('monstersKilled'); })->
+              reduce(function($acc, $val) { return $acc->add($val); }, 0)->run($conn);
 
     js:
       examples:
@@ -50,6 +53,7 @@ commands:
           js: r.table('marvel').count().add(r.table('dc').count()).run(conn, callback)
           py: (r.table('marvel').count() + r.table('dc').count()).run(conn)
           rb: (r.table('marvel').count + r.table('dc').count).run(conn)
+          ph: r\table('marvel')->count()->add(r\table('dc')->count())->run($conn);
 
     js:
       examples:
@@ -72,6 +76,8 @@ commands:
              .run(conn, callback)
           py: 'r.table(''marvel'').concat_map(lambda hero: hero[''villainList'']).distinct().run(conn)'
           rb: r.table('marvel').concat_map{|hero| hero[:villain_list]}.distinct.run(conn)
+          ph: r\table('marvel')->concatMap(function($hero) { return $hero('villainList'); })->
+            distinct()->run($conn);
 
     rb:
       dont_need_parenthesis: true
@@ -121,6 +127,18 @@ commands:
               {:name => 'none', :strength => 0},  # reduction base
               lambda {|acc, hero| r.branch(acc[:strength] < hero[:strength], hero, acc)}
             ).run(conn)
+          ph: |
+            r\table('marvel')->groupedMapReduce(
+              function ($hero) { return $hero('weightClass'); },
+              function ($hero) { return $hero->pluck(array('name', 'strength')); },
+              function ($acc, $hero) {
+                return r\branch($acc('strength')->lt($hero('strength')), $hero, $acc);
+              },
+              array('name' => 'none', 'strength' => 0)
+            )->run($conn);
+
+    ph:
+      name: groupedMapReduce
 
     js:
       name: groupedMapReduce
@@ -147,6 +165,10 @@ commands:
           js: r.table('marvel').groupBy('weightClass', r.avg('strength')).run(conn, callback)
           py: r.table('marvel').group_by('weightClass', r.avg('strength')).run(conn)
           rb: r.table('marvel').group_by(:weight_class, r.avg(:strength)).run(conn)
+          ph: r\table('marvel')->groupBy('weightClass', r\avg('strength'))->run($conn);
+
+    ph:
+      name: groupBy
 
     js:
       name: groupBy
