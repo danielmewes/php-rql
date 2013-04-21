@@ -1,0 +1,41 @@
+ message TPublic{
+     optional string title = 1;
+     optional string url = 2;
+     optional string feedurl = 3;
+     optional string pictureurl = 4;
+     optional string author = 5;
+     optional string description = 6;
+}
+
+message RssEntry {
+
+ optional int64 publisheddate = 1;
+ optional int64 indexeddate = 2;
+ optional int64 updateddate = 3;
+
+ optional string title = 4;
+ optional string author = 5;
+ optional string guid = 6;
+ optional string url = 7;
+ optional string description = 8;
+ optional string extractedcontent = 9;
+ optional string html = 10;
+
+ optional TPublic source = 12;
+
+}
+
+message Entry {
+  optional RssEntry rssentry = 4;
+
+  message Assign {
+     repeated string nottake = 1;
+     repeated string take = 2;
+  }
+
+  optional Assign assign = 13;
+}
+
+message SomeOtherMessage {
+  optional Entry.Assign result = 1;
+}
