@@ -9,6 +9,7 @@ require_once(dirname(__FILE__). '/' . 'type/pb_enum.php');
 require_once(dirname(__FILE__). '/' . 'type/pb_bytes.php');
 require_once(dirname(__FILE__). '/' . 'type/pb_string.php');
 require_once(dirname(__FILE__). '/' . 'type/pb_int.php');
+require_once(dirname(__FILE__). '/' . 'type/pb_double.php');
 require_once(dirname(__FILE__). '/' . 'type/pb_bool.php');
 require_once(dirname(__FILE__). '/' . 'type/pb_signed_int.php');
 require_once(dirname(__FILE__). '/' . 'reader/pb_input_reader.php');
