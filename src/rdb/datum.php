@@ -140,6 +140,10 @@ abstract class Datum extends ValuedQuery
     
     abstract public function getPBDatum();
     
+    public function toNative() {
+        return $this->getValue();
+    }
+    
     public function __toString() {
         return "" . $this->getValue();
     }
@@ -285,6 +289,14 @@ class ArrayDatum extends Datum
         parent::setValue($val);
     }
     
+    public function toNative() {
+        $native = array();
+        foreach ($this->getValue() as $val) {
+            $native[] = $val->toNative();
+        }
+        return $native;
+    }
+    
     public function __toString() {
         $string = 'array(';
         $first = true;
@@ -337,6 +349,14 @@ class ObjectDatum extends Datum
             if (!is_subclass_of($v, "\\r\\Query")) throw new RqlDriverError("Not a Query: " . $v);
         }
         parent::setValue($val);
+    }
+    
+    public function toNative() {
+        $native = array();
+        foreach ($this->getValue() as $key => $val) {
+            $native[$key] = $val->toNative();
+        }
+        return $native;
     }
     
     public function __toString() {
