@@ -143,6 +143,7 @@ commands:
         code: conn.use('heroes')
         
     ph:
+      name: useDb
       examples:
         0:
           code: $conn->useDb('heroes');
