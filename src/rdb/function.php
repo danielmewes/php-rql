@@ -11,16 +11,11 @@ class RVar extends FunctionQuery {
     public function __construct($name) {
         if (!is_string($name)) throw new RqlDriverError("Variable name must be a string.");
         $this->id = RVar::$nextVarId;
-        RVar::$nameMap[$this->id] = $name;
         ++RVar::$nextVarId;
     }
     
     public function getId() {
         return $this->id;
-    }
-    
-    public static function retrieveName($id) {
-        return RVar::$nameMap[$id];
     }
     
     public function getPBTerm() {
@@ -31,13 +26,8 @@ class RVar extends FunctionQuery {
         return $term;
     }
     
-    public function __toString() { 
-        return RVar::$nameMap[$this->id];
-    }
-    
     private $id;
     
-    private static $nameMap = array();
     private static $nextVarId = 1;
 }
 
