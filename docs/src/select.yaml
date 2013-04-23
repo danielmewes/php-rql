@@ -26,6 +26,7 @@ commands:
           code: r.db('heroes').table('marvel').run(conn, callback)
           
     ph:
+      body: dbName
       examples:
         0:
           code: r\db('heroes')->table('marvel')->run($conn);
@@ -40,6 +41,7 @@ commands:
       js: "name[, {useOutdated: false}]"
       py: name[, use_outdated=False]
       rb: name[, opts]
+      ph: name[, useOutdated]
     parent: db
     returns: table
 
@@ -122,6 +124,7 @@ commands:
           code: r.table('marvel').between(10, 20).run(conn, callback)
           
     ph:
+      body: lowerKey, upperKey
       examples:
         0:
           code: r\table('marvel')->between(10, 20)->run($conn);

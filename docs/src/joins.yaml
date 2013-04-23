@@ -127,6 +127,7 @@ commands:
 
     ph:
       name: eqJoin
+      body: leftAttr, other
 
     js:
       name: eqJoin

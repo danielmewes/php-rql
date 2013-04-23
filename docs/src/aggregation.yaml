@@ -14,6 +14,7 @@ commands:
       js: "reductionFunction[, base]"
       py: "reduction_function[, base]"
       rb: "[base,] reduction_function"
+      ph: reductionFunction[, base]
     parent: sequence
     returns: json
 
@@ -169,6 +170,7 @@ commands:
 
     ph:
       name: groupBy
+      body: attr | array(attr1, attr2, ...), reductionObject
 
     js:
       name: groupBy

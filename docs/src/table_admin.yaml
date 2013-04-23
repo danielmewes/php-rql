@@ -32,6 +32,7 @@ commands:
           
     ph:
       name: tableCreate
+      body: tableName[, array(option1 => value1, option2 => value2, ...)]
       examples:
         0:
           code: r\db('test')->tableCreate('dc_universe')->run($conn);
@@ -65,6 +66,7 @@ commands:
         
     ph:
       name: tableDrop
+      body: tableName
       examples:
         0:
           code: r\db('test')->tableDrop('dc_universe')->run($conn);

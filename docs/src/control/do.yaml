@@ -27,7 +27,7 @@ commands:
 
     ph:
       name: rDo
-      body: arg|array(arg1, arg,...), inExpr
+      body: arg|array(arg1, arg2, ...), inExpr
 
     js:
       examples:

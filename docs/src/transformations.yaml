@@ -35,6 +35,9 @@ commands:
 
     rb:
       dont_need_parenthesis: true
+      
+    ph:
+      body: mappingFunction
 
     js:
       body: mappingFunction
@@ -74,6 +77,7 @@ commands:
 
     ph:
       name: concatMap
+      body: mappingFunction
 
     js:
       name: concatMap
@@ -117,6 +121,7 @@ commands:
 
     ph:
       name: orderBy
+      body: key | array(key1, key2, ...)
 
     js:
       name: orderBy

@@ -44,6 +44,9 @@ commands:
               })->run($conn);
 
     rb: false
+    
+    ph:
+      dont_need_parenthesis: false
 
     js:
       examples:
@@ -86,6 +89,7 @@ commands:
           code: r.table('marvel').pluck('beauty', 'muscleTone', 'charm').run(conn, callback)
           
     ph:
+      body: attr | array(attr1, attr2, ...)
       examples:
         0:
           code: |
@@ -126,6 +130,7 @@ commands:
           code: r.table('enemies').without('weapons').run(conn, callback)
           
     ph:
+      body: attr | array(attr1, attr2, ...)
       examples:
         0:
           code: r\table('marvel')->get('IronMan')->without('personalVictoriesList')->run($conn);

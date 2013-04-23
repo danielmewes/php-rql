@@ -23,6 +23,7 @@ commands:
         
     ph:
       name: dbCreate
+      body: dbName
       examples:
         0:
           code: r\dbCreate('superheroes')->run($conn);
@@ -54,6 +55,7 @@ commands:
         
     ph:
       name: dbDrop
+      body: dbName
       examples:
         0:
           code: r\dbDrop('superheroes')->run($conn);

@@ -265,6 +265,31 @@ commands:
               }
             });
           ph: print_r($cur->toArray());
+          
+    ph:
+      body: null
 
     py: false
     rb: false
+    
+  - tag: toNative
+    section: module
+    description: |
+      Convert a result item to a native PHP representation. RethinkDB documents are represented
+      as objects of type r\Datum. Calling toNative() on such an object will generate an equivalent
+      native PHP object, usually an associative array.
+      The other direction (converting from a native PHP data type to a r\Datum) can be performed
+      by using r\expr().
+
+    body: null
+    parent: datum
+    returns: null
+
+    examples:
+      - description: Use PHP's print_r() function to print a specific document from the database.
+        code:
+          ph: print_r(r\table('marvel')->get('superman')->run($conn)->toNative());
+
+    py: false
+    rb: false
+    js: false
