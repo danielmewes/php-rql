@@ -1,7 +1,7 @@
 PHP-RQL
 =======
 
-A PHP client driver for the RethinkDB query language (RQL).
+A PHP client driver for the RethinkDB query language (ReQL).
 
 PHP-RQL is licensed under the terms of the Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0
 
