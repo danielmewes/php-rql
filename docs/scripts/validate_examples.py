@@ -9,7 +9,7 @@ import SocketServer
 import struct
 import pdb
 
-sys.path.insert(0, '../../../drivers/python/rethinkdb')
+sys.path.insert(0, '/usr/local/lib/python2.6/dist-packages/rethinkdb')
 import ql2_pb2 as p
 
 # tree of YAML documents defining documentation
@@ -52,6 +52,14 @@ require 'rethinkdb.rb'
 include RethinkDB::Shortcuts
 conn = r.connect('localhost', %d)
 puts 'Running Ruby validation.'
+""" % port)
+        elif lang == 'ph':
+            out.write("""
+<?php
+set_include_path("../src");
+require_once("rdb/rdb.php");
+$conn = r\\connect('localhost', %d);
+echo 'Running PHP validation.\n';
 """ % port)
 
         for command in commands:
@@ -97,6 +105,8 @@ puts 'Running Ruby validation.'
                 comment = '#'
                 if lang == 'js':
                     comment = '//'
+                if lang == 'ph':
+                    comment = '//'
 
                 if test_case != None:
                     test_case = re.sub("\n", " %s %s\n" % (comment, test_tag), test_case)
@@ -109,6 +119,9 @@ puts 'Running Ruby validation.'
             out.write("print 'Python validation complete.'");
         if lang == 'rb':
             out.write("puts 'Ruby validation complete.'");
+        if lang == 'ph':
+            out.write("echo 'PHP validation complete.\n';\n");
+            out.write("?>");
 
     if lang == 'py':
         interpreter = 'python'
@@ -116,6 +129,8 @@ puts 'Running Ruby validation.'
         interpreter = 'node'
     elif lang == 'rb':
         interpreter = 'ruby'
+    elif lang == 'ph':
+        interpreter = 'php5'
 
     ret = call([interpreter, test_file_name])
 
@@ -156,9 +171,10 @@ def validate():
     t.start()
 
     try:
-        validate_for('py', port)
-        validate_for('js', port)
-        validate_for('rb', port)
+        #validate_for('py', port)
+        #validate_for('js', port)
+        #validate_for('rb', port)
+        validate_for('ph', port)
     finally:
         server.shutdown()
 
