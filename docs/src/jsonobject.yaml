@@ -100,7 +100,7 @@ commands:
           code: |
             r\table('marvel')->pluck(
                 array('beauty', 'muscleTone', 'charm')
-              )->run($conn)
+              )->run($conn);
 
   - tag: without
     section: jsonobject
