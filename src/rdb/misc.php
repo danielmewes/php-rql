@@ -131,6 +131,9 @@ abstract class ValuedQuery extends Query
     public function gt($other) {
         return new Gt($this, $other);
     }
+    public function ge($other) {
+        return new Ge($this, $other);
+    }
     public function lt($other) {
         return new Lt($this, $other);
     }

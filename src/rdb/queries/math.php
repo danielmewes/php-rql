@@ -74,6 +74,11 @@ class Gt extends BinaryOp {
         parent::__construct(pb\Term_TermType::PB_GT, $value, $other);
     }
 }
+class Ge extends BinaryOp {
+    public function __construct(ValuedQuery $value, $other) {
+        parent::__construct(pb\Term_TermType::PB_GE, $value, $other);
+    }
+}
 class Lt extends BinaryOp {
     public function __construct(ValuedQuery $value, $other) {
         parent::__construct(pb\Term_TermType::PB_LT, $value, $other);
