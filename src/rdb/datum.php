@@ -11,7 +11,7 @@ function nativeToDatum($v) {
         $mustUseMakeTerm = false;
         foreach($v as $key => $val) {
             if (!is_numeric($key) && !is_string($key)) throw new RqlDriverError("Key must be a string.");
-            if (@is_subclass_of($val, "\\r\\Query") && !is_subclass_of($val, "\\r\\Datum")) {
+            if ((is_object($val) && is_subclass_of($val, "\\r\\Query")) && !(is_object($val) && is_subclass_of($val, "\\r\\Datum"))) {
                 $subDatum = $val;
                 $mustUseMakeTerm = true;
             } else {
@@ -284,7 +284,7 @@ class ArrayDatum extends Datum
     public function setValue($val) {
         if (!is_array($val)) throw new RqlDriverError("Not an array: " . $val);
         foreach($val as $v) {
-            if (!is_subclass_of($v, "\\r\\Query")) throw new RqlDriverError("Not a Query: " . $v);
+            if (!(is_object($v) && is_subclass_of($v, "\\r\\Query"))) throw new RqlDriverError("Not a Query: " . $v);
         }
         parent::setValue($val);
     }
@@ -346,7 +346,7 @@ class ObjectDatum extends Datum
         if (!is_array($val)) throw new RqlDriverError("Not an array: " . $val);
         foreach($val as $k => $v) {
             if (!is_string($k)) throw new RqlDriverError("Not a string: " . $k);
-            if (!is_subclass_of($v, "\\r\\Query")) throw new RqlDriverError("Not a Query: " . $v);
+            if (!(is_object($v) && is_subclass_of($v, "\\r\\Query"))) throw new RqlDriverError("Not a Query: " . $v);
         }
         parent::setValue($val);
     }

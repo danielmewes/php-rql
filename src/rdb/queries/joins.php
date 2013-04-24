@@ -3,7 +3,7 @@
 class InnerJoin extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, ValuedQuery $otherSequence, $predicate) {
-        if (!is_subclass_of($predicate, "\\r\\Query"))
+        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query")))
             $predicate = nativeToFunction($predicate);
         $this->sequence = $sequence;
         $this->otherSequence = $otherSequence;
@@ -27,7 +27,7 @@ class InnerJoin extends ValuedQuery
 class OuterJoin extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, ValuedQuery $otherSequence, $predicate) {
-        if (!is_subclass_of($predicate, "\\r\\Query"))
+        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query")))
             $predicate = nativeToFunction($predicate);
         $this->sequence = $sequence;
         $this->otherSequence = $otherSequence;

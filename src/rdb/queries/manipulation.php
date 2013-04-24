@@ -61,7 +61,7 @@ class Without extends ValuedQuery
 class Merge extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $other) {
-        if (!@is_subclass_of($other, "\\r\\Query"))
+        if (!(is_object($other) && is_subclass_of($other, "\\r\\Query")))
             $other = nativeToDatum($other);
         
         $this->sequence = $sequence;
@@ -83,7 +83,7 @@ class Merge extends ValuedQuery
 class Append extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!@is_subclass_of($value, "\\r\\Query"))
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
             $value = nativeToDatum($value);
         
         $this->sequence = $sequence;
@@ -105,7 +105,7 @@ class Append extends ValuedQuery
 class Getattr extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute) {
-        if (!@is_subclass_of($attribute, "\\r\\Query"))
+        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query")))
             $attribute = new StringDatum($attribute);
         
         $this->sequence = $sequence;

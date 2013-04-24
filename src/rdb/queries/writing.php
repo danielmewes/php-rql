@@ -4,7 +4,7 @@ class Insert extends ValuedQuery
 {
     public function __construct(Table $table, $document, $upsert = null) {
         if (isset($upsert) && !\is_bool($upsert)) throw new RqlDriverError("Upsert must be bool.");
-        if (!is_subclass_of($document, "\\r\\Query"))
+        if (!(is_object($document) && is_subclass_of($document, "\\r\\Query")))
             $document = nativeToDatum($document);
         $this->table = $table;
         $this->document = $document;
@@ -35,7 +35,7 @@ class Update extends ValuedQuery
 {
     public function __construct(ValuedQuery $selection, $delta, $nonAtomic = null) {
         if (isset($nonAtomic ) && !\is_bool($nonAtomic )) throw new RqlDriverError("nonAtomic must be bool.");
-        if (!is_subclass_of($delta, "\\r\\Query")) {
+        if (!(is_object($delta) && is_subclass_of($delta, "\\r\\Query"))) {
             try {
                 $delta = nativeToDatum($delta);
                 if (!is_subclass_of($delta, "\\r\\Datum")) {
@@ -45,7 +45,7 @@ class Update extends ValuedQuery
             } catch (RqlDriverError $e) {
                 $delta = nativeToFunction($delta);
             }
-        } else if (!is_subclass_of($delta, "\\r\\FunctionQuery") && !is_subclass_of($delta, "\\r\\Datum")) {
+        } else if (!(is_object($delta) && is_subclass_of($delta, "\\r\\FunctionQuery")) && !(is_object($delta) && is_subclass_of($delta, "\\r\\Datum"))) {
             $delta = new RFunction(array(new RVar('_')), $delta);
         }
         $this->selection = $selection;
@@ -93,7 +93,7 @@ class Replace extends ValuedQuery
 {
     public function __construct(ValuedQuery $selection, $delta, $nonAtomic = null) {
         if (isset($nonAtomic ) && !\is_bool($nonAtomic )) throw new RqlDriverError("nonAtomic must be bool.");
-        if (!is_subclass_of($delta, "\\r\\Query")) {
+        if (!(is_object($delta) && is_subclass_of($delta, "\\r\\Query"))) {
             // If we can make it an object, we will wrap that object into a function.
             // Otherwise, we will try to make it a function.
             try {

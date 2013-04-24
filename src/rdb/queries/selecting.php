@@ -4,10 +4,10 @@ class Get extends ValuedQuery
 {
     public function __construct(Table $table, $key, $index = null) {
         if (isset($index)) {
-            if (!@is_subclass_of($index, "\\r\\Query"))
+            if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
                 $index = new StringDatum($index);
         }
-        if (!@is_subclass_of($key, "\\r\\Query")) {
+        if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
             if (is_numeric($key))
                 $key = new NumberDatum($key);
             else
@@ -37,8 +37,8 @@ class Get extends ValuedQuery
 class Between extends ValuedQuery
 {
     public function __construct(ValuedQuery $selection, $leftBound, $rightBound) {
-        if (isset($leftBound) && !@is_subclass_of($leftBound, "\\r\\Query")) $leftBound = nativeToDatum($leftBound);
-        if (isset($rightBound) && !@is_subclass_of($rightBound, "\\r\\Query")) $rightBound = nativeToDatum($rightBound);
+        if (isset($leftBound) && !(is_object($leftBound) && is_subclass_of($leftBound, "\\r\\Query"))) $leftBound = nativeToDatum($leftBound);
+        if (isset($rightBound) && !(is_object($rightBound) && is_subclass_of($rightBound, "\\r\\Query"))) $rightBound = nativeToDatum($rightBound);
         $this->selection = $selection;
         $this->leftBound = $leftBound;
         $this->rightBound = $rightBound;
@@ -74,7 +74,7 @@ class Between extends ValuedQuery
 class Filter extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $predicate) {
-        if (!is_subclass_of($predicate, "\\r\\Query")) {
+        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query"))) {
             try {
                 $predicate = nativeToDatum($predicate);
                 if (!is_subclass_of($predicate, "\\r\\Datum")) {
@@ -84,7 +84,7 @@ class Filter extends ValuedQuery
             } catch (RqlDriverError $e) {
                 $predicate = nativeToFunction($predicate);
             }
-        } else if (!is_subclass_of($predicate, "\\r\\FunctionQuery")) {
+        } else if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\FunctionQuery"))) {
             $predicate = new RFunction(array(new RVar('_')), $predicate);
         }
         $this->sequence = $sequence;

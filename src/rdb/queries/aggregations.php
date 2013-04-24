@@ -3,9 +3,9 @@
 class Reduce extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $reductionFunction, $base) {
-        if (!is_subclass_of($reductionFunction, "\\r\\Query"))
+        if (!(is_object($reductionFunction) && is_subclass_of($reductionFunction, "\\r\\Query")))
             $reductionFunction = nativeToFunction($reductionFunction);
-        if (isset($base) && !is_subclass_of($base, "\\r\\Query"))
+        if (isset($base) && !(is_object($base) && is_subclass_of($base, "\\r\\Query")))
             $base = nativeToDatum($base);
         $this->sequence = $sequence;
         $this->reductionFunction = $reductionFunction;
@@ -66,13 +66,13 @@ class Distinct extends ValuedQuery
 class GroupedMapReduce extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $grouping, $mapping, $reduction, $base = null) {
-        if (!is_subclass_of($grouping, "\\r\\Query"))
+        if (!(is_object($grouping) && is_subclass_of($grouping, "\\r\\Query")))
             $grouping = nativeToFunction($grouping);
-        if (!is_subclass_of($mapping, "\\r\\Query"))
+        if (!(is_object($mapping) && is_subclass_of($mapping, "\\r\\Query")))
             $mapping = nativeToFunction($mapping);
-        if (!is_subclass_of($reduction, "\\r\\Query"))
+        if (!(is_object($reduction) && is_subclass_of($reduction, "\\r\\Query")))
             $reduction = nativeToFunction($reduction);
-        if (isset($base) && !is_subclass_of($base, "\\r\\Query")) {
+        if (isset($base) && !(is_object($base) && is_subclass_of($base, "\\r\\Query"))) {
             // Convert base automatically
             $base = nativeToDatum($base);
         }
@@ -113,7 +113,7 @@ class GroupBy extends ValuedQuery
             $keys = array($keys);
         // Check keys and convert strings
         foreach ($keys as &$val) {
-            if (!is_string($val) && !is_subclass_of($val, "\\r\\Query")) throw new RqlDriverError("Not a string or Query: " . $val);
+            if (!is_string($val) && !(is_object($val) && is_subclass_of($val, "\\r\\Query"))) throw new RqlDriverError("Not a string or Query: " . $val);
             if (is_string($val)) {
                 $val = new StringDatum($val);
             }

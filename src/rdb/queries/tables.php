@@ -24,7 +24,7 @@ class TableCreate extends ValuedQuery
             if (!is_array($options)) throw new RqlDriverError("Options must be an array.");
             foreach ($options as $key => &$val) {
                 if (!is_string($key)) throw new RqlDriverError("Option keys must be strings.");
-                if (!is_subclass_of($val, "\\r\\Query")) {
+                if (!(is_object($val) && is_subclass_of($val, "\\r\\Query"))) {
                     $val = nativeToDatum($val);
                 }
             }

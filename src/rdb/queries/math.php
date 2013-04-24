@@ -4,7 +4,7 @@
 class BinaryOp extends ValuedQuery
 {
     public function __construct($termType, ValuedQuery $value, $other) {
-        if (!@is_subclass_of($other, "\\r\\Query"))
+        if (!(is_object($other) && is_subclass_of($other, "\\r\\Query")))
             $other = nativeToDatum($other);
         $this->value = $value;
         $this->other = $other;

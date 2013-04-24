@@ -3,9 +3,9 @@
 class Map extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $mappingFunction) {
-        if (!is_subclass_of($mappingFunction, "\\r\\Query")) {
+        if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\Query"))) {
             $mappingFunction = nativeToFunction($mappingFunction);
-        } else if (!is_subclass_of($mappingFunction, "\\r\\FunctionQuery")) {
+        } else if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\FunctionQuery"))) {
             $mappingFunction = new RFunction(array(new RVar('_')), $mappingFunction);
         }
         $this->sequence = $sequence;
@@ -27,9 +27,9 @@ class Map extends ValuedQuery
 class ConcatMap extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $mappingFunction) {
-        if (!is_subclass_of($mappingFunction, "\\r\\Query")) {
+        if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\Query"))) {
             $mappingFunction = nativeToFunction($mappingFunction);
-        } else if (!is_subclass_of($mappingFunction, "\\r\\FunctionQuery")) {
+        } else if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\FunctionQuery"))) {
             $mappingFunction = new RFunction(array(new RVar('_')), $mappingFunction);
         }
         $this->sequence = $sequence;
@@ -55,7 +55,7 @@ class OrderBy extends ValuedQuery
             $keys = array($keys);
         // Check keys and convert strings
         foreach ($keys as &$val) {
-            if (!is_string($val) && !is_subclass_of($val, "\\r\\Ordering")) throw new RqlDriverError("Not a string or Ordering: " . $val);
+            if (!is_string($val) && !(is_object($val) && is_subclass_of($val, "\\r\\Ordering"))) throw new RqlDriverError("Not a string or Ordering: " . $val);
             if (is_string($val)) {
                 $val = new StringDatum($val);
             }
@@ -83,7 +83,7 @@ class OrderBy extends ValuedQuery
 class Skip extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $n) {
-        if (!is_subclass_of($n, "\\r\\Query"))
+        if (!(is_object($n) && is_subclass_of($n, "\\r\\Query")))
             $n = new NumberDatum($n);
         $this->sequence = $sequence;
         $this->n = $n;
@@ -104,7 +104,7 @@ class Skip extends ValuedQuery
 class Limit extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $n) {
-        if (!is_subclass_of($n, "\\r\\Query"))
+        if (!(is_object($n) && is_subclass_of($n, "\\r\\Query")))
             $n = new NumberDatum($n);
         $this->sequence = $sequence;
         $this->n = $n;
@@ -125,9 +125,9 @@ class Limit extends ValuedQuery
 class Slice extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $startIndex, $endIndex = null) {
-        if (!is_subclass_of($startIndex, "\\r\\Query"))
+        if (!(is_object($startIndex) && is_subclass_of($startIndex, "\\r\\Query")))
             $startIndex = new NumberDatum($startIndex);
-        if (isset($endIndex) && !is_subclass_of($endIndex, "\\r\\Query"))
+        if (isset($endIndex) && !(is_object($endIndex) && is_subclass_of($endIndex, "\\r\\Query")))
             $endIndex = new NumberDatum($endIndex);
         $this->sequence = $sequence;
         $this->startIndex = $startIndex;
@@ -156,7 +156,7 @@ class Slice extends ValuedQuery
 class Nth extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $index) {
-        if (!is_subclass_of($index, "\\r\\Query"))
+        if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
             $index = new NumberDatum($index);
         $this->sequence = $sequence;
         $this->index = $index;

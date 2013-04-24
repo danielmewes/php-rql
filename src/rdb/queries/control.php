@@ -3,11 +3,11 @@
 class RDo extends ValuedQuery
 {
     public function __construct($args, $inExpr) {
-        if (!is_subclass_of($inExpr, "\\r\\Query"))
+        if (!(is_object($inExpr) && is_subclass_of($inExpr, "\\r\\Query")))
             $inExpr = nativeToFunction($inExpr);
         if (!is_array($args)) $args = array($args);
         foreach ($args as &$arg) {
-            if (!is_subclass_of($arg, "\\r\\Query")) {
+            if (!(is_object($arg) && is_subclass_of($arg, "\\r\\Query"))) {
                 $arg = nativeToDatum($arg);
             }
         }
@@ -34,14 +34,14 @@ class RDo extends ValuedQuery
 class Branch extends ValuedQuery
 {
     public function __construct(Query $test, $trueBranch, $falseBranch) {
-        if (!is_subclass_of($trueBranch, "\\r\\Query")) {
+        if (!(is_object($trueBranch) && is_subclass_of($trueBranch, "\\r\\Query"))) {
             try {
                 $trueBranch = nativeToDatum($trueBranch);
             } catch (RqlDriverError $e) {
                 $trueBranch = nativeToFunction($trueBranch);
             }
         }
-        if (!is_subclass_of($falseBranch, "\\r\\Query")) {
+        if (!(is_object($falseBranch) && is_subclass_of($falseBranch, "\\r\\Query"))) {
             try {
                 $falseBranch = nativeToDatum($falseBranch);
             } catch (RqlDriverError $e) {
@@ -71,7 +71,7 @@ class Branch extends ValuedQuery
 class RForeach extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $queryFunction) {
-        if (!is_subclass_of($queryFunction, "\\r\\Query"))
+        if (!(is_object($queryFunction) && is_subclass_of($queryFunction, "\\r\\Query")))
             $queryFunction = nativeToFunction($queryFunction);
         $this->sequence = $sequence;
         $this->queryFunction = $queryFunction;
@@ -92,7 +92,7 @@ class RForeach extends ValuedQuery
 class Error extends ValuedQuery
 {
     public function __construct($message) {
-        if (!@is_subclass_of($message, "\\r\\Query"))
+        if (!(is_object($message) && is_subclass_of($message, "\\r\\Query")))
             $message = new StringDatum($message);
         $this->message = $message;
     }
@@ -110,7 +110,7 @@ class Error extends ValuedQuery
 class Js extends FunctionQuery
 {
     public function __construct($code) {
-        if (!@is_subclass_of($code, "\\r\\Query"))
+        if (!(is_object($code) && is_subclass_of($code, "\\r\\Query")))
             $code = new StringDatum($code);
         $this->code = $code;
     }
@@ -128,7 +128,7 @@ class Js extends FunctionQuery
 class CoerceTo extends ValuedQuery
 {
     public function __construct(ValuedQuery $value, $typeName) {
-        if (!@is_subclass_of($typeName, "\\r\\Query"))
+        if (!(is_object($typeName) && is_subclass_of($typeName, "\\r\\Query")))
             $typeName = new StringDatum($typeName);
         $this->value = $value;
         $this->typeName = $typeName;

@@ -65,7 +65,7 @@ function nativeToFunction($f) {
     }
     $result = $reflection->invokeArgs($args);
     
-    if (!is_subclass_of($result, "\\r\\Query")) throw new RqlDriverError("The following function did not evaluate to a query (missing return? missing r\expr(...)?): $reflection");
+    if (!(is_object($result) && is_subclass_of($result, "\\r\\Query"))) throw new RqlDriverError("The function did not evaluate to a query (missing return? missing r\expr(...)?).");
 
     return new RFunction($args, $result);
 }
