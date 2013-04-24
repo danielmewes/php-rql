@@ -32,6 +32,7 @@ class Connection
         
         fclose($this->socket);
         $this->socket = null;
+        $this->activeTokens = null;
     }
     
     public function reconnect() {
@@ -51,8 +52,15 @@ class Connection
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
         
         // Generate a token for the request
-        // TODO: Check that we have no collision (if so: generate a new number and repeat)
-        $token = rand();
+        $tries = 0;
+        $maxToken = 1 << 30;
+        do {
+            $token = rand(0, $maxToken);
+            $haveCollision = isset($this->activeTokens[$token]);
+        } while ($haveCollision && $tries++ < 1024);
+        if ($haveCollision) {
+            throw new RqlDriverError("Unable to generate a unique token for the query.");
+        }
         
         // Send the request
         $pbTerm = $query->getPBTerm();
@@ -64,6 +72,10 @@ class Connection
         
         // Await the response
         $response = $this->receiveResponse($token);
+        
+        if ($response->type() == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
+            $this->activeTokens[$token] = true;
+        }
         
         if ($response->type() == pb\Response_ResponseType::PB_SUCCESS_ATOM)
             return $this->createDatumFromResponse($response);
@@ -84,6 +96,10 @@ class Connection
         // Await the response
         $response = $this->receiveResponse($token);
         
+        if ($response->type() != pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
+            unset($this->activeTokens[$token]);
+        }
+        
         return $response;
     }
     
@@ -99,6 +115,8 @@ class Connection
         
         // Await the response (but don't check for errors. the stop response doesn't even have a type)
         $response = $this->receiveResponse($token, true);
+        
+        unset($this->activeTokens[$token]);
         
         return $response;
     }
@@ -190,6 +208,7 @@ class Connection
     private $host;
     private $port;
     private $defaultDb;
+    private $activeTokens;
 }
 
 ?>
