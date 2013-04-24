@@ -56,6 +56,7 @@ puts 'Running Ruby validation.'
         elif lang == 'ph':
             out.write("""
 <?php
+error_reporting(-1);
 set_include_path("../src");
 require_once("rdb/rdb.php");
 $conn = r\\connect('localhost', %d);
