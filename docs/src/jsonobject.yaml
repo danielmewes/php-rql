@@ -47,6 +47,7 @@ commands:
     
     ph:
       dont_need_parenthesis: false
+      body: "[attr]"
 
     js:
       examples:

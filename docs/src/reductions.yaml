@@ -26,6 +26,9 @@ commands:
         0:
           can_try: true
           dataset: marvel
+    
+    ph:
+      dont_need_parenthesis: false
 
   - tag: sum
     section: reductions
