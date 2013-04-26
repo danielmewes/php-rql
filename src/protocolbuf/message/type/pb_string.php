@@ -16,6 +16,9 @@ class PBString extends PBScalar
 		$this->value = '';
 		// first byte is length
 		$length = $this->reader->next();
+		
+		if ($length == 0)
+		    return;
 
 		// just extract the string
 		$pointer = $this->reader->get_pointer();
