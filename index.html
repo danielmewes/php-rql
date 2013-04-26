@@ -32,35 +32,26 @@
       <section>
         <h1>PHP-RQL</h1>
 
-<p>A PHP client driver for the RethinkDB query language (ReQL).</p>
+<p>PHP-RQL provides a driver to access <a href="http://rethinkdb.com">RethinkDB</a> databases from PHP code.
+It is licensed under the terms of the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
 
-<p>PHP-RQL is licensed under the terms of the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
+<p>API documentation for PHP-RQL is available at: <a href="http://dmewes.com/%7Edaniel/php-rql-api/#ph">http://dmewes.com/~daniel/php-rql-api/#ph</a></p>
 
 <h2>Updates</h2>
 
 <ul>
 <li>04/26/2013 Today I pushed two bug fixes. The first fixes a problem in the network layer, that might have resulted in stalled and/or failing queries. The second fixes a problem that was triggered when receiving responses that contain empty strings. Please update your PHP-RQL installation.</li>
-</ul><h2>Overview</h2>
+</ul><h2>Requirements</h2>
 
-<p>PHP-RQL provides a driver to access <a href="http://rethinkdb.com">RethinkDB</a> databases from PHP code.</p>
-
-<p>It currently implements the query language and wire protocol of RethinkDB 1.4.x</p>
-
-<p>The API of the driver is generally close to that of the official RethinkDB JavaScript driver.</p>
-
-<p>Preliminary documentation is available at: <a href="http://dmewes.com/%7Edaniel/php-rql-api/#ph">http://dmewes.com/~daniel/php-rql-api/#ph</a>
-(except for the PHP examples, the documentation is a copy of the official RethinkDB API docs)</p>
-
-<h2>Requirements</h2>
-
-<p>PHP 5.3</p>
-
-<h2>Installing</h2>
+<ul>
+<li>PHP 5.3</li>
+<li>RethinkDB 1.4</li>
+</ul><h2>Installing</h2>
 
 <ul>
 <li>Download the ZIP file of this repository or clone it using git.</li>
 <li>Unpack it.</li>
-<li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project, or your system's PHP path (e.g. /usr/lib/php).</li>
+<li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project, or your system's PHP path (e.g. /usr/share/php).</li>
 </ul><h2>Example</h2>
 
 <div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
