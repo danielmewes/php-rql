@@ -36,7 +36,11 @@
 
 <p>PHP-RQL is licensed under the terms of the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
 
-<h2>Overview</h2>
+<h2>Updates</h2>
+
+<ul>
+<li>04/26/2013 Today I pushed two bug fixes. The first fixes a problem in the network layer, that might have resulted in stalled and/or failing queries. The second fixes a problem that was triggered when receiving responses that contain empty strings. Please update your PHP-RQL installation.</li>
+</ul><h2>Overview</h2>
 
 <p>PHP-RQL provides a driver to access <a href="http://rethinkdb.com">RethinkDB</a> databases from PHP code.</p>
 
@@ -56,7 +60,7 @@
 <ul>
 <li>Download the ZIP file of this repository or clone it using git.</li>
 <li>Unpack it.</li>
-<li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project.</li>
+<li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project, or your system's PHP path (e.g. /usr/lib/php).</li>
 </ul><h2>Example</h2>
 
 <div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
