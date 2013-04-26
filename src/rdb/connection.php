@@ -172,15 +172,16 @@ class Connection
     private function sendProtobuf($protobuf) {
         $request = $protobuf->SerializeToString();
         $requestSize = pack("V", strlen($request));
-        fwrite($this->socket, $requestSize);
-        fwrite($this->socket, $request);
+        $this->sendStr($requestSize . $request);
     }
     
     private function receiveProtobuf() {
         $responseSize = stream_get_contents($this->socket, 4);
+        if ($responseSize === false) throw new RqlDriverError("Unable to read from socket.");
         $responseSize = unpack("V", $responseSize);
         $responseSize = $responseSize[1];
         $responseBuf = stream_get_contents($this->socket, $responseSize);
+        if ($responseBuf === false) throw new RqlDriverError("Unable to read from socket.");
         return $responseBuf;
     }
     
@@ -188,7 +189,7 @@ class Connection
         if ($this->isOpen()) throw new RqlDriverError("Already connected");
     
         $this->socket = stream_socket_client("tcp://" . $this->host . ":" . $this->port, $errno, $errstr);
-        if ($errno != 0) {
+        if ($errno != 0 || $this->socket === false) {
             $this->socket = null;
             throw new RqlDriverError("Unable to connect: " . $errstr);
         }
@@ -200,7 +201,16 @@ class Connection
         if (!$this->isOpen()) throw new RqlDriverError("Not connected");
     
         $binaryVersion = pack("V", pb\VersionDummy_Version::PB_V0_1); // "V" is little endian, 32 bit unsigned integer
-        fwrite($this->socket, $binaryVersion);
+        $this->sendStr($binaryVersion);
+    }
+    
+    private function sendStr($s) {
+        $bytesWritten = 0;
+        while ($bytesWritten < strlen($s)) {
+            $result = fwrite($this->socket, substr($s, $bytesWritten));
+            if ($result === false) throw new RqlDriverError("Unable to write to socket");
+            $bytesWritten += $result;
+        }
     }
     
     
