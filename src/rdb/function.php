@@ -7,7 +7,7 @@ require_once("util.php");
 abstract class FunctionQuery extends ValuedQuery {
 }
 
-class RVar extends FunctionQuery {
+class RVar extends ValuedQuery {
     public function __construct($name) {
         if (!is_string($name)) throw new RqlDriverError("Variable name must be a string.");
         $this->id = RVar::$nextVarId;
@@ -31,7 +31,7 @@ class RVar extends FunctionQuery {
     private static $nextVarId = 1;
 }
 
-class RFunction extends ValuedQuery {
+class RFunction extends FunctionQuery {
     public function __construct($args, Query $top) {
         if (!is_array($args)) throw new RqlDriverError("Arguments must be an array.");
         foreach ($args as &$arg) {
