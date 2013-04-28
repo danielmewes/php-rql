@@ -71,7 +71,7 @@ commands:
               hero[:defeated_monsters]
             }.run(conn)
           ph: |
-            r\table('marvel')->map(function($hero) {
+            r\table('marvel')->concatMap(function($hero) {
                 return $hero('defeatedMonsters');
               })->run($conn);
 
