@@ -13,6 +13,7 @@ require_once("queries/manipulation.php");
 require_once("queries/math.php");
 require_once("queries/selecting.php");
 require_once("queries/tables.php");
+require_once("queries/index.php");
 require_once("queries/transformations.php");
 require_once("queries/writing.php");
 
