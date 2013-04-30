@@ -133,9 +133,9 @@ message Term {
         // Returns a reference to a table.
         TABLE = 15; // Database, STRING, {use_outdated:BOOL} -> Table | STRING, {use_outdated:BOOL} -> Table
         // Gets a single element from a table by its primary or a secondary key.
-        GET   = 16; // Table, STRING -> SingleSelection | Table, NUMBER -> SingleSelection |
-                    // Table, STRING -> NULL            | Table, NUMBER -> NULL |
-                    // Table, STRING, STRING -> StreamSelection | Table, NUMBER, STRING -> StreamSelection |
+        GET     = 16; // Table, STRING -> SingleSelection | Table, NUMBER -> SingleSelection |
+                    // Table, STRING -> NULL | Table, NUMBER -> NULL |
+        GET_ALL = 78; // Table, JSON {index:!STRING} => ARRAY
 
         // Simple DATUM Ops
         EQ  = 17; // DATUM... -> BOOL
@@ -177,7 +177,7 @@ message Term {
 
         // Sequence Ops
         // Get all elements of a sequence between two values.
-        BETWEEN   = 36; // StreamSelection, {left_bound:DATUM, right_bound:DATUM} -> StreamSelection
+        BETWEEN   = 36; // StreamSelection, DATUM, DATUM, {:index:!STRING} -> StreamSelection
         REDUCE    = 37; // Sequence, Function(2), {base:DATUM} -> DATUM
         MAP       = 38; // Sequence, Function(1) -> Sequence
         FILTER    = 39; // Sequence, Function(1) -> Sequence | Sequence, OBJECT -> Sequence
@@ -203,9 +203,8 @@ message Term {
         INNER_JOIN         = 48; // Sequence, Sequence, Function(2) -> Sequence
         OUTER_JOIN         = 49; // Sequence, Sequence, Function(2) -> Sequence
         // An inner-join that does an equality comparison on two attributes.
-        EQ_JOIN            = 50; // Sequence, !STRING, Sequence -> Sequence
+        EQ_JOIN            = 50; // Sequence, !STRING, Sequence, {index:!STRING} -> Sequence
         ZIP                = 72; // Sequence -> Sequence
-
 
         // * Type Ops
         // Coerces a datum to a named type (e.g. "bool").
@@ -248,11 +247,11 @@ message Term {
 
         // * Secondary indexes OPs
         // Creates a new secondary index with a particular name and definition.
-        SINDEX_CREATE = 75; // Table, STRING, Function(1) -> OBJECT
-        // Drops a table with a particular name.
-        SINDEX_DROP   = 76; // Table, STRING -> OBJECT
+        INDEX_CREATE = 75; // Table, STRING, Function(1) -> OBJECT
+        // Drops a secondary index with a particular name from the specified table.
+        INDEX_DROP = 76; // Table, STRING -> OBJECT
         // Lists all secondary indexes on a particular table.
-        SINDEX_LIST   = 77; // Table -> ARRAY
+        INDEX_LIST = 77; // Table -> ARRAY
 
         // * Control Operators
         // Calls a function on data
