@@ -109,20 +109,30 @@ class Error extends ValuedQuery
 
 class Js extends FunctionQuery
 {
-    public function __construct($code) {
+    public function __construct($code, $timeout = null) {
+        if (isset($timeout))
+            $timeout = new NumberDatum($timeout);
         if (!(is_object($code) && is_subclass_of($code, "\\r\\Query")))
             $code = new StringDatum($code);
         $this->code = $code;
+        $this->timeout = $timeout;
     }
 
     public function getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_JAVASCRIPT);
         $term->set_args(0, $this->code->getPBTerm());
+        if (isset($this->timeout)) {
+            $pair = new pb\Term_AssocPair();
+            $pair->set_key("timeout");
+            $pair->set_val($this->timeout->getPBTerm());
+            $term->set_optargs(0, $pair);
+        };
         return $term;
     }
     
     private $code;
+    private $timeout;
 }
 
 class CoerceTo extends ValuedQuery

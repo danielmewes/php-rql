@@ -50,11 +50,14 @@ class OuterJoin extends ValuedQuery
 
 class EqJoin extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $attribute, ValuedQuery $otherSequence) {
+    public function __construct(ValuedQuery $sequence, $attribute, ValuedQuery $otherSequence, $index = null) {
+        if (isset($index))
+            $index = new StringDatum($index);
         $attribute = new StringDatum($attribute);
         $this->sequence = $sequence;
         $this->attribute = $attribute;
         $this->otherSequence = $otherSequence;
+        $this->index = $index;
     }
 
     public function getPBTerm() {
@@ -63,12 +66,19 @@ class EqJoin extends ValuedQuery
         $term->set_args(0, $this->sequence->getPBTerm());
         $term->set_args(1, $this->attribute->getPBTerm());
         $term->set_args(2, $this->otherSequence->getPBTerm());
+        if (isset($this->index)) {
+            $pair = new pb\Term_AssocPair();
+            $pair->set_key("index");
+            $pair->set_val($this->index->getPBTerm());
+            $term->set_optargs(0, $pair);
+        }
         return $term;
     }
     
     private $sequence;
     private $attribute;
     private $otherSequence;
+    private $index;
 }
 
 class Zip extends ValuedQuery

@@ -73,9 +73,9 @@ function row($attribute = null)
     }
 }
 
-function js($code)
+function js($code, $timeout = null)
 {
-    return new Js($code);
+    return new Js($code, $timeout);
 }
 
 function error($message)
