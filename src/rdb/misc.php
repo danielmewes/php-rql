@@ -98,6 +98,9 @@ abstract class ValuedQuery extends Query
     public function __invoke($attribute) {
         return new Getattr($this, $attribute);
     }
+    public function attr($attribute) {
+        return new Getattr($this, $attribute);
+    }
     public function contains($attributes) {
         return new Contains($this, $attributes);
     }
