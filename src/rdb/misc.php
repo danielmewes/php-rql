@@ -24,8 +24,8 @@ abstract class ValuedQuery extends Query
     public function replace($delta, $nonAtomic = null) {
         return new Replace($this, $delta, $nonAtomic);
     }
-    public function between($leftBound, $rightBound) {
-        return new Between($this, $leftBound, $rightBound);
+    public function between($leftBound, $rightBound, $index = null) {
+        return new Between($this, $leftBound, $rightBound, $index);
     }
     public function filter($predicate) {
         return new Filter($this, $predicate);
@@ -36,8 +36,8 @@ abstract class ValuedQuery extends Query
     public function outerJoin(ValuedQuery $otherSequence, $predicate) {
         return new OuterJoin($this, $otherSequence, $predicate);
     }
-    public function eqJoin($attribute, ValuedQuery $otherSequence) {
-        return new EqJoin($this, $attribute, $otherSequence);
+    public function eqJoin($attribute, ValuedQuery $otherSequence, $index = null) {
+        return new EqJoin($this, $attribute, $otherSequence, $index);
     }
     public function zip() {
         return new Zip($this);

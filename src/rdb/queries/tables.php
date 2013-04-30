@@ -85,8 +85,11 @@ class Table extends ValuedQuery
     public function insert($document, $upsert = null) {
         return new Insert($this, $document, $upsert);
     }
-    public function get($key, $index = null) {
-        return new Get($this, $key, $index);
+    public function get($key) {
+        return new Get($this, $key);
+    }
+    public function getAll($key, $index = null) {
+        return new GetAll($this, $key, $index);
     }
     
 
