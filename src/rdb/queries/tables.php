@@ -91,6 +91,15 @@ class Table extends ValuedQuery
     public function getAll($key, $index = null) {
         return new GetAll($this, $key, $index);
     }
+    public function indexCreate($indexName, $keyFunction) {
+        return new IndexCreate($this, $indexName, $keyFunction);
+    }
+    public function indexDrop($indexName) {
+        return new IndexDrop($this, $indexName);
+    }
+    public function indexList() {
+        return new IndexList($this);
+    }
     
 
     public function __construct($database, $tableName, $useOutdated = null) {
