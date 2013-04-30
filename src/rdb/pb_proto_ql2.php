@@ -224,6 +224,7 @@ class Term_TermType extends \PBEnum
   const PB_DB  = 14;
   const PB_TABLE  = 15;
   const PB_GET  = 16;
+  const PB_GET_ALL  = 78;
   const PB_EQ  = 17;
   const PB_NE  = 18;
   const PB_LT  = 19;
@@ -273,9 +274,9 @@ class Term_TermType extends \PBEnum
   const PB_TABLE_CREATE  = 60;
   const PB_TABLE_DROP  = 61;
   const PB_TABLE_LIST  = 62;
-  const PB_SINDEX_CREATE  = 75;
-  const PB_SINDEX_DROP  = 76;
-  const PB_SINDEX_LIST  = 77;
+  const PB_INDEX_CREATE  = 75;
+  const PB_INDEX_DROP  = 76;
+  const PB_INDEX_LIST  = 77;
   const PB_FUNCALL  = 64;
   const PB_BRANCH  = 65;
   const PB_ANY  = 66;
