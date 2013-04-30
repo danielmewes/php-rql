@@ -40,7 +40,7 @@ class GetAll extends ValuedQuery
 
     public function getPBTerm() {
         $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_GET);
+        $term->set_type(pb\Term_TermType::PB_GET_ALL);
         $term->set_args(0, $this->table->getPBTerm());
         $term->set_args(1, $this->key->getPBTerm());
         if (isset($this->index)) {
