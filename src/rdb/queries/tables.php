@@ -2,14 +2,16 @@
 
 class TableList extends ValuedQuery
 {
-    public function __construct(Db $database) {
+    public function __construct($database) {
+        if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         $this->database = $database;
     }
 
     public function getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TABLE_LIST);
-        $term->set_args(0, $this->database->getPBTerm());
+        if (isset($this->database))
+            $term->set_args(0, $this->database->getPBTerm());
         return $term;
     }
     
@@ -18,7 +20,8 @@ class TableList extends ValuedQuery
 
 class TableCreate extends ValuedQuery
 {
-    public function __construct(Db $database, $tableName, $options = null) {
+    public function __construct($database, $tableName, $options = null) {
+        if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         if (!\is_string($tableName)) throw new RqlDriverError("Table name must be a string.");
         if (isset($options)) {
             if (!is_array($options)) throw new RqlDriverError("Options must be an array.");
@@ -38,9 +41,12 @@ class TableCreate extends ValuedQuery
     public function getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TABLE_CREATE);
-        $term->set_args(0, $this->database->getPBTerm());
+        $i = 0;
+        if (isset($this->database)) {
+            $term->set_args($i++, $this->database->getPBTerm());
+        }
         $subDatum = new StringDatum($this->tableName);
-        $term->set_args(1, $subDatum->getPBTerm());
+        $term->set_args($i++, $subDatum->getPBTerm());
         if (isset($this->options)) {
             $i = 0;
             foreach ($this->options as $key => $val) {
@@ -61,7 +67,8 @@ class TableCreate extends ValuedQuery
 
 class TableDrop extends ValuedQuery
 {
-    public function __construct(Db $database, $tableName) {
+    public function __construct($database, $tableName) {
+        if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         if (!\is_string($tableName)) throw new RqlDriverError("Table name must be a string.");
         $this->database = $database;
         $this->tableName = $tableName;
@@ -70,9 +77,12 @@ class TableDrop extends ValuedQuery
     public function getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TABLE_DROP);
-        $term->set_args(0, $this->database->getPBTerm());
+        $i = 0;
+        if (isset($this->database)) {
+            $term->set_args($i++, $this->database->getPBTerm());
+        }
         $subDatum = new StringDatum($this->tableName);
-        $term->set_args(1, $subDatum->getPBTerm());
+        $term->set_args($i++, $subDatum->getPBTerm());
         return $term;
     }
     
