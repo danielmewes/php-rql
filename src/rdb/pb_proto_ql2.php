@@ -285,6 +285,7 @@ class Term_TermType extends \PBEnum
   const PB_FUNC  = 69;
   const PB_ASC  = 73;
   const PB_DESC  = 74;
+  const PB_INFO  = 79;
 }
 class Term_AssocPair extends \PBMessage
 {

@@ -9,6 +9,10 @@ abstract class Query
     public function run(Connection $connection) {
         return $connection->run($this);
     }
+    
+    public function info() {
+        return new Info($this);
+    }
 }
 
 // This is just any query except for Table and Db at the moment.
@@ -203,6 +207,21 @@ class ImplicitVar extends ValuedQuery
         $term->set_type(pb\Term_TermType::PB_IMPLICIT_VAR);
         return $term;
     }
+}
+
+class Info extends ValuedQuery {
+    public function __construct(Query $onQuery) {
+        $this->onQuery = $onQuery;
+    }
+    
+    public function getPBTerm() {
+        $term = new pb\Term();
+        $term->set_type(pb\Term_TermType::PB_INFO);
+        $term->set_args(0, $this->onQuery->getPBTerm());
+        return $term;
+    }
+    
+    private $onQuery;
 }
 
 class Cursor implements \Iterator
