@@ -35,6 +35,16 @@ function table($tableName, $useOutdated = null)
     return new Table(null, $tableName, $useOutdated);
 }
 
+function tableCreate($tableName, $options = null) {
+    return new TableCreate(null, $tableName, $options);
+}
+function tableDrop($tableName) {
+    return new TableDrop(null, $tableName);
+}
+function tableList() {
+    return new TableList(null);
+}
+
 function count()
 {
     $object = array('COUNT' => new BoolDatum(true));
