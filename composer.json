@@ -1,0 +1,23 @@
+{
+    "name": "danielmewes/php-rql",
+    "type": "library",
+    "description": "A PHP client driver for the RethinkDB query language (ReQL)",
+    "keywords": ["rethinkdb","driver","database","reql"],
+    "homepage": "http://danielmewes.github.io/php-rql/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Daniel Mewes",
+            "email": "danielmewes@onlinehome.de",
+            "homepage": "http://dmewes.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "files": ["src/rdb/rdb.php"]
+    },
+    "include-path": ["src/"]
+}
