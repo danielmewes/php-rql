@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Including of all files needed to parse messages
  * @author Nikolai Kordulla
