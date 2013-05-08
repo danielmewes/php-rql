@@ -327,10 +327,6 @@ class Query extends \PBMessage
     $this->values["2"] = "";
     $this->fields["3"] = "\PBInt";
     $this->values["3"] = "";
-    $this->fields["4"] = "\PBBool";
-    $this->values["4"] = "";
-    $this->values["4"] = new \PBBool();
-    $this->values["4"]->value = false;
     $this->fields["6"] = "\\r\\pb\\Query_AssocPair";
     $this->values["6"] = array();
   }
@@ -357,14 +353,6 @@ class Query extends \PBMessage
   function set_token($value)
   {
     return $this->_set_value("3", $value);
-  }
-  function noreply()
-  {
-    return $this->_get_value("4");
-  }
-  function set_noreply($value)
-  {
-    return $this->_set_value("4", $value);
   }
   function global_optargs($offset)
   {

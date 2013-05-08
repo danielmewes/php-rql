@@ -48,7 +48,8 @@ class Connection
         $this->defaultDb = new Db($dbName);
     }
     
-    public function run(Query $query) {
+    public function run(Query $query, $options) {
+        if (isset($options) && !is_array($options)) throw new RqlDriverError("Options must be an array.");
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
         
         // Generate a token for the request
@@ -68,19 +69,33 @@ class Connection
         $pbQuery->set_token($token);
         $pbQuery->set_type(pb\Query_QueryType::PB_START);
         $pbQuery->set_query($pbTerm);
+        if (isset($options)) {
+            $i = 0;
+            foreach ($options as $key => $value) {
+                $pair = new pb\Query_AssocPair();
+                $pair->set_key($key);
+                $pair->set_val(nativeToDatum($value)->getPBTerm());
+                $pbQuery->set_global_optargs($i++, $pair);
+            }
+        }
         $this->sendProtobuf($pbQuery);
         
-        // Await the response
-        $response = $this->receiveResponse($token);
-        
-        if ($response->type() == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
-            $this->activeTokens[$token] = true;
+        if (isset($options) && isset($options['noreply']) && $options['noreply']) {
+            return null;
         }
-        
-        if ($response->type() == pb\Response_ResponseType::PB_SUCCESS_ATOM)
-            return $this->createDatumFromResponse($response);
-        else
-            return $this->createCursorFromResponse($response);
+        else {
+            // Await the response
+            $response = $this->receiveResponse($token);
+            
+            if ($response->type() == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
+                $this->activeTokens[$token] = true;
+            }
+            
+            if ($response->type() == pb\Response_ResponseType::PB_SUCCESS_ATOM)
+                return $this->createDatumFromResponse($response);
+            else
+                return $this->createCursorFromResponse($response);
+        }
     }
     
     public function continueQuery($token) {

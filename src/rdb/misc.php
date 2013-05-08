@@ -6,8 +6,8 @@ abstract class Query
 {
     abstract public function getPBTerm();
     
-    public function run(Connection $connection) {
-        return $connection->run($this);
+    public function run(Connection $connection, $options = null) {
+        return $connection->run($this, $options);
     }
     
     public function info() {
