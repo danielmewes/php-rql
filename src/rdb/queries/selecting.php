@@ -62,8 +62,8 @@ class Between extends ValuedQuery
     public function __construct(ValuedQuery $selection, $leftBound, $rightBound, $index = null) {
         if (isset($index))
             $index = new StringDatum($index);
-        if (isset($leftBound) && !(is_object($leftBound) && is_subclass_of($leftBound, "\\r\\Query"))) $leftBound = nativeToDatum($leftBound);
-        if (isset($rightBound) && !(is_object($rightBound) && is_subclass_of($rightBound, "\\r\\Query"))) $rightBound = nativeToDatum($rightBound);
+        if (!(is_object($leftBound) && is_subclass_of($leftBound, "\\r\\Query"))) $leftBound = nativeToDatum($leftBound);
+        if (!(is_object($rightBound) && is_subclass_of($rightBound, "\\r\\Query"))) $rightBound = nativeToDatum($rightBound);
         $this->selection = $selection;
         $this->leftBound = $leftBound;
         $this->rightBound = $rightBound;
@@ -74,27 +74,13 @@ class Between extends ValuedQuery
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_BETWEEN);
         $term->set_args(0, $this->selection->getPBTerm());
-        $i = 0;
-        if (isset($this->leftBound)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("left_bound");
-            $pair->set_val($this->leftBound->getPBTerm());
-            $term->set_optargs($i, $pair);
-            ++$i;
-        }
-        if (isset($this->rightBound)) { 
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("right_bound");
-            $pair->set_val($this->rightBound->getPBTerm());
-            $term->set_optargs($i, $pair);
-            ++$i;
-        }
+        $term->set_args(1, $this->leftBound->getPBTerm());
+        $term->set_args(2, $this->rightBound->getPBTerm());
         if (isset($this->index)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("index");
             $pair->set_val($this->index->getPBTerm());
-            $term->set_optargs($i, $pair);
-            ++$i;
+            $term->set_optargs(0, $pair);
         };
         return $term;
     }
