@@ -80,7 +80,7 @@ class Connection
         }
         $this->sendProtobuf($pbQuery);
         
-        if (isset($options) && isset($options['noreply']) && $options['noreply']) {
+        if (isset($options) && isset($options['noreply']) && $options['noreply'] === true) {
             return null;
         }
         else {
