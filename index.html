@@ -51,9 +51,17 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 </ul><h2>Installing</h2>
 
 <ul>
+<li>Use <a href="http://getcomposer.org">Composer</a>:
+<code>require: "danielmewes/php-rql": "dev-master"</code>
+</li>
+<li>Install manually:
+
+<ol>
 <li>Download the ZIP file of this repository or clone it using git.</li>
 <li>Unpack it.</li>
 <li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project, or your system's PHP path (e.g. /usr/share/php).</li>
+</ol>
+</li>
 </ul><h2>Example</h2>
 
 <div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
@@ -68,17 +76,17 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 
     <span class="c1">// Insert a document</span>
     <span class="nv">$document</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'someKey'</span> <span class="o">=&gt;</span> <span class="s1">'someValue'</span><span class="p">);</span>
-    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">insert</span><span class="p">(</span><span class="nv">$document</span><span class="p">)</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">insert</span><span class="p">(</span><span class="nv">$document</span><span class="p">)</span>
         <span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
     <span class="k">echo</span> <span class="s2">"Insert: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
 
     <span class="c1">// How many documents are in the table?</span>
-    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
     <span class="k">echo</span> <span class="s2">"Count: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
 
     <span class="c1">// List the someKey values of the documents in the table</span>
     <span class="c1">// (using a mapping-function)</span>
-    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\db</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">map</span><span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="nv">$x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">map</span><span class="p">(</span><span class="k">function</span><span class="p">(</span><span class="nv">$x</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">return</span> <span class="nv">$x</span><span class="p">(</span><span class="s1">'someKey'</span><span class="p">);</span>
         <span class="p">})</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
 
