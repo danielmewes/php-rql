@@ -36,13 +36,10 @@ class PBInt extends PBScalar
 
 		if ($rec > -1)
 		{
-			$string .= $base128->set_value($rec << 3 | self::$static_wired_type);
+			$string = $base128->set_value($rec << 3 | self::$static_wired_type);
 		}
 
-		$value = $base128->set_value($value);
-		$string .= $value;
-
-		return $string;
+		return $string . $base128->set_value($value);
 	}
 }
 ?>
