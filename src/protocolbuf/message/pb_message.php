@@ -76,8 +76,9 @@ abstract class PBMessage
     {
         $binstring = decbin($number);
         $types = array();
-        $low = substr($binstring, strlen($binstring) - 3, strlen($binstring));
-        $high = substr($binstring,0, strlen($binstring) - 3) . '0000';
+        $binstringLength = strlen($binstring);
+        $low = substr($binstring, $binstringLength - 3, $binstringLength);
+        $high = substr($binstring,0, $binstringLength - 3) . '0000';
         $types['wired'] = bindec($low);
         $types['field'] = bindec($binstring) >> 3;
         return $types;
@@ -101,7 +102,7 @@ abstract class PBMessage
 
         foreach ($this->fields as $index => $field)
         {
-            if (substr($this->fields[$index], 0, 8) == "\\INLINE_")
+            if (strncmp($this->fields[$index], "\\INLINE_", 8) === 0)
             {
                 $inline_type = "\\" . substr($this->fields[$index], 8);
                 $stringinner .= $inline_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
@@ -215,7 +216,7 @@ abstract class PBMessage
             }
 
             $type = $this->fields[$messtypes['field']];
-            if (substr($type, 0, 8) == "\\INLINE_")
+            if (strncmp($type, "\\INLINE_", 8) === 0)
             {
                 $inline_type = "\\" . substr($type, 8);
                 if ($messtypes['wired'] != $inline_type::$static_wired_type)
@@ -278,7 +279,7 @@ abstract class PBMessage
         }
         else
         {
-            if (substr($this->fields[$index], 0, 8) == "\\INLINE_")
+            if (strncmp($this->fields[$index], "\\INLINE_", 8) === 0)
             {
                 $this->values[$index] = $value;
             }
@@ -298,7 +299,7 @@ abstract class PBMessage
     {
         if ($this->values[$index] == null)
             return null;
-        if (substr($this->fields[$index], 0, 8) == "\\INLINE_")
+        if (strncmp($this->fields[$index], "\\INLINE_", 8) === 0)
             return $this->values[$index];
         return $this->values[$index]->value;
     }

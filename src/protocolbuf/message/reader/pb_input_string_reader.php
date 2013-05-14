@@ -27,7 +27,6 @@ class PBInputStringReader extends PBInputReader
 				return false;
 			}
 
-			$string = '';
 			$string = $this->string[$this->pointer];	        
 			$this->pointer++;
 
@@ -44,7 +43,7 @@ class PBInputStringReader extends PBInputReader
 			else
 			{
 				// now fill to length of eight with 0
-				$value = substr('00000000', 0, 8 - strlen($value) % 8) . $value;
+				$value = str_repeat('0', 8 - strlen($value) % 8) . $value;
 				return $this->base128->get_value($package . $value);
 			}
 		}		
