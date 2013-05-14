@@ -16,10 +16,10 @@ class PBParser
     var $namespaceStr = "\\";
     
     // different types
-    var $scalar_types = array('double' => 'PBDouble', 'float' => 'PBDouble', 'int32' => 'PBInt', 'int64' => 'PBInt',
+    var $scalar_types = array('double' => 'PBDouble', 'float' => 'PBDouble', 'int32' => 'INLINE_PBInt', 'int64' => 'INLINE_PBInt',
                               'uint32', 'uint64', 'sint32' => 'PBSignedInt', 'sint64' => 'PBSignedInt',
                               'fixed32', 'fixed64', 'sfixed32', 'sfixed64',
-                              'bool' => 'PBBool', 'string' => 'PBString', 'bytes' => 'PBString');
+                              'bool' => 'INLINE_PBBool', 'string' => 'INLINE_PBString', 'bytes' => 'INLINE_PBString', 'inline_pbenum' => 'INLINE_PBEnum');
 
     /**
      * parses the profile and generates a filename with the name
@@ -208,6 +208,16 @@ class PBParser
         {
             $classtype = "";
             $classtype = $field['value']['type'];
+            // Use INLINE enums if possible
+            if (isset($field['value']['namespace'])) {
+                foreach ($this->m_types as $m_type) {
+                    if ($m_type['name'] == $field['value']['namespace']) {
+                        if ($m_type['type'] == 'enum')
+                            $classtype = "inline_pbenum";
+                        break;
+                    }   
+                }
+            }
             $classtype = str_replace(".", "_", $classtype);
             $_classtype = $classtype;
             // create the right namespace
@@ -265,7 +275,7 @@ class PBParser
         //   be filled in.
         // first add a dummy entry to allow recursive type references
         if ($path != '') {
-            $this->m_types[] =  array('name' => $path , 'type' => 'message', 'value' => array());
+            $this->m_types[] = array('name' => $path , 'type' => 'message', 'value' => array());
         }
 
         //var_dump($m_name);
@@ -316,7 +326,7 @@ class PBParser
             }
         }
 
-        // now actually set the value field of the type to myarray 
+        // now actually set the value field of the type to myarray
         foreach ($this->m_types as &$message)
         {
             if ($message['name'] == $path)

@@ -57,11 +57,14 @@ abstract class PBMessage
     /**
      * Constructor - initialize base128 class
      */
-    public function __construct($reader=null)
+    public function __construct($reader=null, $base128=null)
     {
         $this->reader = $reader;
         $this->value = $this;
-        $this->base128 = new base128varint(PBMessage::MODUS);
+        if ($base128 === null)            
+            $this->base128 = new base128varint(PBMessage::MODUS);
+        else
+            $this->base128 = $base128;
     }
 
     /**
@@ -98,7 +101,12 @@ abstract class PBMessage
 
         foreach ($this->fields as $index => $field)
         {
-            if (is_array($this->values[$index]) && count($this->values[$index]) > 0)
+            if (substr($this->fields[$index], 0, 8) == "\\INLINE_")
+            {
+                $inline_type = "\\" . substr($this->fields[$index], 8);
+                $stringinner .= $inline_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
+            }
+            else if (is_array($this->values[$index]) && count($this->values[$index]) > 0)
             {
                 // make serialization for every array
                 foreach ($this->values[$index] as $array)
@@ -177,11 +185,11 @@ abstract class PBMessage
                 // throw new Exception('Field ' . $messtypes['field'] . ' not present ');
                 if ($messtypes['wired'] == PBMessage::WIRED_LENGTH_DELIMITED)
                 {
-                    $consume = new PBString($this->reader);
+                    $consume = new PBString($this->reader, $this->base128);
                 }
                 else if ($messtypes['wired'] == PBMessage::WIRED_VARINT)
                 {
-                    $consume = new PBInt($this->reader);
+                    $consume = new PBInt($this->reader, $this->base128);
                 }
                 else
                 {
@@ -200,7 +208,7 @@ abstract class PBMessage
             // now array or not
             if (is_array($this->values[$messtypes['field']]))
             {
-                $this->values[$messtypes['field']][] = new $this->fields[$messtypes['field']]($this->reader);
+                $this->values[$messtypes['field']][] = new $this->fields[$messtypes['field']]($this->reader, $this->base128);
                 $index = count($this->values[$messtypes['field']]) - 1;
                 if ($messtypes['wired'] != $this->values[$messtypes['field']][$index]->wired_type)
                 {
@@ -210,12 +218,25 @@ abstract class PBMessage
             }
             else
             {
-                $this->values[$messtypes['field']] = new $this->fields[$messtypes['field']]($this->reader);
-                if ($messtypes['wired'] != $this->values[$messtypes['field']]->wired_type)
+                $type = $this->fields[$messtypes['field']];
+                if (substr($type, 0, 8) == "\\INLINE_")
                 {
-                    throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $this->fields[$messtypes['field']]->wired_type);
+                    $inline_type = "\\" . substr($type, 8);
+                    if ($messtypes['wired'] != $inline_type::$static_wired_type)
+                    {
+                        throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $inline_type::$static_wired_type);
+                    }
+                    $this->values[$messtypes['field']] = $inline_type::StaticParseFromArray($this->reader);
                 }
-                $this->values[$messtypes['field']]->ParseFromArray();
+                else
+                {
+                    $this->values[$messtypes['field']] = new $type($this->reader, $this->base128);
+                    if ($messtypes['wired'] != $this->values[$messtypes['field']]->wired_type)
+                    {
+                        throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $this->fields[$messtypes['field']]->wired_type);
+                    }
+                    $this->values[$messtypes['field']]->ParseFromArray();
+                }
             }
         }
     }
@@ -226,7 +247,7 @@ abstract class PBMessage
      */
     protected function _add_arr_value($index)
     {
-        return $this->values[$index][] = new $this->fields[$index]();
+        return $this->values[$index][] = new $this->fields[$index](null, $this->base128);
     }
 
     /**
@@ -262,8 +283,15 @@ abstract class PBMessage
         }
         else
         {
-            $this->values[$index] = new $this->fields[$index]();
-            $this->values[$index]->value = $value;
+            if (substr($this->fields[$index], 0, 8) == "\\INLINE_")
+            {
+                $this->values[$index] = $value;
+            }
+            else
+            {
+                $this->values[$index] = new $this->fields[$index](null, $this->base128);
+                $this->values[$index]->value = $value;
+            }
         }
     }
 
@@ -275,6 +303,8 @@ abstract class PBMessage
     {
         if ($this->values[$index] == null)
             return null;
+        if (substr($this->fields[$index], 0, 8) == "\\INLINE_")
+            return $this->values[$index];
         return $this->values[$index]->value;
     }
 

@@ -26,7 +26,7 @@ class PBDouble extends PBScalar
         $string = '';
         if ($rec > -1)
         {
-            $string .= $this->base128->set_value($rec << 3 |
+            $string = $this->base128->set_value($rec << 3 |
 $this->wired_type);
         }
         

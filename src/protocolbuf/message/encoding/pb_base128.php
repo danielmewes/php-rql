@@ -24,33 +24,35 @@ class base128varint
      */
     public function set_value($number)
     {
-        $string = decbin($number);
-        if (strlen($string) < 8)
+        if ($number < 128)
         {
-            $hexstring = dechex(bindec($string));
-            if (strlen($hexstring) % 2 == 1)
-                $hexstring = '0' . $hexstring;
             if ($this->modus == 1)
             {
-                return $this->hex_to_str($hexstring);
+                return pack("C", $number);
             }
+            $hexstring = dechex($number);
+            if (strlen($hexstring) % 2 == 1)
+                $hexstring = '0' . $hexstring;
             return $hexstring;
         }
 
         // split it and insert the mb byte
+        $string = decbin($number);
+        $string_length = strlen($string);
         $string_array = array();
         $pre = '1';
-        while (strlen($string) > 0)
+        while ($string_length > 0)
         {
-            if (strlen($string) < 8)
+            if ($string_length < 8)
             {
-                $string = substr('00000000', 0, 7 - strlen($string) % 7) . $string;
+                $string = substr('00000000', 0, 7 - $string_length % 7) . substr($string, 0, $string_length);
+                $string_length = strlen($string);
                 $pre = '0';
             }
-            $string_array[] = $pre . substr($string, strlen($string) - 7, 7);
-            $string = substr($string, 0, strlen($string) - 7);
+            $string_array[] = $pre . substr($string, $string_length - 7, 7);
+            $string_length -= 7;
             $pre = '1';
-            if ($string == '0000000')
+            if ($string_length == 7 && substr($string, 0, $string_length) == '0000000')
                 break;
         }
 
@@ -108,7 +110,6 @@ class base128varint
         }
         return $str;
     }
-
 }
 
 ?>

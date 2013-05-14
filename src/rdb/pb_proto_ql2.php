@@ -17,13 +17,13 @@ class Datum extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\\r\\pb\\Datum_DatumType";
+    $this->fields["1"] = "\INLINE_PBEnum";
     $this->values["1"] = "";
-    $this->fields["2"] = "\PBBool";
+    $this->fields["2"] = "\INLINE_PBBool";
     $this->values["2"] = "";
     $this->fields["3"] = "\PBDouble";
     $this->values["3"] = "";
-    $this->fields["4"] = "\PBString";
+    $this->fields["4"] = "\INLINE_PBString";
     $this->values["4"] = "";
     $this->fields["5"] = "\\r\\pb\\Datum";
     $this->values["5"] = array();
@@ -118,7 +118,7 @@ class Datum_AssocPair extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\PBString";
+    $this->fields["1"] = "\INLINE_PBString";
     $this->values["1"] = "";
     $this->fields["2"] = "\\r\\pb\\Datum";
     $this->values["2"] = "";
@@ -146,7 +146,7 @@ class Term extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\\r\\pb\\Term_TermType";
+    $this->fields["1"] = "\INLINE_PBEnum";
     $this->values["1"] = "";
     $this->fields["2"] = "\\r\\pb\\Datum";
     $this->values["2"] = "";
@@ -293,7 +293,7 @@ class Term_AssocPair extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\PBString";
+    $this->fields["1"] = "\INLINE_PBString";
     $this->values["1"] = "";
     $this->fields["2"] = "\\r\\pb\\Term";
     $this->values["2"] = "";
@@ -321,11 +321,11 @@ class Query extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\\r\\pb\\Query_QueryType";
+    $this->fields["1"] = "\INLINE_PBEnum";
     $this->values["1"] = "";
     $this->fields["2"] = "\\r\\pb\\Term";
     $this->values["2"] = "";
-    $this->fields["3"] = "\PBInt";
+    $this->fields["3"] = "\INLINE_PBInt";
     $this->values["3"] = "";
     $this->fields["6"] = "\\r\\pb\\Query_AssocPair";
     $this->values["6"] = array();
@@ -387,7 +387,7 @@ class Query_AssocPair extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\PBString";
+    $this->fields["1"] = "\INLINE_PBString";
     $this->values["1"] = "";
     $this->fields["2"] = "\\r\\pb\\Term";
     $this->values["2"] = "";
@@ -415,11 +415,11 @@ class Frame extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\\r\\pb\\Frame_FrameType";
+    $this->fields["1"] = "\INLINE_PBEnum";
     $this->values["1"] = "";
-    $this->fields["2"] = "\PBInt";
+    $this->fields["2"] = "\INLINE_PBInt";
     $this->values["2"] = "";
-    $this->fields["3"] = "\PBString";
+    $this->fields["3"] = "\INLINE_PBString";
     $this->values["3"] = "";
   }
   function type()
@@ -488,9 +488,9 @@ class Response extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\\r\\pb\\Response_ResponseType";
+    $this->fields["1"] = "\INLINE_PBEnum";
     $this->values["1"] = "";
-    $this->fields["2"] = "\PBInt";
+    $this->fields["2"] = "\INLINE_PBInt";
     $this->values["2"] = "";
     $this->fields["3"] = "\\r\\pb\\Datum";
     $this->values["3"] = array();
