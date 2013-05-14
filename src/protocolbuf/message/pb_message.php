@@ -42,6 +42,7 @@ abstract class PBMessage
 
     // modus byte or string parse (byte for productive string for better reading and debuging)
     // 1 = byte, 2 = String
+    // TODO (daniel): It seems that modus 2 is currently broken. Maybe remove it altogether, or fix it.
     const MODUS = 1;
 
     // now use pointer for speed improvement
@@ -102,10 +103,10 @@ abstract class PBMessage
 
         foreach ($this->fields as $index => $field)
         {
-            if (strncmp($this->fields[$index], "\\INLINE_", 8) === 0)
+            if (strncmp($this->fields[$index], "\\I_", 3) === 0)
             {
-                $inline_type = "\\" . substr($this->fields[$index], 8);
-                $stringinner .= $inline_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
+                $I_type = "\\" . substr($this->fields[$index], 3);
+                $stringinner .= $I_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
             }
             else if (is_array($this->values[$index]) && count($this->values[$index]) > 0)
             {
@@ -216,14 +217,14 @@ abstract class PBMessage
             }
 
             $type = $this->fields[$messtypes['field']];
-            if (strncmp($type, "\\INLINE_", 8) === 0)
+            if (strncmp($type, "\\I_", 3) === 0)
             {
-                $inline_type = "\\" . substr($type, 8);
-                if ($messtypes['wired'] != $inline_type::$static_wired_type)
+                $I_type = "\\" . substr($type, 3);
+                if ($messtypes['wired'] != $I_type::$static_wired_type)
                 {
-                    throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $inline_type::$static_wired_type);
+                    throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $I_type::$static_wired_type);
                 }
-                $outputVar = $inline_type::StaticParseFromArray($this->reader);
+                $outputVar = $I_type::StaticParseFromArray($this->reader);
             }
             else
             {
@@ -279,7 +280,7 @@ abstract class PBMessage
         }
         else
         {
-            if (strncmp($this->fields[$index], "\\INLINE_", 8) === 0)
+            if (strncmp($this->fields[$index], "\\I_", 3) === 0)
             {
                 $this->values[$index] = $value;
             }
@@ -299,7 +300,7 @@ abstract class PBMessage
     {
         if ($this->values[$index] == null)
             return null;
-        if (strncmp($this->fields[$index], "\\INLINE_", 8) === 0)
+        if (strncmp($this->fields[$index], "\\I_", 3) === 0)
             return $this->values[$index];
         return $this->values[$index]->value;
     }

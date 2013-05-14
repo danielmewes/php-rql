@@ -16,10 +16,10 @@ class PBParser
     var $namespaceStr = "\\";
     
     // different types
-    var $scalar_types = array('double' => 'PBDouble', 'float' => 'PBDouble', 'int32' => 'INLINE_PBInt', 'int64' => 'INLINE_PBInt',
+    var $scalar_types = array('double' => 'PBDouble', 'float' => 'PBDouble', 'int32' => 'I_PBInt', 'int64' => 'I_PBInt',
                               'uint32', 'uint64', 'sint32' => 'PBSignedInt', 'sint64' => 'PBSignedInt',
                               'fixed32', 'fixed64', 'sfixed32', 'sfixed64',
-                              'bool' => 'INLINE_PBBool', 'string' => 'INLINE_PBString', 'bytes' => 'INLINE_PBString', 'inline_pbenum' => 'INLINE_PBEnum');
+                              'bool' => 'I_PBBool', 'string' => 'I_PBString', 'bytes' => 'I_PBString', 'i_pbenum' => 'I_PBEnum');
 
     /**
      * parses the profile and generates a filename with the name
@@ -213,7 +213,7 @@ class PBParser
                 foreach ($this->m_types as $m_type) {
                     if ($m_type['name'] == $field['value']['namespace']) {
                         if ($m_type['type'] == 'enum')
-                            $classtype = "inline_pbenum";
+                            $classtype = "i_pbenum";
                         break;
                     }   
                 }
