@@ -205,38 +205,33 @@ abstract class PBMessage
                 continue;
             }
 
-            // now array or not
+            $outputVar = &$this->values[$messtypes['field']];
+            // is it an array?
             if (is_array($this->values[$messtypes['field']]))
             {
-                $this->values[$messtypes['field']][] = new $this->fields[$messtypes['field']]($this->reader, $this->base128);
+                $this->values[$messtypes['field']][] = null;
                 $index = count($this->values[$messtypes['field']]) - 1;
-                if ($messtypes['wired'] != $this->values[$messtypes['field']][$index]->wired_type)
+                $outputVar = &$this->values[$messtypes['field']][$index];
+            }
+
+            $type = $this->fields[$messtypes['field']];
+            if (substr($type, 0, 8) == "\\INLINE_")
+            {
+                $inline_type = "\\" . substr($type, 8);
+                if ($messtypes['wired'] != $inline_type::$static_wired_type)
                 {
-                    throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $this->fields[$messtypes['field']]->wired_type);
+                    throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $inline_type::$static_wired_type);
                 }
-                $this->values[$messtypes['field']][$index]->ParseFromArray();
+                $outputVar = $inline_type::StaticParseFromArray($this->reader);
             }
             else
             {
-                $type = $this->fields[$messtypes['field']];
-                if (substr($type, 0, 8) == "\\INLINE_")
+                $outputVar = new $type($this->reader, $this->base128);
+                if ($messtypes['wired'] != $outputVar->wired_type)
                 {
-                    $inline_type = "\\" . substr($type, 8);
-                    if ($messtypes['wired'] != $inline_type::$static_wired_type)
-                    {
-                        throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $inline_type::$static_wired_type);
-                    }
-                    $this->values[$messtypes['field']] = $inline_type::StaticParseFromArray($this->reader);
+                    throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $this->fields[$messtypes['field']]->wired_type);
                 }
-                else
-                {
-                    $this->values[$messtypes['field']] = new $type($this->reader, $this->base128);
-                    if ($messtypes['wired'] != $this->values[$messtypes['field']]->wired_type)
-                    {
-                        throw new Exception('Expected type:' . $messtypes['wired'] . ' but had ' . $this->fields[$messtypes['field']]->wired_type);
-                    }
-                    $this->values[$messtypes['field']]->ParseFromArray();
-                }
+                $outputVar->ParseFromArray();
             }
         }
     }
