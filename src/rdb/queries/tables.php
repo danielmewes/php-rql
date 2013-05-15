@@ -101,7 +101,7 @@ class Table extends ValuedQuery
     public function getAll($key, $index = null) {
         return new GetAll($this, $key, $index);
     }
-    public function indexCreate($indexName, $keyFunction) {
+    public function indexCreate($indexName, $keyFunction = null) {
         return new IndexCreate($this, $indexName, $keyFunction);
     }
     public function indexDrop($indexName) {
