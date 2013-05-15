@@ -19,7 +19,7 @@ class IndexList extends ValuedQuery
 class IndexCreate extends ValuedQuery
 {
     public function __construct(Table $table, $indexName, $keyFunction = null) {
-        if (!isset($keyFunction)) $keyFunction = row('indexName');
+        if (!isset($keyFunction)) $keyFunction = row($indexName);
         if (!\is_string($indexName)) throw new RqlDriverError("Index name must be a string.");
         if (!(is_object($keyFunction) && is_subclass_of($keyFunction, "\\r\\Query"))) {
             $keyFunction = nativeToFunction($keyFunction);
