@@ -95,7 +95,11 @@ commands:
       key.
 
     name: eq_join
-    body: left_attr, other
+    body:
+      py: left_attr, other[, index='id']
+      rb: left_attr, other[, :index => 'id']
+      js: leftAttr, other[, {index:'id'}]
+      ph: leftAttr, other[, index]
     parent: sequence
     returns: sequence
 
@@ -125,13 +129,27 @@ commands:
                 return $left('main_dc_collaborator')->eq($right('hero_name'));
               })->run($conn);
 
+      - description: You can take advantage of a secondary index on the second table by giving
+          an optional index parameter.
+        code:
+          py: |
+            r.table('marvel').eq_join('main_weapon_origin',
+                r.table('mythical_weapons'), index='origin').run(conn)
+          rb: |
+            r.table('marvel').eq_join('main_weapon_origin',
+                r.table('mythical_weapons'), :index => 'origin').run(conn)
+          js: |
+            r.table('marvel').eqJoin('main_weapon_origin',
+                r.table('mythical_weapons'), {index:'origin'}).run(conn, callback)
+          ph: |
+            r\table('marvel')->eqJoin('main_weapon_origin',
+                r\table('mythical_weapons'), 'origin')->run($conn);
+                
     ph:
       name: eqJoin
-      body: leftAttr, other
 
     js:
       name: eqJoin
-      body: leftAttr, other
       examples:
         0:
           can_try: true
@@ -152,10 +170,12 @@ commands:
       - description: "'zips up' the sequence by merging the left and right fields
           produced by a join."
         code:
-          js: r.table('t1').eqJoin('t2', 'id').zip().run(conn, callback)
-          py: r.table('t1').eq_join('t2', 'id').zip().run(conn)
-          rb: r.table(:t1).eq_join(:t2, :id).zip.run(conn)
-          ph: r\table('t1')->eqJoin('id', r\table('t2'))->zip()->run($conn);
+          js: |- 
+            r.table('marvel').eqJoin('main_dc_collaborator', r.table('dc'))
+             .zip().run(conn, callback)
+          py: r.table('marvel').eq_join('main_dc_collaborator', r.table('dc')).zip().run(conn)
+          rb: r.table('marvel').eq_join(:main_dc_collaborator, r.table('dc')).zip.run(conn)
+          ph: r\table('marvel')->eqJoin('main_dc_collaborator', r\table('dc'))->zip()->run($conn);
 
     rb:
       dont_need_parenthesis: true

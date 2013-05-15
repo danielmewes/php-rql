@@ -32,10 +32,7 @@ commands:
             r\table('marvel')->map(function($hero) {
                 return $hero('combatPower')->add($hero('compassionPower')->mul(2));
               })->run($conn);
-
-    rb:
-      dont_need_parenthesis: true
-      
+              
     ph:
       body: mappingFunction
 
