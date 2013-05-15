@@ -23,10 +23,19 @@ abstract class TestCase
     
     protected function checkQueryResult($query, $expectedResult)
     {
-        $result = $query->run($this->conn)->toNative();
-        if ($expectedResult !== $result) // TODO: Test this
+        $result = $query->run($this->conn);
+        $nativeResult = $result->toNative();
+            
+        $equal = false;
+            
+        if (is_array($nativeResult) && is_array($expectedResult))
+            $equal = count(array_diff($nativeResult, $expectedResult)) == 0;
+        else
+            $equal = $expectedResult === $nativeResult;
+            
+        if (!$equal) // TODO: Test this
         {
-            echo "Query result does not match.\n";
+            echo "Query result does not match. Was: $result\n";
         }
     }
 }

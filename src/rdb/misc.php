@@ -260,6 +260,17 @@ class Cursor implements \Iterator
         }
         return $result;
     }
+    
+    public function toNative() {
+        $vals = $this->toArray();
+        foreach ($vals as &$val)
+            $val = $val->toNative();
+        return $vals;
+    }
+    
+    public function __toString() {
+        return "Cursor";
+    }
 
     public function __construct(Connection $connection, pb\Response $initialResponse) {
         $this->connection = $connection;

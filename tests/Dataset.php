@@ -8,14 +8,21 @@ abstract class Dataset
 
     protected $conn;
     
+    
+    private $mustDelete;
+    
     public function __construct(r\Connection $connection) {
         $this->conn = $connection;
         $this->create();
+        $this->mustDelete = true;
     }
     
     public function __destruct()
     {
-        $this->delete();
+        if ($this->mustDelete) {
+            $this->mustDelete = false;
+            $this->delete();
+        }
     }
     
     public function reset()

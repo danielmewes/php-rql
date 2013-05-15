@@ -42,8 +42,8 @@ foreach ($testCaseTypes as $testCaseType) {
 // Clean up
 foreach ($currentDatasets as &$dataset) {
     $dataset->__destruct();
+    unset ($dataset);
 }
-unset($currentDatasets);
 $conn->close();
 
 ?>
