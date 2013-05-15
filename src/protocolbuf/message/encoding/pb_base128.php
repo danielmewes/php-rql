@@ -76,7 +76,7 @@ class base128varint
      * Returns the dec value of an base128
      * @param string bstring
      */
-    public function get_value($string)
+    public function get_value(&$string)
     {
         // now just drop the msb and reorder it + parse it in own string
         $valuestring = '';
@@ -99,7 +99,7 @@ class base128varint
      * Converts hex 2 ascii
      * @param String $hex - the hex string
      */
-    public function hex_to_str($hex)
+    public function hex_to_str(&$hex)
     {
         $str = '';
         $length = strlen($hex);

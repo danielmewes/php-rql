@@ -147,7 +147,7 @@ abstract class PBMessage
      *
      * @param message as stream of hex example '1a 03 08 96 01'
      */
-    public function ParseFromString($message)
+    public function ParseFromString(&$message)
     {
         $this->reader = new PBInputStringReader($message);
         $this->_ParseFromArray();
@@ -298,7 +298,7 @@ abstract class PBMessage
      */
     protected function _get_value($index)
     {
-        if ($this->values[$index] == null)
+        if ($this->values[$index] === null)
             return null;
         if (strncmp($this->fields[$index], "\\I_", 3) === 0)
             return $this->values[$index];

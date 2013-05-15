@@ -6,10 +6,10 @@ class PBInputStringReader extends PBInputReader
 {
 	var $length = 0;
 
-	public function __construct($string)
+	public function __construct(&$string)
 	{
 		parent::__construct();
-		$this->string = $string;
+		$this->string = &$string;
 		$this->length = strlen($string);
 	}
 
@@ -43,8 +43,8 @@ class PBInputStringReader extends PBInputReader
 			else
 			{
 				// now fill to length of eight with 0
-				$value = str_repeat('0', 8 - strlen($value) % 8) . $value;
-				return $this->base128->get_value($package . $value);
+				$value = $package . str_repeat('0', 8 - strlen($value) % 8) . $value;
+				return $this->base128->get_value($value);
 			}
 		}		
 	}
