@@ -144,7 +144,7 @@ commands:
           ph: |
             r\table('marvel')->eqJoin('main_weapon_origin',
                 r\table('mythical_weapons'), 'origin')->run($conn);
-                
+
     ph:
       name: eqJoin
 

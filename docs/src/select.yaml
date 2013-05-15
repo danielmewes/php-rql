@@ -112,6 +112,7 @@ commands:
       py: key[, index='id']
       rb: key[, :index => 'id']
       js: key[, {index:'id'}]
+      ph: key[, index]
     parent: table
     returns: selection
 
@@ -123,6 +124,7 @@ commands:
             py: r.table('marvel').get_all('man_of_steel', index='code_name').run(conn)
             js: r.table('marvel').getAll('man_of_steel', {index:'code_name'}).run(conn, callback)
             rb: r.table('marvel').get_all('man_of_steel', :index => 'code_name').run(conn)
+            ph: r\table('marvel')->getAll('man_of_steel', 'code_name')->run($conn);
         - description: |
             Without an index argument, we default to the primary index. While
             `get` will either return the document or `null` when no document
@@ -132,8 +134,12 @@ commands:
             py: r.table('dc').get_all('superman').run(conn)
             js: r.table('dc').getAll('superman').run(conn, callback)
             rb: r.table('dc').get_all('superman').run(conn)
+            ph: r\table('dc')->getAll('superman')->run($conn);
 
     js:
+      name: getAll
+      
+    ph:
       name: getAll
 
   - tag: between
@@ -144,6 +150,7 @@ commands:
       py: lower_key, upper_key[, index='id']
       rb: lower_key, upper_key[, :index => 'id']
       js: lowerKey, upperKey[, {index:'id'}]
+      ph: lowerKey, upperKey[, index]
     parent: selection
     returns: selection
 
@@ -157,6 +164,7 @@ commands:
             py: r.table('dc').between('dark_knight', 'man_of_steel', index='code_name').run(conn)
             js: r.table('dc').between('dark_knight', 'man_of_steel', {index:'code_name'}).run(conn, callback)
             rb: r.table('dc').between('dark_knight', 'man_of_steel', :index => 'code_name').run(conn)
+            ph: r\table('marvel')->between('dark_knight', 'man_of_steel', 'code_name')->run($conn);
 
     js:
       examples:
@@ -166,7 +174,6 @@ commands:
           code: r.table('marvel').between(10, 20).run(conn, callback)
           
     ph:
-      body: lowerKey, upperKey
       examples:
         0:
           code: r\table('marvel')->between(10, 20)->run($conn);
@@ -212,6 +219,10 @@ commands:
             r.table('marvel').filter {|hero|
               hero[:abilities].contains('super-strength')
             }.run(conn)
+          ph: |
+            r\table('marvel')->filter(function($hero) {
+                return $hero('abilities')->contains('super-strength');
+              })->run($conn);
       - description: Select all documents where the field 'powers' containing an array has an element equal to 10.
         code:
           js: |
