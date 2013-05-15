@@ -54,7 +54,7 @@ commands:
           ph: |
             r\table('marvel')->insert(array(
                 array( 'superhero' => 'Wolverine', 'superpower' => 'Adamantium' ),
-                array( 'superhero' => 'Spiderman', 'superpower' => 'spidy sense' ),
+                array( 'superhero' => 'Spiderman', 'superpower' => 'spidy sense' )
               ))->run($conn);
       - description: Insert a row into a table named 'marvel', overwriting if the document already exists.
         code:
