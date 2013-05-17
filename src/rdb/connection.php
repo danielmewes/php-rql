@@ -69,13 +69,19 @@ class Connection
         $pbQuery->set_token($token);
         $pbQuery->set_type(pb\Query_QueryType::PB_START);
         $pbQuery->set_query($pbTerm);
+        $optsI = 0;
+        if (isset($this->defaultDb)) {
+            $pair = new pb\Query_AssocPair();
+            $pair->set_key('db');
+            $pair->set_val($this->defaultDb->getPBTerm());
+            $pbQuery->set_global_optargs($optsI++, $pair);
+        }
         if (isset($options)) {
-            $i = 0;
             foreach ($options as $key => $value) {
                 $pair = new pb\Query_AssocPair();
                 $pair->set_key($key);
                 $pair->set_val(nativeToDatum($value)->getPBTerm());
-                $pbQuery->set_global_optargs($i++, $pair);
+                $pbQuery->set_global_optargs($optsI++, $pair);
             }
         }
         $this->sendProtobuf($pbQuery);
@@ -173,13 +179,6 @@ class Connection
     
     private function makeQuery() {
         $query = new pb\Query();
-        
-        if (isset($this->defaultDb)) {
-            $pair = new pb\Query_AssocPair();
-            $pair->set_key('db');
-            $pair->set_val($this->defaultDb->getPBTerm());
-            $query->set_global_optargs(0, $pair);
-        }
         
         return $query;
     }
