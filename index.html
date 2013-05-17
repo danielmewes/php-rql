@@ -40,10 +40,10 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <h2>Updates</h2>
 
 <ul>
+<li>05/17/2013 New release: PHP-RQL 1.5.1. Bug fix: Using the noreply option made the default database set on the connection not work. This was unfortunate, because having noreply set also made it difficult to notice that there even was a problem. Sorry for the inconvenience.</li>
 <li>05/16/2013 New release: PHP-RQL 1.5.0. This version features compatibility with RethinkDB 1.5 and improved performance (~30% faster). If you are running RethinkDB 1.4, you can still update to the new version of PHP-RQL as long as you do not use the between() operation and none of the new features introduced in 1.5. For a list of new features in RethinkDB 1.5, read the <a href="https://github.com/rethinkdb/rethinkdb/blob/v1.5.x/NOTES">release notes</a>.</li>
 <li>05/07/2013 <a href="https://packagist.org/packages/danielmewes/php-rql">PHP-RQL</a> is now available via <a href="http://getcomposer.org">Composer</a>
 </li>
-<li>04/26/2013 Today I pushed two bug fixes. The first fixes a problem in the network layer, that might have resulted in stalled and/or failing queries. The second fixes a problem that was triggered when receiving responses that contain empty strings. Please update your PHP-RQL installation.</li>
 </ul><h2>Requirements</h2>
 
 <ul>
