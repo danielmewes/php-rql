@@ -117,6 +117,7 @@ class GroupBy extends ValuedQuery
             if (is_string($val)) {
                 $val = new StringDatum($val);
             }
+            unset($val);
         }
         
         $this->sequence = $sequence;
