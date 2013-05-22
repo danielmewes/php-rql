@@ -41,6 +41,19 @@ abstract class Query
     }
     
     public function __toString() {
+        $backtrace = null;
+        return $this->_toString($backtrace);
+    }
+    
+    public function _toString(&$backtrace) {
+        // TODO (daniel): This kind of printing backtraces is pretty hacky. Overhaul this.
+        //  Maybe we could generate a PHP backtrace structure...
+    
+        $backtraceFrame = null;
+        if (isset($backtrace) && $backtrace !== false) {
+            $backtraceFrame = $backtrace->_consumeFrame();
+        }
+    
         $types = (new \ReflectionObject(new pb\Term_TermType()));
         $types = $types->getConstants();
         $type = "UNKNOWN";
@@ -53,14 +66,66 @@ abstract class Query
         
         $argList = "";
         foreach ($this->positionalArgs as $i => $arg) {
-            if ($i > 0)
-                $argList .= ", ";
-            $argList .= $arg;
+            if ($i > 0) {
+                if (isset($backtrace))
+                    $argList .= "  ";
+                else
+                    $argList .= ", ";
+            }
+                
+            $subTrace = is_null($backtrace) ? null : false;
+            if (is_object($backtraceFrame) && $backtraceFrame->isPositionalArg() && $backtraceFrame->getPositionalArgPosition() == $i) {
+                $subTrace = $backtrace;
+            }
+            $argList .= $arg->_toString($subTrace);
         }
         
-        // TODO: Also convert optional args
+        $optArgList = "";
+        $firstOptArg = true;
+        foreach ($this->optionalArgs as $key => $val) {
+            if (!$firstOptArg) {
+                if (isset($backtrace))
+                    $optArgList .= "  ";
+                else
+                    $optArgList .= ", ";
+            }
+            $firstOptArg = false;
+                
+            $subTrace = is_null($backtrace) ? null : false;
+            if (is_object($backtraceFrame) && $backtraceFrame->isOptionalArg() && $backtraceFrame->getOptionalArgName() == $key) {
+                $subTrace = $backtrace;
+            }
+            if (isset($backtrace))
+                $optArgList .= str_repeat(" ", strlen($key)) . "    " . $val->_toString($subTrace);
+            else
+                $optArgList .= $key . " => " . $val->_toString($subTrace);
+        }
         
-        return $type . "(" . $argList . ")";
+        if ($optArgList) {
+            if (strlen($argList) > 0) {
+                if (isset($backtrace))
+                    $argList .= "  ";
+                else
+                    $argList .= ", ";
+            }
+            if (isset($backtrace))
+                $argList .= "        " . $optArgList . " ";
+            else
+                $argList .= "OptArgs(" . $optArgList . ")";
+        }
+        
+        $result = $type . "(" . $argList . ")";
+        if (isset($backtrace)) {
+            if ($backtraceFrame === false) {
+                // We are the origin of the trouble
+                return str_repeat("~", strlen($result));
+            }
+            else {
+                return str_repeat(" ", strlen($type)) . " " . $argList . " ";
+            }
+        } else {
+            return $result;
+        }
     }
     
     private $positionalArgs = array();

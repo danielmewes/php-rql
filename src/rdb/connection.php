@@ -91,7 +91,7 @@ class Connection
         }
         else {
             // Await the response
-            $response = $this->receiveResponse($token);
+            $response = $this->receiveResponse($token, $query);
             
             if ($response->type() == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
                 $this->activeTokens[$token] = true;
@@ -135,37 +135,45 @@ class Connection
         $this->sendProtobuf($pbQuery);
         
         // Await the response (but don't check for errors. the stop response doesn't even have a type)
-        $response = $this->receiveResponse($token, true);
+        $response = $this->receiveResponse($token, null, true);
         
         unset($this->activeTokens[$token]);
         
         return $response;
     }
     
-    private function receiveResponse($token, $noChecks = false) {
+    private function receiveResponse($token, $query = null, $noChecks = false) {
         $responseBuf = $this->receiveProtobuf();
         $response = new pb\Response();
         $response->ParseFromString($responseBuf);
         if (!$noChecks)
-            $this->checkResponse($response, $token);
+            $this->checkResponse($response, $token, $query);
         
         return $response;
     }
     
-    private function checkResponse(pb\Response $response, $token) {
+    private function checkResponse(pb\Response $response, $token, $query = null) {
         if (is_null($response->type())) throw new RqlDriverError("Response message has no type.");
         
         if ($response->token() != $token) {
             throw new RqlDriverError("Received wrong token. Response does not match the request. Expected $token, received " . $response->token());
         }
-        
-        // TODO: Add backtrace to RqlUserError        
-        if ($response->type() == pb\Response_ResponseType::PB_CLIENT_ERROR)
-            throw new RqlDriverError("Server says the I am buggy: " . $response->response(0)->r_str());
-        else if ($response->type() == pb\Response_ResponseType::PB_COMPILE_ERROR)
-            throw new RqlUserError("Compile error: " . $response->response(0)->r_str());
-        else if ($response->type() == pb\Response_ResponseType::PB_RUNTIME_ERROR)
-            throw new RqlUserError("Runtime error: " . $response->response(0)->r_str());
+         
+        if ($response->type() == pb\Response_ResponseType::PB_CLIENT_ERROR) {
+            throw new RqlDriverError("Server says PHP-RQL is buggy: " . $response->response(0)->r_str());
+        }
+        else if ($response->type() == pb\Response_ResponseType::PB_COMPILE_ERROR) {
+            $backtrace = null;
+            if (!is_null($response->backtrace()))
+                $backtrace =  Backtrace::_fromProtobuffer($response->backtrace());
+            throw new RqlUserError("Compile error: " . $response->response(0)->r_str(), $query, $backtrace);
+        }
+        else if ($response->type() == pb\Response_ResponseType::PB_RUNTIME_ERROR) {
+            $backtrace = null;
+            if (!is_null($response->backtrace()))
+                $backtrace =  Backtrace::_fromProtobuffer($response->backtrace());
+            throw new RqlUserError("Runtime error: " . $response->response(0)->r_str(), $query, $backtrace);
+        }
     }
     
     private function createCursorFromResponse(pb\Response $response) {

@@ -123,7 +123,7 @@ abstract class Datum extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_PB_DATUM;
+        return pb\Term_TermType::PB_DATUM;
     }
     
     abstract public function _getPBDatum();
@@ -134,6 +134,17 @@ abstract class Datum extends ValuedQuery
     
     public function __toString() {
         return "" . $this->getValue();
+    }
+    
+    public function _toString(&$backtrace) {
+        $result = $this->__toString();
+        if (is_null($backtrace)) return $result;
+        else {
+            if ($backtrace === false) return str_repeat(" ", strlen($result));
+            $backtraceFrame = $backtrace->_consumeFrame();
+            if ($backtraceFrame !== false) throw new RqlDriverError("Internal Error: The backtrace says that we should have an argument in a Datum. This is not possible.");
+            return str_repeat("~", strlen($result));
+        }
     }
         
     public function getValue() {
