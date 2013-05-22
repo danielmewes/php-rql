@@ -81,45 +81,29 @@ class MakeArray extends ValuedQuery
 {
     public function __construct($value) {
         if (!is_array($value)) throw new RqlDriverError("Value must be an array.");
-        $this->value = $value;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_MAKE_ARRAY);
         $i = 0;
-        foreach ($this->value as $val) {
-            $term->set_args($i, $val->_getPBTerm());
-            ++$i;
+        foreach($value as $val) {
+            $this->setPositionalArg($i++, $val);
         }
-        return $term;
     }
     
-    private $value;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MAKE_ARRAY;
+    }
 }
 
 class MakeObject extends ValuedQuery
 {
     public function __construct($value) {
         if (!is_array($value)) throw new RqlDriverError("Value must be an array.");
-        $this->value = $value;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_MAKE_OBJ);
-        $i = 0;
-        foreach ($this->value as $key => $val) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key($key);
-            $pair->set_val($val->_getPBTerm());
-            $term->set_optargs($i, $pair);
-            ++$i;
+        foreach($value as $key => $val) {
+            $this->setOptionalArg($key, $val);
         }
-        return $term;
     }
     
-    private $value;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MAKE_OBJ;
+    }
 }
 
 // ------------- RethinkDB datum types -------------
@@ -136,6 +120,10 @@ abstract class Datum extends ValuedQuery
         $term->set_type(pb\Term_TermType::PB_DATUM);
         $term->set_datum($this->_getPBDatum());
         return $term;
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_PB_DATUM;
     }
     
     abstract public function _getPBDatum();

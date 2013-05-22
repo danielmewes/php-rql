@@ -7,60 +7,39 @@ class Reduce extends ValuedQuery
             $reductionFunction = nativeToFunction($reductionFunction);
         if (isset($base) && !(is_object($base) && is_subclass_of($base, "\\r\\Query")))
             $base = nativeToDatum($base);
-        $this->sequence = $sequence;
-        $this->reductionFunction = $reductionFunction;
-        $this->base = $base;
-    }
-    
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_REDUCE);
-        $term->set_args(0, $this->sequence->_getPBTerm());
-        $term->set_args(1, $this->reductionFunction->_getPBTerm());
-        if (isset($this->base)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("base");
-            $pair->set_val($this->base->_getPBTerm());
-            $term->set_optargs(0, $pair);
+
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $reductionFunction);
+        if (isset($base)) {
+            $this->setOptionalArg('base', $base);
         }
-        return $term;
     }
     
-    private $sequence;
-    private $reductionFunction;
-    private $base;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_REDUCE;
+    }
 }
 
 class Count extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence) {
-        $this->sequence = $sequence;
+        $this->setPositionalArg(0, $sequence);
     }
     
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_COUNT);
-        $term->set_args(0, $this->sequence->_getPBTerm());
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_COUNT;
     }
-    
-    private $sequence;
 }
 
 class Distinct extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence) {
-        $this->sequence = $sequence;
+        $this->setPositionalArg(0, $sequence);
     }
     
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DISTINCT);
-        $term->set_args(0, $this->sequence->_getPBTerm());
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DISTINCT;
     }
-    
-    private $sequence;
 }
 
 class GroupedMapReduce extends ValuedQuery
@@ -76,34 +55,19 @@ class GroupedMapReduce extends ValuedQuery
             // Convert base automatically
             $base = nativeToDatum($base);
         }
-        $this->sequence = $sequence;
-        $this->grouping = $grouping;
-        $this->mapping = $mapping;
-        $this->reduction = $reduction;
-        $this->base = $base;
-    }
-    
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_GROUPED_MAP_REDUCE);
-        $term->set_args(0, $this->sequence->_getPBTerm());
-        $term->set_args(1, $this->grouping->_getPBTerm());
-        $term->set_args(2, $this->mapping->_getPBTerm());
-        $term->set_args(3, $this->reduction->_getPBTerm());
-        if (isset($this->base)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("base");
-            $pair->set_val($this->base->_getPBTerm());
-            $term->set_optargs(0, $pair);
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $grouping);
+        $this->setPositionalArg(2, $mapping);
+        $this->setPositionalArg(3, $reduction);
+        if (isset($base)) {
+            $this->setOptionalArg('base', $base);
         }
-        return $term;
     }
     
-    private $sequence;
-    private $grouping;
-    private $mapping;
-    private $reduction;
-    private $base;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_GROUPED_MAP_REDUCE;
+    }
 }
 
 class GroupBy extends ValuedQuery
@@ -119,24 +83,14 @@ class GroupBy extends ValuedQuery
             }
         }
         
-        $this->sequence = $sequence;
-        $this->keys = $keys;
-        $this->reductionObject = $reductionObject;
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, new ArrayDatum($this->keys));
+        $this->setPositionalArg(2, $reductionObject);
     }
     
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_GROUPBY);
-        $term->set_args(0, $this->sequence->_getPBTerm());
-        $subTerm = new ArrayDatum($this->keys);
-        $term->set_args(1, $subTerm->_getPBTerm());
-        $term->set_args(2, $this->reductionObject->_getPBTerm());
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_GROUPBY;
     }
-    
-    private $sequence;
-    private $keys;
-    private $reductionObject;
 }
 
 ?>

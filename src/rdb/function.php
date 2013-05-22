@@ -12,18 +12,17 @@ class RVar extends ValuedQuery {
         if (!is_string($name)) throw new RqlDriverError("Variable name must be a string.");
         $this->id = RVar::$nextVarId;
         ++RVar::$nextVarId;
+        $this->name = $name;
+        
+        $this->setPositionalArg(0, new NumberDatum($this->id));
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_VAR;
     }
     
     public function getId() {
         return $this->id;
-    }
-    
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_VAR);
-        $subTerm = new NumberDatum($this->id);
-        $term->set_args(0, $subTerm->_getPBTerm());
-        return $term;
     }
     
     private $id;
@@ -39,21 +38,13 @@ class RFunction extends FunctionQuery {
             $arg = new NumberDatum($arg->getId());
         }
         
-        $this->args = $args;
-        $this->top = $top;
+        $this->setPositionalArg(0, $args);
+        $this->setPositionalArg(1, $top);
     }
     
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_FUNC);
-        $subTerm = new ArrayDatum($this->args);
-        $term->set_args(0, $subTerm->_getPBTerm());
-        $term->set_args(1, $this->top->_getPBTerm());
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_FUNC;
     }
-    
-    private $args;
-    private $top;
 }
 
 function nativeToFunction($f) {

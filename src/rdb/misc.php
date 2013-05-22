@@ -3,16 +3,68 @@
 require_once("util.php");
 
 abstract class Query
-{
-    abstract public function _getPBTerm();
+{    
+    abstract protected function getTermType();
+    
+    protected function setOptionalArg($key, Query $val) {
+        if (!is_string($key)) throw new RqlDriverError("Internal driver error: Got a non-string key for an optional argument.");
+        $this->optionalArgs[$key] = $val;
+    }
+
+    protected function setPositionalArg($pos, Query $arg) {
+        if (!is_numeric($pos)) throw new RqlDriverError("Internal driver error: Got a non-numeric position for a positional argument.");
+        $this->positionalArgs[$pos] = $arg;
+    }
+
+    public function _getPBTerm() {
+        $term = new pb\Term();
+        $term->set_type($this->getTermType());
+        foreach ($this->positionalArgs as $i => $arg) {
+            $term->set_args($i, $arg->_getPBTerm());
+        }
+        $i = 0;
+        foreach ($this->optionalArgs as $key => $val) {
+            $pair = new pb\Term_AssocPair();
+            $pair->set_key($key);
+            $pair->set_val($val->_getPBTerm());
+            $term->set_optargs($i++, $pair);
+        }
+        return $term;
+    }
     
     public function run(Connection $connection, $options = null) {
-        return $connection->run($this, $options);
+        return $connection->_run($this, $options);
     }
     
     public function info() {
         return new Info($this);
     }
+    
+    public function __toString() {
+        $types = (new ReflectionObject(new pb\Term_TermType()));
+        $types = $types->getConstants();
+        $type = "UNKNOWN";
+        foreach ($types as $key => $val) {
+            if (substr($key, 0, 3) != "PB_") continue;
+            if ($val == $this->getTermType()) {
+                $type = substr($key, 3);
+            }
+        }
+        
+        $argList = "";
+        foreach ($this->positionalArgs as $i => $arg) {
+            if ($i > 0)
+                $argList .= ", ";
+            $argList .= $arg;
+        }
+        
+        // TODO: Also convert optional args
+        
+        return $type . "(" . $argList . ")";
+    }
+    
+    private $positionalArgs = array();
+    private $optionalArgs = array();
 }
 
 // This is just any query except for Table and Db at the moment.
@@ -82,8 +134,8 @@ abstract class ValuedQuery extends Query
     public function groupedMapReduce($grouping, $mapping, $reduction, $base = null) {
         return new GroupedMapReduce($this, $grouping, $mapping, $reduction, $base);
     }
-    // RethinkDB currently expects a MakeObject term as the reduction object.
-    // An ordinaty ObjectDatum doesn't work.
+    // RethinkDB in 1.4 expects a MakeObject term as the reduction object.
+    // An ordinary ObjectDatum doesn't work. (this has been fixed in 1.5 though)
     public function groupBy($keys, MakeObject $reductionObject) {
         return new GroupBy($this, $keys, $reductionObject);
     }
@@ -171,57 +223,40 @@ abstract class Ordering extends Query {
 class Asc extends Ordering {
     public function __construct($attribute) {
         $attribute = new StringDatum($attribute);
-        $this->attribute = $attribute;
+        $this->setPositionalArg(0, $attribute);
     }
     
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_ASC);
-        $term->set_args(0, $this->attribute->_getPBTerm());
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_ASC;
     }
-    
-    private $attribute;
 }
 
 class Desc extends Ordering {
     public function __construct($attribute) {
         $attribute = new StringDatum($attribute);
-        $this->attribute = $attribute;
+        $this->setPositionalArg(0, $attribute);
     }
     
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DESC);
-        $term->set_args(0, $this->attribute->_getPBTerm());
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DESC;
     }
-    
-    private $attribute;
 }
 
 class ImplicitVar extends ValuedQuery
 {
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_IMPLICIT_VAR);
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_IMPLICIT_VAR;
     }
 }
 
 class Info extends ValuedQuery {
     public function __construct(Query $onQuery) {
-        $this->onQuery = $onQuery;
+        $this->setPositionalArg(0, $onQuery);
     }
     
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_INFO);
-        $term->set_args(0, $this->onQuery->_getPBTerm());
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_INFO;
     }
-    
-    private $onQuery;
 }
 
 class Cursor implements \Iterator
@@ -283,12 +318,12 @@ class Cursor implements \Iterator
     public function __destruct() {
         if (!$this->isComplete && $this->connection->isOpen()) {
             // Cancel the request
-            $this->connection->stopQuery($this->token);
+            $this->connection->_stopQuery($this->token);
         }
     }
     
     private function requestNewBatch() {
-        $response = $this->connection->continueQuery($this->token);
+        $response = $this->connection->_continueQuery($this->token);
         $this->setBatch($response);
     }
     

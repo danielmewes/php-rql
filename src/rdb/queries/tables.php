@@ -4,18 +4,13 @@ class TableList extends ValuedQuery
 {
     public function __construct($database) {
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
-        $this->database = $database;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_TABLE_LIST);
-        if (isset($this->database))
-            $term->set_args(0, $this->database->_getPBTerm());
-        return $term;
+        if (isset($database))
+            $this->setPositionalArg(0, $database);
     }
     
-    private $database;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_TABLE_LIST;
+    }
 }
 
 class TableCreate extends ValuedQuery
@@ -33,36 +28,20 @@ class TableCreate extends ValuedQuery
             }
         }
         
-        $this->database = $database;
-        $this->tableName = $tableName;
-        $this->options = $options;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_TABLE_CREATE);
         $i = 0;
-        if (isset($this->database)) {
-            $term->set_args($i++, $this->database->_getPBTerm());
-        }
-        $subDatum = new StringDatum($this->tableName);
-        $term->set_args($i++, $subDatum->_getPBTerm());
-        if (isset($this->options)) {
-            $i = 0;
-            foreach ($this->options as $key => $val) {
-                $pair = new pb\Term_AssocPair();
-                $pair->set_key($key);
-                $pair->set_val($val->_getPBTerm());
-                $term->set_optargs($i, $pair);
-                ++$i;
+        if (isset($database))
+            $this->setPositionalArg($i++, $database);
+        $this->setPositionalArg($i++, new StringDatum($tableName));
+        if (isset($options)) {
+            foreach ($options as $key => $val) {
+                $this->setOptionalArg($key, $val);
             }
         }
-        return $term;
     }
     
-    private $database;
-    private $tableName;
-    private $options;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_TABLE_CREATE;
+    }
 }
 
 class TableDrop extends ValuedQuery
@@ -70,24 +49,16 @@ class TableDrop extends ValuedQuery
     public function __construct($database, $tableName) {
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         if (!\is_string($tableName)) throw new RqlDriverError("Table name must be a string.");
-        $this->database = $database;
-        $this->tableName = $tableName;
-    }
 
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_TABLE_DROP);
         $i = 0;
-        if (isset($this->database)) {
-            $term->set_args($i++, $this->database->_getPBTerm());
-        }
-        $subDatum = new StringDatum($this->tableName);
-        $term->set_args($i++, $subDatum->_getPBTerm());
-        return $term;
+        if (isset($database))
+            $this->setPositionalArg($i++, $database);
+        $this->setPositionalArg($i++, new StringDatum($tableName));
     }
     
-    private $database;
-    private $tableName;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_TABLE_DROP;
+    }
 }
 
 class Table extends ValuedQuery
@@ -116,33 +87,19 @@ class Table extends ValuedQuery
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         if (!\is_string($tableName)) throw new RqlDriverError("Table name must be a string.");
         if (isset($useOutdated) && !is_bool($useOutdated)) throw new RqlDriverError("Use outdated must be bool.");
-        $this->database = $database;
-        $this->tableName = $tableName;
-        $this->useOutdated = $useOutdated;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_TABLE);
+        
         $i = 0;
-        if (isset($this->database)) {
-            $term->set_args($i++, $this->database->_getPBTerm());
+        if (isset($database))
+            $this->setPositionalArg($i++, $database);
+        $this->setPositionalArg($i++, new StringDatum($tableName));
+        if (isset($useOutdated)) {
+            $this->setOptionalArg('use_outdated', new BoolDatum($useOutdated));
         }
-        $subDatum = new StringDatum($this->tableName);
-        $term->set_args($i++, $subDatum->_getPBTerm());
-        if (isset($this->useOutdated)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("use_outdated");
-            $subTerm = new BoolDatum($this->useOutdated);
-            $pair->set_val($subTerm->_getPBTerm());
-            $term->set_optargs(0, $pair);
-        }
-        return $term;
     }
     
-    private $database;
-    private $tableName;
-    private $useOutdated;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_TABLE;
+    }
 }
 
 ?>

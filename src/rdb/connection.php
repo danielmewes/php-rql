@@ -48,7 +48,7 @@ class Connection
         $this->defaultDb = new Db($dbName);
     }
     
-    public function run(Query $query, $options) {
+    public function _run(Query $query, $options) {
         if (isset($options) && !is_array($options)) throw new RqlDriverError("Options must be an array.");
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
         
@@ -104,7 +104,7 @@ class Connection
         }
     }
     
-    public function continueQuery($token) {
+    public function _continueQuery($token) {
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");    
         if (!is_numeric($token)) throw new RqlDriverError("Token must be a number.");
         
@@ -124,7 +124,7 @@ class Connection
         return $response;
     }
     
-    public function stopQuery($token) {
+    public function _stopQuery($token) {
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");    
         if (!is_numeric($token)) throw new RqlDriverError("Token must be a number.");
         
@@ -156,7 +156,7 @@ class Connection
         if (is_null($response->type())) throw new RqlDriverError("Response message has no type.");
         
         if ($response->token() != $token) {
-            throw new RqlDriverError("Received wrong token. Response does not match the request.");
+            throw new RqlDriverError("Received wrong token. Response does not match the request. Expected $token, received " . $response->token());
         }
         
         // TODO: Add backtrace to RqlUserError        

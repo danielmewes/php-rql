@@ -18,65 +18,42 @@ class Db extends Query
 
     public function __construct($dbName) {
         if (!\is_string($dbName)) throw new RqlDriverError("Database name must be a string.");
-        $this->dbName = $dbName;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DB);
-        $subDatum = new StringDatum($this->dbName);
-        $term->set_args(0, $subDatum->_getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, new StringDatum($dbName));
     }
     
-    private $dbName;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DB;
+    }
 }
 
 class DbCreate extends ValuedQuery
 {
     public function __construct($dbName) {
         if (!\is_string($dbName)) throw new RqlDriverError("Database name must be a string.");
-        $this->dbName = $dbName;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DB_CREATE);
-        $subDatum = new StringDatum($this->dbName);
-        $term->set_args(0, $subDatum->_getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, new StringDatum($dbName));
     }
     
-    private $dbName;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DB_CREATE;
+    }
 }
 
 class DbDrop extends ValuedQuery
 {
     public function __construct($dbName) {
         if (!\is_string($dbName)) throw new RqlDriverError("Database name must be a string.");
-        $this->dbName = $dbName;
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DB_DROP);
-        $subDatum = new StringDatum($this->dbName);
-        $term->set_args(0, $subDatum->_getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, new StringDatum($dbName));
     }
     
-    private $dbName;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DB_DROP;
+    }
 }
 
 class DbList extends ValuedQuery
 {
-    public function __construct() {
-    }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DB_LIST);
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DB_LIST;
     }
 }
 
