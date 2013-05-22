@@ -36,6 +36,7 @@ class RFunction extends FunctionQuery {
         foreach ($args as &$arg) {
             if (!is_a($arg, "\\r\\RVar")) throw new RqlDriverError("Arguments must be RVar variables.");
             $arg = new NumberDatum($arg->getId());
+            unset($arg);
         }
         
         $this->setPositionalArg(0, new ArrayDatum($args));

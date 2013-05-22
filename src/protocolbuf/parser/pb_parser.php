@@ -334,6 +334,7 @@ class PBParser
                 $message['value'] = $myarray;
                 break;
             }
+            unset ($message);
         }
     }
 

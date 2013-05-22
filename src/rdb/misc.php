@@ -363,8 +363,10 @@ class Cursor implements \Iterator
     
     public function toNative() {
         $vals = $this->toArray();
-        foreach ($vals as &$val)
+        foreach ($vals as &$val) {
             $val = $val->toNative();
+            unset ($val);
+        }
         return $vals;
     }
     

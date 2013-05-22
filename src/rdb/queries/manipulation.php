@@ -9,6 +9,7 @@ class Pluck extends ValuedQuery
         // Check keys and convert strings
         foreach ($attributes as &$val) {
             $val = new StringDatum($val);
+            unset($val);
         }
         
         $this->setPositionalArg(0, $sequence);
@@ -32,6 +33,7 @@ class Without extends ValuedQuery
         // Check keys and convert strings
         foreach ($attributes as &$val) {
             $val = new StringDatum($val);
+            unset($val);
         }
         
         $this->setPositionalArg(0, $sequence);
@@ -100,6 +102,7 @@ class Contains extends ValuedQuery
         // Check keys and convert strings
         foreach ($attributes as &$val) {
             $val = new StringDatum($val);
+            unset($val);
         }
         
         $this->setPositionalArg(0, $sequence);

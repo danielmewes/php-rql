@@ -14,6 +14,7 @@ class RDo extends ValuedQuery
                 $arg = nativeToDatum($arg);
             }
             $this->setPositionalArg($i++, $arg);
+            unset($arg);
         }
     }
     

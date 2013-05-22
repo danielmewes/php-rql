@@ -81,6 +81,7 @@ class GroupBy extends ValuedQuery
             if (is_string($val)) {
                 $val = new StringDatum($val);
             }
+            unset($val);
         }
         
         $this->setPositionalArg(0, $sequence);
