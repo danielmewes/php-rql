@@ -84,7 +84,7 @@ class GroupBy extends ValuedQuery
         }
         
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, new ArrayDatum($this->keys));
+        $this->setPositionalArg(1, new ArrayDatum($keys));
         $this->setPositionalArg(2, $reductionObject);
     }
     

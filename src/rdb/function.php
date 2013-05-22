@@ -38,7 +38,7 @@ class RFunction extends FunctionQuery {
             $arg = new NumberDatum($arg->getId());
         }
         
-        $this->setPositionalArg(0, $args);
+        $this->setPositionalArg(0, new ArrayDatum($args));
         $this->setPositionalArg(1, $top);
     }
     

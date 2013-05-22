@@ -8,8 +8,8 @@ class BinaryOp extends ValuedQuery
             $other = nativeToDatum($other);
         $this->termType = $termType;
         
-        $this->setPositionalArgument(0, $value);
-        $this->setPositionalArgument(1, $other);
+        $this->setPositionalArg(0, $value);
+        $this->setPositionalArg(1, $other);
     }
     
     protected function getTermType() {
@@ -88,7 +88,7 @@ class Le extends BinaryOp {
 class Not extends ValuedQuery
 {
     public function __construct(ValuedQuery $value) {
-        $this->setPositionalArgument(0, $value);
+        $this->setPositionalArg(0, $value);
     }
     
     protected function getTermType() {
