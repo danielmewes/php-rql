@@ -18,11 +18,11 @@ class RVar extends ValuedQuery {
         return $this->id;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_VAR);
         $subTerm = new NumberDatum($this->id);
-        $term->set_args(0, $subTerm->getPBTerm());
+        $term->set_args(0, $subTerm->_getPBTerm());
         return $term;
     }
     
@@ -43,12 +43,12 @@ class RFunction extends FunctionQuery {
         $this->top = $top;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_FUNC);
         $subTerm = new ArrayDatum($this->args);
-        $term->set_args(0, $subTerm->getPBTerm());
-        $term->set_args(1, $this->top->getPBTerm());
+        $term->set_args(0, $subTerm->_getPBTerm());
+        $term->set_args(1, $this->top->_getPBTerm());
         return $term;
     }
     

@@ -11,11 +11,11 @@ class BinaryOp extends ValuedQuery
         $this->termType = $termType;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type($this->termType);
-        $term->set_args(0, $this->value->getPBTerm());
-        $term->set_args(1, $this->other->getPBTerm());
+        $term->set_args(0, $this->value->_getPBTerm());
+        $term->set_args(1, $this->other->_getPBTerm());
         return $term;
     }
     
@@ -96,10 +96,10 @@ class Not extends ValuedQuery
         $this->value = $value;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_NOT);
-        $term->set_args(0, $this->value->getPBTerm());
+        $term->set_args(0, $this->value->_getPBTerm());
         return $term;
     }
     

@@ -13,11 +13,11 @@ class Get extends ValuedQuery
         $this->key = $key;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_GET);
-        $term->set_args(0, $this->table->getPBTerm());
-        $term->set_args(1, $this->key->getPBTerm());
+        $term->set_args(0, $this->table->_getPBTerm());
+        $term->set_args(1, $this->key->_getPBTerm());
         return $term;
     }
     
@@ -38,15 +38,15 @@ class GetAll extends ValuedQuery
         $this->index = $index;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_GET_ALL);
-        $term->set_args(0, $this->table->getPBTerm());
-        $term->set_args(1, $this->key->getPBTerm());
+        $term->set_args(0, $this->table->_getPBTerm());
+        $term->set_args(1, $this->key->_getPBTerm());
         if (isset($this->index)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("index");
-            $pair->set_val($this->index->getPBTerm());
+            $pair->set_val($this->index->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;
@@ -70,16 +70,16 @@ class Between extends ValuedQuery
         $this->index = $index;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_BETWEEN);
-        $term->set_args(0, $this->selection->getPBTerm());
-        $term->set_args(1, $this->leftBound->getPBTerm());
-        $term->set_args(2, $this->rightBound->getPBTerm());
+        $term->set_args(0, $this->selection->_getPBTerm());
+        $term->set_args(1, $this->leftBound->_getPBTerm());
+        $term->set_args(2, $this->rightBound->_getPBTerm());
         if (isset($this->index)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("index");
-            $pair->set_val($this->index->getPBTerm());
+            $pair->set_val($this->index->_getPBTerm());
             $term->set_optargs(0, $pair);
         };
         return $term;
@@ -111,11 +111,11 @@ class Filter extends ValuedQuery
         $this->predicate = $predicate;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_FILTER);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->predicate->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->predicate->_getPBTerm());
         return $term;
     }
     

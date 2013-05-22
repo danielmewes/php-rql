@@ -12,15 +12,15 @@ class Reduce extends ValuedQuery
         $this->base = $base;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_REDUCE);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->reductionFunction->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->reductionFunction->_getPBTerm());
         if (isset($this->base)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("base");
-            $pair->set_val($this->base->getPBTerm());
+            $pair->set_val($this->base->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;
@@ -37,10 +37,10 @@ class Count extends ValuedQuery
         $this->sequence = $sequence;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_COUNT);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         return $term;
     }
     
@@ -53,10 +53,10 @@ class Distinct extends ValuedQuery
         $this->sequence = $sequence;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_DISTINCT);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         return $term;
     }
     
@@ -83,17 +83,17 @@ class GroupedMapReduce extends ValuedQuery
         $this->base = $base;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_GROUPED_MAP_REDUCE);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->grouping->getPBTerm());
-        $term->set_args(2, $this->mapping->getPBTerm());
-        $term->set_args(3, $this->reduction->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->grouping->_getPBTerm());
+        $term->set_args(2, $this->mapping->_getPBTerm());
+        $term->set_args(3, $this->reduction->_getPBTerm());
         if (isset($this->base)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("base");
-            $pair->set_val($this->base->getPBTerm());
+            $pair->set_val($this->base->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;
@@ -124,13 +124,13 @@ class GroupBy extends ValuedQuery
         $this->reductionObject = $reductionObject;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_GROUPBY);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         $subTerm = new ArrayDatum($this->keys);
-        $term->set_args(1, $subTerm->getPBTerm());
-        $term->set_args(2, $this->reductionObject->getPBTerm());
+        $term->set_args(1, $subTerm->_getPBTerm());
+        $term->set_args(2, $this->reductionObject->_getPBTerm());
         return $term;
     }
     

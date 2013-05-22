@@ -21,11 +21,11 @@ class Db extends Query
         $this->dbName = $dbName;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_DB);
         $subDatum = new StringDatum($this->dbName);
-        $term->set_args(0, $subDatum->getPBTerm());
+        $term->set_args(0, $subDatum->_getPBTerm());
         return $term;
     }
     
@@ -39,11 +39,11 @@ class DbCreate extends ValuedQuery
         $this->dbName = $dbName;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_DB_CREATE);
         $subDatum = new StringDatum($this->dbName);
-        $term->set_args(0, $subDatum->getPBTerm());
+        $term->set_args(0, $subDatum->_getPBTerm());
         return $term;
     }
     
@@ -57,11 +57,11 @@ class DbDrop extends ValuedQuery
         $this->dbName = $dbName;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_DB_DROP);
         $subDatum = new StringDatum($this->dbName);
-        $term->set_args(0, $subDatum->getPBTerm());
+        $term->set_args(0, $subDatum->_getPBTerm());
         return $term;
     }
     
@@ -73,7 +73,7 @@ class DbList extends ValuedQuery
     public function __construct() {
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_DB_LIST);
         return $term;

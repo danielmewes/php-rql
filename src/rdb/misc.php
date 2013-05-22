@@ -4,7 +4,7 @@ require_once("util.php");
 
 abstract class Query
 {
-    abstract public function getPBTerm();
+    abstract public function _getPBTerm();
     
     public function run(Connection $connection, $options = null) {
         return $connection->run($this, $options);
@@ -174,10 +174,10 @@ class Asc extends Ordering {
         $this->attribute = $attribute;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_ASC);
-        $term->set_args(0, $this->attribute->getPBTerm());
+        $term->set_args(0, $this->attribute->_getPBTerm());
         return $term;
     }
     
@@ -190,10 +190,10 @@ class Desc extends Ordering {
         $this->attribute = $attribute;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_DESC);
-        $term->set_args(0, $this->attribute->getPBTerm());
+        $term->set_args(0, $this->attribute->_getPBTerm());
         return $term;
     }
     
@@ -202,7 +202,7 @@ class Desc extends Ordering {
 
 class ImplicitVar extends ValuedQuery
 {
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_IMPLICIT_VAR);
         return $term;
@@ -214,10 +214,10 @@ class Info extends ValuedQuery {
         $this->onQuery = $onQuery;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_INFO);
-        $term->set_args(0, $this->onQuery->getPBTerm());
+        $term->set_args(0, $this->onQuery->_getPBTerm());
         return $term;
     }
     

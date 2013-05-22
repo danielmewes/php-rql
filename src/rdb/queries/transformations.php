@@ -12,11 +12,11 @@ class Map extends ValuedQuery
         $this->mappingFunction = $mappingFunction;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_MAP);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->mappingFunction->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->mappingFunction->_getPBTerm());
         return $term;
     }
     
@@ -36,11 +36,11 @@ class ConcatMap extends ValuedQuery
         $this->mappingFunction = $mappingFunction;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_CONCATMAP);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->mappingFunction->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->mappingFunction->_getPBTerm());
         return $term;
     }
     
@@ -65,13 +65,13 @@ class OrderBy extends ValuedQuery
         $this->keys = $keys;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_ORDERBY);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         $i = 1;
         foreach ($this->keys as $key) {
-            $term->set_args($i++, $key->getPBTerm());
+            $term->set_args($i++, $key->_getPBTerm());
         }
         return $term;
     }
@@ -89,11 +89,11 @@ class Skip extends ValuedQuery
         $this->n = $n;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_SKIP);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->n->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->n->_getPBTerm());
         return $term;
     }
     
@@ -110,11 +110,11 @@ class Limit extends ValuedQuery
         $this->n = $n;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_LIMIT);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->n->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->n->_getPBTerm());
         return $term;
     }
     
@@ -134,16 +134,16 @@ class Slice extends ValuedQuery
         $this->endIndex = $endIndex;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_SLICE);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->startIndex->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->startIndex->_getPBTerm());
         if (isset($endIndex))
-            $term->set_args(2, $this->endIndex->getPBTerm());
+            $term->set_args(2, $this->endIndex->_getPBTerm());
         else {
             $subDatum = new NumberDatum(-1);
-            $term->set_args(2, $subDatum->getPBTerm());
+            $term->set_args(2, $subDatum->_getPBTerm());
         }
         return $term;
     }
@@ -162,11 +162,11 @@ class Nth extends ValuedQuery
         $this->index = $index;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_NTH);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->index->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->index->_getPBTerm());
         return $term;
     }
     
@@ -181,11 +181,11 @@ class Union extends ValuedQuery
         $this->otherSequence = $otherSequence;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_UNION);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->otherSequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->otherSequence->_getPBTerm());
         return $term;
     }
     

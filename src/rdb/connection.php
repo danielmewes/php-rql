@@ -64,7 +64,7 @@ class Connection
         }
         
         // Send the request
-        $pbTerm = $query->getPBTerm();
+        $pbTerm = $query->_getPBTerm();
         $pbQuery = $this->makeQuery();
         $pbQuery->set_token($token);
         $pbQuery->set_type(pb\Query_QueryType::PB_START);
@@ -73,14 +73,14 @@ class Connection
         if (isset($this->defaultDb)) {
             $pair = new pb\Query_AssocPair();
             $pair->set_key('db');
-            $pair->set_val($this->defaultDb->getPBTerm());
+            $pair->set_val($this->defaultDb->_getPBTerm());
             $pbQuery->set_global_optargs($optsI++, $pair);
         }
         if (isset($options)) {
             foreach ($options as $key => $value) {
                 $pair = new pb\Query_AssocPair();
                 $pair->set_key($key);
-                $pair->set_val(nativeToDatum($value)->getPBTerm());
+                $pair->set_val(nativeToDatum($value)->_getPBTerm());
                 $pbQuery->set_global_optargs($optsI++, $pair);
             }
         }

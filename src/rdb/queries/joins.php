@@ -10,12 +10,12 @@ class InnerJoin extends ValuedQuery
         $this->predicate = $predicate;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_INNER_JOIN);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->otherSequence->getPBTerm());
-        $term->set_args(2, $this->predicate->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->otherSequence->_getPBTerm());
+        $term->set_args(2, $this->predicate->_getPBTerm());
         return $term;
     }
     
@@ -34,12 +34,12 @@ class OuterJoin extends ValuedQuery
         $this->predicate = $predicate;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_OUTER_JOIN);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->otherSequence->getPBTerm());
-        $term->set_args(2, $this->predicate->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->otherSequence->_getPBTerm());
+        $term->set_args(2, $this->predicate->_getPBTerm());
         return $term;
     }
     
@@ -60,16 +60,16 @@ class EqJoin extends ValuedQuery
         $this->index = $index;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_EQ_JOIN);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->attribute->getPBTerm());
-        $term->set_args(2, $this->otherSequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->attribute->_getPBTerm());
+        $term->set_args(2, $this->otherSequence->_getPBTerm());
         if (isset($this->index)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("index");
-            $pair->set_val($this->index->getPBTerm());
+            $pair->set_val($this->index->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;
@@ -87,10 +87,10 @@ class Zip extends ValuedQuery
         $this->sequence = $sequence;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_ZIP);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         return $term;
     }
     

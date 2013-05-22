@@ -6,10 +6,10 @@ class IndexList extends ValuedQuery
         $this->table = $table;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_INDEX_LIST);
-        $term->set_args(0, $this->table->getPBTerm());
+        $term->set_args(0, $this->table->_getPBTerm());
         return $term;
     }
     
@@ -32,13 +32,13 @@ class IndexCreate extends ValuedQuery
         $this->keyFunction = $keyFunction;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_INDEX_CREATE);
-        $term->set_args(0, $this->table->getPBTerm());
+        $term->set_args(0, $this->table->_getPBTerm());
         $subDatum = new StringDatum($this->indexName);
-        $term->set_args(1, $subDatum->getPBTerm());
-        $term->set_args(2, $this->keyFunction->getPBTerm());
+        $term->set_args(1, $subDatum->_getPBTerm());
+        $term->set_args(2, $this->keyFunction->_getPBTerm());
         return $term;
     }
     
@@ -55,12 +55,12 @@ class IndexDrop extends ValuedQuery
         $this->indexName = $indexName;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_INDEX_DROP);
-        $term->set_args(0, $this->table->getPBTerm());
+        $term->set_args(0, $this->table->_getPBTerm());
         $subDatum = new StringDatum($this->indexName);
-        $term->set_args(1, $subDatum->getPBTerm());
+        $term->set_args(1, $subDatum->_getPBTerm());
         return $term;
     }
     

@@ -15,13 +15,13 @@ class RDo extends ValuedQuery
         $this->args = $args;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_FUNCALL);
-        $term->set_args(0, $this->inExpr->getPBTerm());
+        $term->set_args(0, $this->inExpr->_getPBTerm());
         $i = 1;
         foreach ($this->args as $arg) {
-            $term->set_args($i, $arg->getPBTerm());
+            $term->set_args($i, $arg->_getPBTerm());
             ++$i;
         }
         return $term;
@@ -54,12 +54,12 @@ class Branch extends ValuedQuery
         $this->test = $test;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_BRANCH);
-        $term->set_args(0, $this->test->getPBTerm());
-        $term->set_args(1, $this->trueBranch->getPBTerm());
-        $term->set_args(2, $this->falseBranch->getPBTerm());
+        $term->set_args(0, $this->test->_getPBTerm());
+        $term->set_args(1, $this->trueBranch->_getPBTerm());
+        $term->set_args(2, $this->falseBranch->_getPBTerm());
         return $term;
     }
     
@@ -77,11 +77,11 @@ class RForeach extends ValuedQuery
         $this->queryFunction = $queryFunction;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_FOREACH);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->queryFunction->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->queryFunction->_getPBTerm());
         return $term;
     }
     
@@ -97,10 +97,10 @@ class Error extends ValuedQuery
         $this->message = $message;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_ERROR);
-        $term->set_args(0, $this->message->getPBTerm());
+        $term->set_args(0, $this->message->_getPBTerm());
         return $term;
     }
     
@@ -118,14 +118,14 @@ class Js extends FunctionQuery
         $this->timeout = $timeout;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_JAVASCRIPT);
-        $term->set_args(0, $this->code->getPBTerm());
+        $term->set_args(0, $this->code->_getPBTerm());
         if (isset($this->timeout)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("timeout");
-            $pair->set_val($this->timeout->getPBTerm());
+            $pair->set_val($this->timeout->_getPBTerm());
             $term->set_optargs(0, $pair);
         };
         return $term;
@@ -144,11 +144,11 @@ class CoerceTo extends ValuedQuery
         $this->typeName = $typeName;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_COERCE_TO);
-        $term->set_args(0, $this->value->getPBTerm());
-        $term->set_args(1, $this->typeName->getPBTerm());
+        $term->set_args(0, $this->value->_getPBTerm());
+        $term->set_args(1, $this->typeName->_getPBTerm());
         return $term;
     }
     
@@ -162,10 +162,10 @@ class TypeOf extends ValuedQuery
         $this->value = $value;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TYPEOF);
-        $term->set_args(0, $this->value->getPBTerm());
+        $term->set_args(0, $this->value->_getPBTerm());
         return $term;
     }
     

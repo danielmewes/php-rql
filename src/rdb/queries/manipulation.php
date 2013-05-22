@@ -15,13 +15,13 @@ class Pluck extends ValuedQuery
         $this->attributes = $attributes;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_PLUCK);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         $i = 1;
         foreach ($this->attributes as $attr)
-            $term->set_args($i++, $attr->getPBTerm());
+            $term->set_args($i++, $attr->_getPBTerm());
         return $term;
     }
     
@@ -44,13 +44,13 @@ class Without extends ValuedQuery
         $this->attributes = $attributes;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_WITHOUT);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         $i = 1;
         foreach ($this->attributes as $attr)
-            $term->set_args($i++, $attr->getPBTerm());
+            $term->set_args($i++, $attr->_getPBTerm());
         return $term;
     }
     
@@ -68,11 +68,11 @@ class Merge extends ValuedQuery
         $this->other = $other;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_MERGE);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->other->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->other->_getPBTerm());
         return $term;
     }
     
@@ -90,11 +90,11 @@ class Append extends ValuedQuery
         $this->value = $value;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_APPEND);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->value->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->value->_getPBTerm());
         return $term;
     }
     
@@ -112,11 +112,11 @@ class Getattr extends ValuedQuery
         $this->attribute = $attribute;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_GETATTR);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->attribute->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
+        $term->set_args(1, $this->attribute->_getPBTerm());
         return $term;
     }
     
@@ -139,13 +139,13 @@ class Contains extends ValuedQuery
         $this->attributes = $attributes;
     }
     
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_CONTAINS);
-        $term->set_args(0, $this->sequence->getPBTerm());
+        $term->set_args(0, $this->sequence->_getPBTerm());
         $i = 1;
         foreach ($this->attributes as $attr)
-            $term->set_args($i++, $attr->getPBTerm());
+            $term->set_args($i++, $attr->_getPBTerm());
         return $term;
     }
     

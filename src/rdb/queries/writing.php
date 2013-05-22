@@ -11,16 +11,16 @@ class Insert extends ValuedQuery
         $this->upsert = $upsert;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_INSERT);
-        $term->set_args(0, $this->table->getPBTerm());
-        $term->set_args(1, $this->document->getPBTerm());
+        $term->set_args(0, $this->table->_getPBTerm());
+        $term->set_args(1, $this->document->_getPBTerm());
         if (isset($this->upsert)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("upsert");
             $subDatum = new BoolDatum($this->upsert);
-            $pair->set_val($subDatum->getPBTerm());
+            $pair->set_val($subDatum->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;
@@ -53,16 +53,16 @@ class Update extends ValuedQuery
         $this->nonAtomic  = $nonAtomic;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_UPDATE);
-        $term->set_args(0, $this->selection->getPBTerm());
-        $term->set_args(1, $this->delta->getPBTerm());
+        $term->set_args(0, $this->selection->_getPBTerm());
+        $term->set_args(1, $this->delta->_getPBTerm());
         if (isset($this->nonAtomic)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("non_atomic");
             $subDatum = new BoolDatum($this->nonAtomic);
-            $pair->set_val($subDatum->getPBTerm());
+            $pair->set_val($subDatum->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;
@@ -79,10 +79,10 @@ class Delete extends ValuedQuery
         $this->selection = $selection;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_DELETE);
-        $term->set_args(0, $this->selection->getPBTerm());
+        $term->set_args(0, $this->selection->_getPBTerm());
         return $term;
     }
     
@@ -108,16 +108,16 @@ class Replace extends ValuedQuery
         $this->nonAtomic  = $nonAtomic;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_REPLACE);
-        $term->set_args(0, $this->selection->getPBTerm());
-        $term->set_args(1, $this->delta->getPBTerm());
+        $term->set_args(0, $this->selection->_getPBTerm());
+        $term->set_args(1, $this->delta->_getPBTerm());
         if (isset($this->nonAtomic)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("non_atomic");
             $subDatum = new BoolDatum($this->nonAtomic);
-            $pair->set_val($subDatum->getPBTerm());
+            $pair->set_val($subDatum->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;

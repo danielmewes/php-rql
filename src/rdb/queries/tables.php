@@ -7,11 +7,11 @@ class TableList extends ValuedQuery
         $this->database = $database;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TABLE_LIST);
         if (isset($this->database))
-            $term->set_args(0, $this->database->getPBTerm());
+            $term->set_args(0, $this->database->_getPBTerm());
         return $term;
     }
     
@@ -38,21 +38,21 @@ class TableCreate extends ValuedQuery
         $this->options = $options;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TABLE_CREATE);
         $i = 0;
         if (isset($this->database)) {
-            $term->set_args($i++, $this->database->getPBTerm());
+            $term->set_args($i++, $this->database->_getPBTerm());
         }
         $subDatum = new StringDatum($this->tableName);
-        $term->set_args($i++, $subDatum->getPBTerm());
+        $term->set_args($i++, $subDatum->_getPBTerm());
         if (isset($this->options)) {
             $i = 0;
             foreach ($this->options as $key => $val) {
                 $pair = new pb\Term_AssocPair();
                 $pair->set_key($key);
-                $pair->set_val($val->getPBTerm());
+                $pair->set_val($val->_getPBTerm());
                 $term->set_optargs($i, $pair);
                 ++$i;
             }
@@ -74,15 +74,15 @@ class TableDrop extends ValuedQuery
         $this->tableName = $tableName;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TABLE_DROP);
         $i = 0;
         if (isset($this->database)) {
-            $term->set_args($i++, $this->database->getPBTerm());
+            $term->set_args($i++, $this->database->_getPBTerm());
         }
         $subDatum = new StringDatum($this->tableName);
-        $term->set_args($i++, $subDatum->getPBTerm());
+        $term->set_args($i++, $subDatum->_getPBTerm());
         return $term;
     }
     
@@ -121,20 +121,20 @@ class Table extends ValuedQuery
         $this->useOutdated = $useOutdated;
     }
 
-    public function getPBTerm() {
+    public function _getPBTerm() {
         $term = new pb\Term();
         $term->set_type(pb\Term_TermType::PB_TABLE);
         $i = 0;
         if (isset($this->database)) {
-            $term->set_args($i++, $this->database->getPBTerm());
+            $term->set_args($i++, $this->database->_getPBTerm());
         }
         $subDatum = new StringDatum($this->tableName);
-        $term->set_args($i++, $subDatum->getPBTerm());
+        $term->set_args($i++, $subDatum->_getPBTerm());
         if (isset($this->useOutdated)) {
             $pair = new pb\Term_AssocPair();
             $pair->set_key("use_outdated");
             $subTerm = new BoolDatum($this->useOutdated);
-            $pair->set_val($subTerm->getPBTerm());
+            $pair->set_val($subTerm->_getPBTerm());
             $term->set_optargs(0, $pair);
         }
         return $term;
