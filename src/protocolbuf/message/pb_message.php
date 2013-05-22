@@ -207,7 +207,7 @@ abstract class PBMessage
                 continue;
             }
 
-            $outputVar = $this->values[$messtypes['field']];
+            $outputVar = &$this->values[$messtypes['field']];
             // is it an array?
             if (is_array($this->values[$messtypes['field']]))
             {
