@@ -213,7 +213,7 @@ abstract class PBMessage
             {
                 $this->values[$messtypes['field']][] = null;
                 $index = count($this->values[$messtypes['field']]) - 1;
-                $outputVar = $this->values[$messtypes['field']][$index];
+                $outputVar = &$this->values[$messtypes['field']][$index];
             }
 
             $type = $this->fields[$messtypes['field']];
