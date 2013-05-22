@@ -41,7 +41,7 @@ abstract class Query
     }
     
     public function __toString() {
-        $types = (new ReflectionObject(new pb\Term_TermType()));
+        $types = (new \ReflectionObject(new pb\Term_TermType()));
         $types = $types->getConstants();
         $type = "UNKNOWN";
         foreach ($types as $key => $val) {
