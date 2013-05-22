@@ -6,7 +6,7 @@ $serverPort = 28015;
 
 
 error_reporting(-1);
-set_exception_handler(function ($e) { echo "Exception: " . $e->getMessage() . "\n\n"; debug_print_backtrace();  } );
+set_exception_handler(function ($e) { echo "Exception: " . $e . "\n\n"; debug_print_backtrace();  } );
 set_include_path($phpRqlIncludePath);
 
 

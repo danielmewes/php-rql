@@ -197,6 +197,11 @@ class BoolDatum extends Datum
         return $result;
     }
     
+    public function __toString() {
+        if ($this->getValue()) return "true";
+        else return "false";
+    }
+    
     public function setValue($val) {
         if (is_numeric($val)) $val = (($val == 0) ? false : true);
         if (!is_bool($val)) throw new RqlDriverError("Not a boolean: " . $val);
