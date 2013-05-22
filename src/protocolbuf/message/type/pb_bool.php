@@ -23,7 +23,7 @@ class PBBool extends PBInt
 		return ($value != 0) ? 1 : 0;
 	}
 	
-	public static function StaticSerializeToString($rec=-1, &$base128, &$value)
+	public static function StaticSerializeToString($rec=-1, $base128, $value)
 	{
 	    return PBInt::StaticSerializeToString($rec, $base128, $value);
 	}

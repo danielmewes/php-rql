@@ -147,7 +147,7 @@ abstract class PBMessage
      *
      * @param message as stream of hex example '1a 03 08 96 01'
      */
-    public function ParseFromString(&$message)
+    public function ParseFromString($message)
     {
         $this->reader = new PBInputStringReader($message);
         $this->_ParseFromArray();
@@ -207,13 +207,13 @@ abstract class PBMessage
                 continue;
             }
 
-            $outputVar = &$this->values[$messtypes['field']];
+            $outputVar = $this->values[$messtypes['field']];
             // is it an array?
             if (is_array($this->values[$messtypes['field']]))
             {
                 $this->values[$messtypes['field']][] = null;
                 $index = count($this->values[$messtypes['field']]) - 1;
-                $outputVar = &$this->values[$messtypes['field']][$index];
+                $outputVar = $this->values[$messtypes['field']][$index];
             }
 
             $type = $this->fields[$messtypes['field']];
