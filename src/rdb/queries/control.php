@@ -10,6 +10,7 @@ class RDo extends ValuedQuery
             if (!(is_object($arg) && is_subclass_of($arg, "\\r\\Query"))) {
                 $arg = nativeToDatum($arg);
             }
+            unset($arg);
         }
         $this->inExpr = $inExpr;
         $this->args = $args;

@@ -30,6 +30,7 @@ class TableCreate extends ValuedQuery
                 if (!(is_object($val) && is_subclass_of($val, "\\r\\Query"))) {
                     $val = nativeToDatum($val);
                 }
+                unset($val);
             }
         }
         
