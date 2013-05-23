@@ -5,10 +5,6 @@ A PHP client driver for the RethinkDB query language (ReQL).
 
 PHP-RQL is licensed under the terms of the Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0
 
-Overview
---------
-
-PHP-RQL provides a driver to access RethinkDB databases from PHP code.
 
 More Information
 ----------------
