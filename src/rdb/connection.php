@@ -36,7 +36,8 @@ class Connection
     }
     
     public function reconnect() {
-        $this->close();
+        if ($this->isOpen())
+            $this->close();
         $this->connect();
     }
     
@@ -199,11 +200,17 @@ class Connection
     
     private function receiveProtobuf() {
         $responseSize = stream_get_contents($this->socket, 4);
-        if ($responseSize === false) throw new RqlDriverError("Unable to read from socket.");
+        if ($responseSize === false || strlen($responseSize) < 4) {
+            $this->close();
+            throw new RqlDriverError("Unable to read from socket. Disconnected.");
+        }
         $responseSize = unpack("V", $responseSize);
         $responseSize = $responseSize[1];
         $responseBuf = stream_get_contents($this->socket, $responseSize);
-        if ($responseBuf === false) throw new RqlDriverError("Unable to read from socket.");
+        if ($responseBuf === false || strlen($responseBuf) < $responseSize) {
+            $this->close();
+            throw new RqlDriverError("Unable to read from socket. Disconnected.");
+        }
         return $responseBuf;
     }
     
@@ -230,7 +237,10 @@ class Connection
         $bytesWritten = 0;
         while ($bytesWritten < strlen($s)) {
             $result = fwrite($this->socket, substr($s, $bytesWritten));
-            if ($result === false) throw new RqlDriverError("Unable to write to socket");
+            if ($result === false) {
+                $this->close();
+                throw new RqlDriverError("Unable to write to socket. Disconnected.");
+            }
             $bytesWritten += $result;
         }
     }
