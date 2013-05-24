@@ -215,11 +215,11 @@ abstract class PBMessage
 
             $outputVar = &$this->values[$messtypes['field']];
             // is it an array?
-            if (is_array($this->values[$messtypes['field']]))
+            if (is_array($outputVar))
             {
-                $this->values[$messtypes['field']][] = null;
-                $index = count($this->values[$messtypes['field']]) - 1;
-                $outputVar = &$this->values[$messtypes['field']][$index];
+                $outputVar[] = null;
+                $index = count($outputVar) - 1;
+                $outputVar = &$outputVar[$index];
             }
 
             $type = $this->fields[$messtypes['field']];
