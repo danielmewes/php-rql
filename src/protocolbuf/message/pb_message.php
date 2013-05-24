@@ -103,23 +103,29 @@ abstract class PBMessage
 
         foreach ($this->fields as $index => $field)
         {
-            if (strncmp($this->fields[$index], "\\I_", 3) === 0)
+            if (is_array($this->values[$index]))
             {
-                $I_type = "\\" . substr($this->fields[$index], 3);
-                $stringinner .= $I_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
-            }
-            else if (is_array($this->values[$index]) && count($this->values[$index]) > 0)
-            {
-                // make serialization for every array
-                foreach ($this->values[$index] as $array)
+                if (count($this->values[$index]) > 0)
                 {
-                    $stringinner .= $array->SerializeToString($index);
+                    // make serialization for every array
+                    foreach ($this->values[$index] as $array)
+                    {
+                        $stringinner .= $array->SerializeToString($index);
+                    }
                 }
             }
-            else if ($this->values[$index] != null)
+            else if (isset($this->values[$index]))
             {
-                // wired and type
-                $stringinner .= $this->values[$index]->SerializeToString($index);
+                if (strncmp($this->fields[$index], "\\I_", 3) === 0)
+                {
+                    $I_type = "\\" . substr($this->fields[$index], 3);
+                    $stringinner .= $I_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
+                }
+                else
+                {
+                    // wired and type
+                    $stringinner .= $this->values[$index]->SerializeToString($index);
+                }
             }
         }
 

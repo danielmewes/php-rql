@@ -224,23 +224,23 @@ class PBParser
             if (isset($this->scalar_types[strtolower($classtype)])) {
                 $namespacePrefix = "";
                 if ($this->scalar_types[$classtype] != $classtype) 
-                    $namespacePrefix = "\\";
+                    $namespacePrefix = "\\\\";
                 $classtype = $namespacePrefix . $this->scalar_types[$classtype];
             }
             else if ((strpos($classtype, '_') === false))
                 $classtype = addslashes($this->namespaceStr) . str_replace('.', '_', $field['value']['namespace']);
 
 
-            $string .= '    $this->fields["' . $field['value']['value'] . '"] = "' . $classtype . '"' . ";\n";
+            $string .= '    $this->fields[' . $field['value']['value'] . '] = "' . $classtype . '"' . ";\n";
 
             if (isset($field['value']['repeated']))
             {
-                $string .= '    $this->values["' . $field['value']['value'] . '"] = array()' . ";\n";
+                $string .= '    $this->values[' . $field['value']['value'] . '] = array()' . ";\n";
             }
             else
             {
                 //$string .= '    $this->fields["' . $field['value']['value'] . '"] = new ' . $classtype . "();\n";
-                $string .= '    $this->values["' . $field['value']['value'] . '"] = ""' . ";\n";
+                $string .= '    $this->values[' . $field['value']['value'] . '] = null' . ";\n";
             }
 
             // default value only for optional fields
