@@ -107,10 +107,16 @@ abstract class PBMessage
             {
                 if (count($this->values[$index]) > 0)
                 {
+                    $isInlineType = strncmp($this->fields[$index], "\\I_", 3) === 0;
+                    if ($isInlineType) $I_type = "\\" . substr($this->fields[$index], 3);
+                
                     // make serialization for every array
                     foreach ($this->values[$index] as $array)
                     {
-                        $stringinner .= $array->SerializeToString($index);
+                        if ($isInlineType)
+                            $stringinner .= $I_type::StaticSerializeToString($index, $this->base128, $array);
+                        else
+                            $stringinner .= $array->SerializeToString($index);
                     }
                 }
             }
