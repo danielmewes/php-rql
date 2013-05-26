@@ -35,7 +35,9 @@ foreach ($testCaseTypes as $testCaseType) {
     require_once('./TestCases/' . $testCaseType);
     $testCaseType = str_replace(".php", "", $testCaseType);
     $testCase = new $testCaseType($conn, $currentDatasets);
+    echo "Running " . $testCaseType . "...";
     $testCase->run();
+    echo " done\n";
 }
 
 

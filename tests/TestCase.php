@@ -33,7 +33,7 @@ abstract class TestCase
         else
             $equal = $expectedResult === $nativeResult;
             
-        if (!$equal) // TODO: Test this
+        if (!$equal)
         {
             echo "Query result does not match. Was: $result\n";
         }
