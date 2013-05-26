@@ -94,6 +94,8 @@ function error($message)
 }
 
 function expr($obj) {
+    if ((is_object($obj) && is_subclass_of($obj, "\\r\\Query")))
+        return $obj;
     return nativeToDatum($obj);
 }
 

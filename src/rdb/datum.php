@@ -349,7 +349,7 @@ class ObjectDatum extends Datum
     public function setValue($val) {
         if (!is_array($val)) throw new RqlDriverError("Not an array: " . $val);
         foreach($val as $k => $v) {
-            if (!is_string($k)) throw new RqlDriverError("Not a string: " . $k);
+            if (!is_string($k) && !is_numeric($k)) throw new RqlDriverError("Not a string or number: " . $k);
             if (!(is_object($v) && is_subclass_of($v, "\\r\\Query"))) throw new RqlDriverError("Not a Query: " . $v);
         }
         parent::setValue($val);
