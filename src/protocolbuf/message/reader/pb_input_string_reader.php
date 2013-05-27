@@ -6,10 +6,10 @@ class PBInputStringReader extends PBInputReader
 {
 	var $length = 0;
 
-	public function __construct(&$string)
+	public function __construct($string)
 	{
 		parent::__construct();
-		$this->string = &$string;
+		$this->string = $string;
 		$this->length = strlen($string);
 	}
 

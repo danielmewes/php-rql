@@ -21,6 +21,31 @@ abstract class TestCase
         }
     }
     
+    protected function compareArrays($a1, $a2)
+    {
+        if (!is_array($a1) && !is_array($a2)) return $a1 == $a2;
+        else if (!(is_array($a1) && is_array($a2))) return false;
+        if (count($a1) != count($a2)) return false;
+        $equal = true;
+        foreach ($a1 as $k => $left) {
+            if (!$equal) break;
+            $right = null;
+            if (is_numeric($k)) {
+                foreach ($a2 as $r) {
+                    if ($this->compareArrays($left, $r)) {
+                        $right = $r;
+                        break;
+                    }
+                }
+            } else {
+                if (!array_key_exists($k, $a2)) return false;
+                $right = $a2[$k];
+            }
+            $equal = $equal && $this->compareArrays($left, $right);
+        }
+        return $equal;
+    }
+    
     protected function checkQueryResult($query, $expectedResult)
     {
         $result = $query->run($this->conn);
@@ -29,13 +54,18 @@ abstract class TestCase
         $equal = false;
             
         if (is_array($nativeResult) && is_array($expectedResult))
-            $equal = count(array_diff($nativeResult, $expectedResult)) == 0;
+            $equal = $this->compareArrays($nativeResult, $expectedResult);
         else
             $equal = $expectedResult === $nativeResult;
             
-        if (!$equal) // TODO: Test this
+        if (!$equal)
         {
-            echo "Query result does not match. Was: $result\n";
+            echo "Query result does not match.\n";
+            echo "  Was: \n";
+            print_r($nativeResult);
+            echo "  Expected: \n";
+            print_r($expectedResult);
+            echo "  In query: " . $query . "\n";
         }
     }
 }

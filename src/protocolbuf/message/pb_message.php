@@ -103,23 +103,35 @@ abstract class PBMessage
 
         foreach ($this->fields as $index => $field)
         {
-            if (strncmp($this->fields[$index], "\\I_", 3) === 0)
+            if (is_array($this->values[$index]))
             {
-                $I_type = "\\" . substr($this->fields[$index], 3);
-                $stringinner .= $I_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
-            }
-            else if (is_array($this->values[$index]) && count($this->values[$index]) > 0)
-            {
-                // make serialization for every array
-                foreach ($this->values[$index] as $array)
+                if (count($this->values[$index]) > 0)
                 {
-                    $stringinner .= $array->SerializeToString($index);
+                    $isInlineType = strncmp($this->fields[$index], "\\I_", 3) === 0;
+                    if ($isInlineType) $I_type = "\\" . substr($this->fields[$index], 3);
+                
+                    // make serialization for every array
+                    foreach ($this->values[$index] as $array)
+                    {
+                        if ($isInlineType)
+                            $stringinner .= $I_type::StaticSerializeToString($index, $this->base128, $array);
+                        else
+                            $stringinner .= $array->SerializeToString($index);
+                    }
                 }
             }
-            else if ($this->values[$index] != null)
+            else if (isset($this->values[$index]))
             {
-                // wired and type
-                $stringinner .= $this->values[$index]->SerializeToString($index);
+                if (strncmp($this->fields[$index], "\\I_", 3) === 0)
+                {
+                    $I_type = "\\" . substr($this->fields[$index], 3);
+                    $stringinner .= $I_type::StaticSerializeToString($index, $this->base128, $this->values[$index]);
+                }
+                else
+                {
+                    // wired and type
+                    $stringinner .= $this->values[$index]->SerializeToString($index);
+                }
             }
         }
 
@@ -147,7 +159,7 @@ abstract class PBMessage
      *
      * @param message as stream of hex example '1a 03 08 96 01'
      */
-    public function ParseFromString(&$message)
+    public function ParseFromString($message)
     {
         $this->reader = new PBInputStringReader($message);
         $this->_ParseFromArray();
@@ -209,11 +221,11 @@ abstract class PBMessage
 
             $outputVar = &$this->values[$messtypes['field']];
             // is it an array?
-            if (is_array($this->values[$messtypes['field']]))
+            if (is_array($outputVar))
             {
-                $this->values[$messtypes['field']][] = null;
-                $index = count($this->values[$messtypes['field']]) - 1;
-                $outputVar = &$this->values[$messtypes['field']][$index];
+                $outputVar[] = null;
+                $index = count($outputVar) - 1;
+                $outputVar = &$outputVar[$index];
             }
 
             $type = $this->fields[$messtypes['field']];

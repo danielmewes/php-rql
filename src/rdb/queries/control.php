@@ -5,31 +5,22 @@ class RDo extends ValuedQuery
     public function __construct($args, $inExpr) {
         if (!(is_object($inExpr) && is_subclass_of($inExpr, "\\r\\Query")))
             $inExpr = nativeToFunction($inExpr);
+        $this->setPositionalArg(0, $inExpr);
+        
+        $i = 1;
         if (!is_array($args)) $args = array($args);
         foreach ($args as &$arg) {
             if (!(is_object($arg) && is_subclass_of($arg, "\\r\\Query"))) {
                 $arg = nativeToDatum($arg);
             }
+            $this->setPositionalArg($i++, $arg);
             unset($arg);
         }
-        $this->inExpr = $inExpr;
-        $this->args = $args;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_FUNCALL);
-        $term->set_args(0, $this->inExpr->getPBTerm());
-        $i = 1;
-        foreach ($this->args as $arg) {
-            $term->set_args($i, $arg->getPBTerm());
-            ++$i;
-        }
-        return $term;
     }
     
-    private $inExpr;
-    private $args;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_FUNCALL;
+    }
 }
 
 class Branch extends ValuedQuery
@@ -50,23 +41,14 @@ class Branch extends ValuedQuery
             }
         }
         
-        $this->trueBranch = $trueBranch;
-        $this->falseBranch = $falseBranch;
-        $this->test = $test;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_BRANCH);
-        $term->set_args(0, $this->test->getPBTerm());
-        $term->set_args(1, $this->trueBranch->getPBTerm());
-        $term->set_args(2, $this->falseBranch->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $test);
+        $this->setPositionalArg(1, $trueBranch);
+        $this->setPositionalArg(2, $falseBranch);
     }
     
-    private $test;
-    private $trueBranch;
-    private $falseBranch;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_BRANCH;
+    }
 }
 
 class RForeach extends ValuedQuery
@@ -74,20 +56,13 @@ class RForeach extends ValuedQuery
     public function __construct(ValuedQuery $sequence, $queryFunction) {
         if (!(is_object($queryFunction) && is_subclass_of($queryFunction, "\\r\\Query")))
             $queryFunction = nativeToFunction($queryFunction);
-        $this->sequence = $sequence;
-        $this->queryFunction = $queryFunction;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_FOREACH);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->queryFunction->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $queryFunction);
     }
     
-    private $sequence;
-    private $queryFunction;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_FOREACH;
+    }
 }
 
 class Error extends ValuedQuery
@@ -95,17 +70,12 @@ class Error extends ValuedQuery
     public function __construct($message) {
         if (!(is_object($message) && is_subclass_of($message, "\\r\\Query")))
             $message = new StringDatum($message);
-        $this->message = $message;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_ERROR);
-        $term->set_args(0, $this->message->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $message);
     }
     
-    private $message;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_ERROR;
+    }
 }
 
 class Js extends FunctionQuery
@@ -115,25 +85,15 @@ class Js extends FunctionQuery
             $timeout = new NumberDatum($timeout);
         if (!(is_object($code) && is_subclass_of($code, "\\r\\Query")))
             $code = new StringDatum($code);
-        $this->code = $code;
-        $this->timeout = $timeout;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_JAVASCRIPT);
-        $term->set_args(0, $this->code->getPBTerm());
-        if (isset($this->timeout)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("timeout");
-            $pair->set_val($this->timeout->getPBTerm());
-            $term->set_optargs(0, $pair);
-        };
-        return $term;
+            
+        $this->setPositionalArg(0, $code);
+        if (isset($timeout))
+            $this->setOptionalArg('timeout', $timeout);
     }
     
-    private $code;
-    private $timeout;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_JAVASCRIPT;
+    }
 }
 
 class CoerceTo extends ValuedQuery
@@ -141,36 +101,25 @@ class CoerceTo extends ValuedQuery
     public function __construct(ValuedQuery $value, $typeName) {
         if (!(is_object($typeName) && is_subclass_of($typeName, "\\r\\Query")))
             $typeName = new StringDatum($typeName);
-        $this->value = $value;
-        $this->typeName = $typeName;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_COERCE_TO);
-        $term->set_args(0, $this->value->getPBTerm());
-        $term->set_args(1, $this->typeName->getPBTerm());
-        return $term;
+            
+        $this->setPositionalArg(0, $value);
+        $this->setPositionalArg(1, $typeName);
     }
     
-    private $value;
-    private $typeName;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_COERCE_TO;
+    }
 }
 
 class TypeOf extends ValuedQuery
 {
     public function __construct(ValuedQuery $value) {
-        $this->value = $value;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_TYPEOF);
-        $term->set_args(0, $this->value->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $value);
     }
     
-    private $value;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_TYPEOF;
+    }
 }
 
 ?>

@@ -6,29 +6,17 @@ class Insert extends ValuedQuery
         if (isset($upsert) && !\is_bool($upsert)) throw new RqlDriverError("Upsert must be bool.");
         if (!(is_object($document) && is_subclass_of($document, "\\r\\Query")))
             $document = nativeToDatum($document);
-        $this->table = $table;
-        $this->document = $document;
-        $this->upsert = $upsert;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_INSERT);
-        $term->set_args(0, $this->table->getPBTerm());
-        $term->set_args(1, $this->document->getPBTerm());
-        if (isset($this->upsert)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("upsert");
-            $subDatum = new BoolDatum($this->upsert);
-            $pair->set_val($subDatum->getPBTerm());
-            $term->set_optargs(0, $pair);
+        
+        $this->setPositionalArg(0, $table);
+        $this->setPositionalArg(1, $document);
+        if (isset($upsert)) {
+            $this->setOptionalArg('upsert', new BoolDatum($upsert));
         }
-        return $term;
     }
     
-    private $table;
-    private $document;
-    private $upsert;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_INSERT;
+    }
 }
 
 class Update extends ValuedQuery
@@ -48,45 +36,28 @@ class Update extends ValuedQuery
         } else if (!(is_object($delta) && is_subclass_of($delta, "\\r\\FunctionQuery")) && !(is_object($delta) && is_subclass_of($delta, "\\r\\Datum"))) {
             $delta = new RFunction(array(new RVar('_')), $delta);
         }
-        $this->selection = $selection;
-        $this->delta = $delta;
-        $this->nonAtomic  = $nonAtomic;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_UPDATE);
-        $term->set_args(0, $this->selection->getPBTerm());
-        $term->set_args(1, $this->delta->getPBTerm());
-        if (isset($this->nonAtomic)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("non_atomic");
-            $subDatum = new BoolDatum($this->nonAtomic);
-            $pair->set_val($subDatum->getPBTerm());
-            $term->set_optargs(0, $pair);
+        
+        $this->setPositionalArg(0, $selection);
+        $this->setPositionalArg(1, $delta);
+        if (isset($nonAtomic)) {
+            $this->setOptionalArg('non_atomic', new BoolDatum($nonAtomic));
         }
-        return $term;
     }
     
-    private $selection;
-    private $delta;
-    private $nonAtomic;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_UPDATE;
+    }
 }
 
 class Delete extends ValuedQuery
 {
     public function __construct(ValuedQuery $selection) {
-        $this->selection = $selection;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DELETE);
-        $term->set_args(0, $this->selection->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $selection);
     }
     
-    private $selection;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DELETE;
+    }
 }
 
 class Replace extends ValuedQuery
@@ -103,29 +74,17 @@ class Replace extends ValuedQuery
                 $delta = nativeToFunction($delta);
             }
         }
-        $this->selection = $selection;
-        $this->delta = $delta;
-        $this->nonAtomic  = $nonAtomic;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_REPLACE);
-        $term->set_args(0, $this->selection->getPBTerm());
-        $term->set_args(1, $this->delta->getPBTerm());
-        if (isset($this->nonAtomic)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("non_atomic");
-            $subDatum = new BoolDatum($this->nonAtomic);
-            $pair->set_val($subDatum->getPBTerm());
-            $term->set_optargs(0, $pair);
+        
+        $this->setPositionalArg(0, $selection);
+        $this->setPositionalArg(1, $delta);
+        if (isset($nonAtomic)) {
+            $this->setOptionalArg('non_atomic', new BoolDatum($nonAtomic));
         }
-        return $term;
     }
     
-    private $selection;
-    private $delta;
-    private $nonAtomic;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_REPLACE;
+    }
 }
 
 ?>

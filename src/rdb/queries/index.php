@@ -3,17 +3,12 @@
 class IndexList extends ValuedQuery
 {
     public function __construct(Table $table) {
-        $this->table = $table;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_INDEX_LIST);
-        $term->set_args(0, $this->table->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $table);
     }
     
-    private $table;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_INDEX_LIST;
+    }
 }
 
 class IndexCreate extends ValuedQuery
@@ -27,45 +22,27 @@ class IndexCreate extends ValuedQuery
             $keyFunction = new RFunction(array(new RVar('_')), $keyFunction);
         }
         
-        $this->table = $table;
-        $this->indexName = $indexName;
-        $this->keyFunction = $keyFunction;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_INDEX_CREATE);
-        $term->set_args(0, $this->table->getPBTerm());
-        $subDatum = new StringDatum($this->indexName);
-        $term->set_args(1, $subDatum->getPBTerm());
-        $term->set_args(2, $this->keyFunction->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $table);
+        $this->setPositionalArg(1, new StringDatum($indexName));
+        $this->setPositionalArg(2, $keyFunction);
     }
     
-    private $table;
-    private $indexName;
-    private $keyFunction;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_INDEX_CREATE;
+    }
 }
 
 class IndexDrop extends ValuedQuery
 {
     public function __construct(Table $table, $indexName) {
         if (!\is_string($indexName)) throw new RqlDriverError("Index name must be a string.");
-        $this->table = $table;
-        $this->indexName = $indexName;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_INDEX_DROP);
-        $term->set_args(0, $this->table->getPBTerm());
-        $subDatum = new StringDatum($this->indexName);
-        $term->set_args(1, $subDatum->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $table);
+        $this->setPositionalArg(1, new StringDatum($indexName));
     }
     
-    private $table;
-    private $indexName;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_INDEX_DROP;
+    }
 }
 
 ?>

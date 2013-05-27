@@ -197,6 +197,8 @@ commands:
 
     js:
       name: indexCreate
+    ph:
+      name: indexCreate
 
   - tag: index_drop
     section: table_admin

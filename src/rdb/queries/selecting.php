@@ -9,20 +9,13 @@ class Get extends ValuedQuery
             else
                 $key = new StringDatum($key);
         }
-        $this->table = $table;
-        $this->key = $key;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_GET);
-        $term->set_args(0, $this->table->getPBTerm());
-        $term->set_args(1, $this->key->getPBTerm());
-        return $term;
+        $this->setPositionalArg(0, $table);
+        $this->setPositionalArg(1, $key);
     }
     
-    private $table;
-    private $key;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_GET;
+    }
 }
 
 class GetAll extends ValuedQuery
@@ -33,28 +26,15 @@ class GetAll extends ValuedQuery
         if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
             $key = nativeToDatum($key);
         }
-        $this->table = $table;
-        $this->key = $key;
-        $this->index = $index;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_GET_ALL);
-        $term->set_args(0, $this->table->getPBTerm());
-        $term->set_args(1, $this->key->getPBTerm());
-        if (isset($this->index)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("index");
-            $pair->set_val($this->index->getPBTerm());
-            $term->set_optargs(0, $pair);
-        }
-        return $term;
+        $this->setPositionalArg(0, $table);
+        $this->setPositionalArg(1, $key);
+        if (isset($index))
+            $this->setOptionalArg('index', $index);
     }
     
-    private $table;
-    private $key;
-    private $index;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_GET_ALL;
+    }
 }
 
 class Between extends ValuedQuery
@@ -64,31 +44,17 @@ class Between extends ValuedQuery
             $index = new StringDatum($index);
         if (!(is_object($leftBound) && is_subclass_of($leftBound, "\\r\\Query"))) $leftBound = nativeToDatum($leftBound);
         if (!(is_object($rightBound) && is_subclass_of($rightBound, "\\r\\Query"))) $rightBound = nativeToDatum($rightBound);
-        $this->selection = $selection;
-        $this->leftBound = $leftBound;
-        $this->rightBound = $rightBound;
-        $this->index = $index;
+        
+        $this->setPositionalArg(0, $selection);
+        $this->setPositionalArg(1, $leftBound);
+        $this->setPositionalArg(2, $rightBound);
+        if (isset($index))
+            $this->setOptionalArg('index', $index);
     }
     
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_BETWEEN);
-        $term->set_args(0, $this->selection->getPBTerm());
-        $term->set_args(1, $this->leftBound->getPBTerm());
-        $term->set_args(2, $this->rightBound->getPBTerm());
-        if (isset($this->index)) {
-            $pair = new pb\Term_AssocPair();
-            $pair->set_key("index");
-            $pair->set_val($this->index->getPBTerm());
-            $term->set_optargs(0, $pair);
-        };
-        return $term;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_BETWEEN;
     }
-    
-    private $selection;
-    private $leftBound;
-    private $rightBound;
-    private $index;
 }
 
 class Filter extends ValuedQuery
@@ -107,20 +73,14 @@ class Filter extends ValuedQuery
         } else if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\FunctionQuery"))) {
             $predicate = new RFunction(array(new RVar('_')), $predicate);
         }
-        $this->sequence = $sequence;
-        $this->predicate = $predicate;
-    }
-
-    public function getPBTerm() {
-        $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_FILTER);
-        $term->set_args(0, $this->sequence->getPBTerm());
-        $term->set_args(1, $this->predicate->getPBTerm());
-        return $term;
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $predicate);
     }
     
-    private $sequence;
-    private $predicate;
+    protected function getTermType() {
+        return pb\Term_TermType::PB_FILTER;
+    }
 }
 
 ?>

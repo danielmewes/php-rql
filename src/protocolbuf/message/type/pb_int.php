@@ -30,7 +30,7 @@ class PBInt extends PBScalar
 		return self::StaticSerializeToString($rec, $this->base128, $this->value);
 	}
 	
-	public static function StaticSerializeToString($rec=-1, &$base128, &$value)
+	public static function StaticSerializeToString($rec=-1, $base128, $value)
 	{
 	    $string = '';
 

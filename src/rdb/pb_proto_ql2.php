@@ -17,18 +17,18 @@ class Datum extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBEnum";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\I_PBBool";
-    $this->values["2"] = "";
-    $this->fields["3"] = "\PBDouble";
-    $this->values["3"] = "";
-    $this->fields["4"] = "\I_PBString";
-    $this->values["4"] = "";
-    $this->fields["5"] = "\\r\\pb\\Datum";
-    $this->values["5"] = array();
-    $this->fields["6"] = "\\r\\pb\\Datum_AssocPair";
-    $this->values["6"] = array();
+    $this->fields[1] = "\\I_PBEnum";
+    $this->values[1] = null;
+    $this->fields[2] = "\\I_PBBool";
+    $this->values[2] = null;
+    $this->fields[3] = "\\PBDouble";
+    $this->values[3] = null;
+    $this->fields[4] = "\\I_PBString";
+    $this->values[4] = null;
+    $this->fields[5] = "\\r\\pb\\Datum";
+    $this->values[5] = array();
+    $this->fields[6] = "\\r\\pb\\Datum_AssocPair";
+    $this->values[6] = array();
   }
   function type()
   {
@@ -118,10 +118,10 @@ class Datum_AssocPair extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBString";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\\r\\pb\\Datum";
-    $this->values["2"] = "";
+    $this->fields[1] = "\\I_PBString";
+    $this->values[1] = null;
+    $this->fields[2] = "\\r\\pb\\Datum";
+    $this->values[2] = null;
   }
   function key()
   {
@@ -146,14 +146,14 @@ class Term extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBEnum";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\\r\\pb\\Datum";
-    $this->values["2"] = "";
-    $this->fields["3"] = "\\r\\pb\\Term";
-    $this->values["3"] = array();
-    $this->fields["4"] = "\\r\\pb\\Term_AssocPair";
-    $this->values["4"] = array();
+    $this->fields[1] = "\\I_PBEnum";
+    $this->values[1] = null;
+    $this->fields[2] = "\\r\\pb\\Datum";
+    $this->values[2] = null;
+    $this->fields[3] = "\\r\\pb\\Term";
+    $this->values[3] = array();
+    $this->fields[4] = "\\r\\pb\\Term_AssocPair";
+    $this->values[4] = array();
   }
   function type()
   {
@@ -293,10 +293,10 @@ class Term_AssocPair extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBString";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\\r\\pb\\Term";
-    $this->values["2"] = "";
+    $this->fields[1] = "\\I_PBString";
+    $this->values[1] = null;
+    $this->fields[2] = "\\r\\pb\\Term";
+    $this->values[2] = null;
   }
   function key()
   {
@@ -321,14 +321,14 @@ class Query extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBEnum";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\\r\\pb\\Term";
-    $this->values["2"] = "";
-    $this->fields["3"] = "\I_PBInt";
-    $this->values["3"] = "";
-    $this->fields["6"] = "\\r\\pb\\Query_AssocPair";
-    $this->values["6"] = array();
+    $this->fields[1] = "\\I_PBEnum";
+    $this->values[1] = null;
+    $this->fields[2] = "\\r\\pb\\Term";
+    $this->values[2] = null;
+    $this->fields[3] = "\\I_PBInt";
+    $this->values[3] = null;
+    $this->fields[6] = "\\r\\pb\\Query_AssocPair";
+    $this->values[6] = array();
   }
   function type()
   {
@@ -387,10 +387,10 @@ class Query_AssocPair extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBString";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\\r\\pb\\Term";
-    $this->values["2"] = "";
+    $this->fields[1] = "\\I_PBString";
+    $this->values[1] = null;
+    $this->fields[2] = "\\r\\pb\\Term";
+    $this->values[2] = null;
   }
   function key()
   {
@@ -415,12 +415,12 @@ class Frame extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBEnum";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\I_PBInt";
-    $this->values["2"] = "";
-    $this->fields["3"] = "\I_PBString";
-    $this->values["3"] = "";
+    $this->fields[1] = "\\I_PBEnum";
+    $this->values[1] = null;
+    $this->fields[2] = "\\I_PBInt";
+    $this->values[2] = null;
+    $this->fields[3] = "\\I_PBString";
+    $this->values[3] = null;
   }
   function type()
   {
@@ -458,8 +458,8 @@ class Backtrace extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\\r\\pb\\Frame";
-    $this->values["1"] = array();
+    $this->fields[1] = "\\r\\pb\\Frame";
+    $this->values[1] = array();
   }
   function frames($offset)
   {
@@ -488,14 +488,14 @@ class Response extends \PBMessage
   public function __construct($reader=null)
   {
     parent::__construct($reader);
-    $this->fields["1"] = "\I_PBEnum";
-    $this->values["1"] = "";
-    $this->fields["2"] = "\I_PBInt";
-    $this->values["2"] = "";
-    $this->fields["3"] = "\\r\\pb\\Datum";
-    $this->values["3"] = array();
-    $this->fields["4"] = "\\r\\pb\\Backtrace";
-    $this->values["4"] = "";
+    $this->fields[1] = "\\I_PBEnum";
+    $this->values[1] = null;
+    $this->fields[2] = "\\I_PBInt";
+    $this->values[2] = null;
+    $this->fields[3] = "\\r\\pb\\Datum";
+    $this->values[3] = array();
+    $this->fields[4] = "\\r\\pb\\Backtrace";
+    $this->values[4] = null;
   }
   function type()
   {
