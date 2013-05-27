@@ -4,6 +4,15 @@ $phpRqlIncludePath = "../src";
 $serverHost = 'localhost';
 $serverPort = 28015;
 
+// TODO: Implement proper command line argument parsing using getopt(), so we
+//  can also specify the server address etc.
+$testCaseSelection = null;
+if (count($argv) > 1) {
+    $testCaseSelection = array();
+    for ($i = 1; $i < count($argv); ++$i)
+        $testCaseSelection[] = $argv[$i];
+}
+
 
 error_reporting(-1);
 set_exception_handler(function ($e) {
@@ -39,8 +48,9 @@ $testCaseTypes = scandir('./TestCases');
 $currentDatasets = array();
 foreach ($testCaseTypes as $testCaseType) {
     if ($testCaseType[0] == ".") continue;
-    require_once('./TestCases/' . $testCaseType);
     $testCaseType = str_replace(".php", "", $testCaseType);
+    if ($testCaseSelection && !in_array($testCaseType, $testCaseSelection)) continue;
+    require_once('./TestCases/' . $testCaseType . ".php");
     $testCase = new $testCaseType($conn, $currentDatasets);
     echo "Running " . $testCaseType . "...";
     $testCase->run();
