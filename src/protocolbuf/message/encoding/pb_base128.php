@@ -12,7 +12,7 @@ class base128varint
      */
     public function set_value($number)
     {
-        if ($number < 128)
+        if ($number < 128 && $number >= 0)
         {
             return pack("C", $number);
         }
