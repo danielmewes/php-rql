@@ -12,14 +12,39 @@ class base128varint
      */
     public function set_value($number)
     {
-        $string = '';
-        while ($number > 0) {
-            $msb = ($number > 127) ? 128 : 0;
-            $string .= chr($number & 127 | $msb);
-            $number = $number >> 7;
+        if ($number < 128)
+        {
+            return pack("C", $number);
         }
-        $newMethod = $string;
-        return $string;
+
+        // split it and insert the mb byte
+        $string = decbin($number);
+        $string_length = strlen($string);
+        $string_array = array();
+        $pre = '1';
+        while ($string_length > 0)
+        {
+            if ($string_length < 8)
+            {
+                $string = substr('00000000', 0, 7 - $string_length % 7) . substr($string, 0, $string_length);
+                $string_length = strlen($string);
+                $pre = '0';
+            }
+            $string_array[] = $pre . substr($string, $string_length - 7, 7);
+            $string_length -= 7;
+            $pre = '1';
+            if ($string_length == 7 && substr($string, 0, $string_length) == '0000000')
+                break;
+        }
+
+        $hexstring = '';
+        foreach ($string_array as $string)
+        {
+            $hexstring .= sprintf('%02X', bindec($string));
+        }
+
+        // now format to hexstring in the right format
+        return $this->hex_to_str($hexstring);
     }
 
 
@@ -41,6 +66,22 @@ class base128varint
         }
 
         return $value;
+    }
+
+    /**
+     * Converts hex 2 ascii
+     * @param String $hex - the hex string
+     */
+    public function hex_to_str($hex)
+    {
+        $str = '';
+        $length = strlen($hex);
+
+        for($i = 0; $i < $length; $i += 2)
+        {
+            $str .= chr(hexdec($hex[$i] . $hex[$i + 1]));
+        }
+        return $str;
     }
 }
 
