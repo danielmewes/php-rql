@@ -17,36 +17,23 @@ class PBInputStringReader extends PBInputReader
 	 * get the next
 	 * @param boolean $is_string - if set to true only one byte is read
 	 */
-	public function next($is_string = false)
+	public function next()
 	{
-		$package = '';
+	    $startPointer = $this->pointer;
 		while (true)
 		{
 			if ($this->pointer >= $this->length)
-			{
 				return false;
-			}
 
-			$string = $this->string[$this->pointer];	        
-			$this->pointer++;
-
-			if ($is_string == true)
-				return ord($string);
-
-			$value = decbin(ord($string));
-
-			if ($value >= 10000000 && $is_string == false)
-			{
-				// now fill to eight with 00
-				$package .= $value;
-			}
-			else
-			{
-				// now fill to length of eight with 0
-				$value = $package . str_repeat('0', 8 - strlen($value) % 8) . $value;
-				return $this->base128->get_value($value);
-			}
-		}		
+			$byte = $this->string[$this->pointer];
+			++$this->pointer;
+			
+			if (ord($byte) < 128)
+			    break; // MSB not set, now go and calculate the value
+		}	
+		$package = substr($this->string, $startPointer, $this->pointer - $startPointer);
+		// Calculate the value
+		return $this->base128->get_value($package);
 	}
 }
 ?>

@@ -6,18 +6,6 @@
  */
 class base128varint
 {
-    // modus for output
-    var $modus = 1;
-
-    /**
-     * @param int $modus - 1=Byte 2=String
-     */
-    public function __construct($modus)
-    {
-        $this->modus = $modus;
-    }
-
-
     /**
      * @param $number - number as decimal
      * Returns the base128 value of an dec value
@@ -26,14 +14,7 @@ class base128varint
     {
         if ($number < 128)
         {
-            if ($this->modus == 1)
-            {
-                return pack("C", $number);
-            }
-            $hexstring = dechex($number);
-            if (strlen($hexstring) % 2 == 1)
-                $hexstring = '0' . $hexstring;
-            return $hexstring;
+            return pack("C", $number);
         }
 
         // split it and insert the mb byte
@@ -63,12 +44,7 @@ class base128varint
         }
 
         // now format to hexstring in the right format
-        if ($this->modus == 1)
-        {
-            return $this->hex_to_str($hexstring);
-        }
-
-        return $hexstring;
+        return $this->hex_to_str($hexstring);
     }
 
 
@@ -78,21 +54,18 @@ class base128varint
      */
     public function get_value($string)
     {
-        // now just drop the msb and reorder it + parse it in own string
-        $valuestring = '';
+        $value = 0;
         $string_length = strlen($string);
 
-        $i = 1;
-
-        while ($string_length > $i)
+        $digit = 0;
+        for ($i = 0; $i < $string_length; ++$i)
         {
-            // unset msb string and reorder it
-            $valuestring = substr($string, $i, 7) . $valuestring;
-            $i += 8;
+            // drop msb and sum up
+            $value += (ord($string[$i]) & 127) << $digit;
+            $digit += 7;
         }
 
-        // now interprete it
-        return bindec($valuestring);
+        return $value;
     }
 
     /**

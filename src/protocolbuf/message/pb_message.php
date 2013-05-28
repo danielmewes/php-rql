@@ -40,11 +40,6 @@ abstract class PBMessage
     // the value of a class
     var $value = null;
 
-    // modus byte or string parse (byte for productive string for better reading and debuging)
-    // 1 = byte, 2 = String
-    // TODO (daniel): It seems that modus 2 is currently broken. Maybe remove it altogether, or fix it.
-    const MODUS = 1;
-
     // now use pointer for speed improvement
     // pointer to begin
     protected $reader;
@@ -63,7 +58,7 @@ abstract class PBMessage
         $this->reader = $reader;
         $this->value = $this;
         if ($base128 === null)            
-            $this->base128 = new base128varint(PBMessage::MODUS);
+            $this->base128 = new base128varint();
         else
             $this->base128 = $base128;
     }
@@ -139,7 +134,7 @@ abstract class PBMessage
 
         if ($this->wired_type == PBMessage::WIRED_LENGTH_DELIMITED && $rec > -1)
         {
-            $stringinner = $this->base128->set_value(strlen($stringinner) / PBMessage::MODUS) . $stringinner;
+            $stringinner = $this->base128->set_value(strlen($stringinner)) . $stringinner;
         }
 
         return $string . $stringinner;
@@ -207,7 +202,7 @@ abstract class PBMessage
                 }
                 else
                 {
-                    throw new Exception('I dont understand this wired code:' . $messtypes['wired']);
+                    throw new Exception('I dont understand this wired code: ' . $messtypes['wired']);
                 }
 
                 // perhaps send a warning out
