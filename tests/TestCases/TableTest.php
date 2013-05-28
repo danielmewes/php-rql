@@ -37,4 +37,3 @@ class TableTest extends TestCase
 }
 
 ?>
-
