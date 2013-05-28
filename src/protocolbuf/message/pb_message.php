@@ -53,9 +53,9 @@ abstract class PBMessage
     /**
      * Constructor - initialize base128 class
      */
-    public function __construct($reader=null, $base128=null)
+    public function __construct(&$reader=null, $base128=null)
     {
-        $this->reader = $reader;
+        $this->reader = &$reader;
         $this->value = $this;
         if ($base128 === null)            
             $this->base128 = new base128varint();
@@ -70,13 +70,9 @@ abstract class PBMessage
      */
     public function get_types($number)
     {
-        $binstring = decbin($number);
         $types = array();
-        $binstringLength = strlen($binstring);
-        $low = substr($binstring, $binstringLength - 3, $binstringLength);
-        $high = substr($binstring,0, $binstringLength - 3) . '0000';
-        $types['wired'] = bindec($low);
-        $types['field'] = bindec($binstring) >> 3;
+        $types['wired'] = $number & 7;
+        $types['field'] = ($number ^ 7) >> 3;
         return $types;
     }
 
@@ -293,7 +289,8 @@ abstract class PBMessage
             }
             else
             {
-                $this->values[$index] = new $this->fields[$index](null, $this->base128);
+                $nullReader = null;
+                $this->values[$index] = new $this->fields[$index]($nullReader, $this->base128);
                 $this->values[$index]->value = $value;
             }
         }
