@@ -65,14 +65,14 @@ function nativeToDatum($v) {
 
 // ------------- Helpers -------------
 function protobufToDatum(pb\Datum $datum) {
-    switch ($datum->type()) {
+    switch ($datum->getType()) {
         case pb\Datum_DatumType::PB_R_NULL: return NullDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_BOOL: return BoolDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_NUM: return NumberDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_STR: return StringDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_ARRAY: return ArrayDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_OBJECT: return ObjectDatum::_fromProtobuffer($datum);
-        default: throw new RqlDriverError("Unhandled datum type " . $datum->type());
+        default: throw new RqlDriverError("Unhandled datum type " . $datum->getType());
     }
 }
 
@@ -117,8 +117,8 @@ abstract class Datum extends ValuedQuery
 
     public function _getPBTerm() {
         $term = new pb\Term();
-        $term->set_type(pb\Term_TermType::PB_DATUM);
-        $term->set_datum($this->_getPBDatum());
+        $term->setType(pb\Term_TermType::PB_DATUM);
+        $term->setDatum($this->_getPBDatum());
         return $term;
     }
     
@@ -160,7 +160,7 @@ class NullDatum extends Datum
 {
     public function _getPBDatum() {
         $datum = new pb\Datum();
-        $datum->set_type(pb\Datum_DatumType::PB_R_NULL);
+        $datum->setType(pb\Datum_DatumType::PB_R_NULL);
         return $datum;
     }
     
@@ -184,13 +184,13 @@ class BoolDatum extends Datum
 {
     public function _getPBDatum() {
         $datum = new pb\Datum();
-        $datum->set_type(pb\Datum_DatumType::PB_R_BOOL);
-        $datum->set_r_bool($this->getValue());
+        $datum->setType(pb\Datum_DatumType::PB_R_BOOL);
+        $datum->setRBool($this->getValue());
         return $datum;
     }
     
     static public function _fromProtobuffer(pb\Datum $datum) {
-        $val = $datum->r_bool();
+        $val = $datum->getRBool();
         
         $result = new BoolDatum();
         $result->setValue($val);
@@ -213,13 +213,13 @@ class NumberDatum extends Datum
 {
     public function _getPBDatum() {
         $datum = new pb\Datum();
-        $datum->set_type(pb\Datum_DatumType::PB_R_NUM);
-        $datum->set_r_num($this->getValue());
+        $datum->setType(pb\Datum_DatumType::PB_R_NUM);
+        $datum->setRNum($this->getValue());
         return $datum;
     }
     
     static public function _fromProtobuffer(pb\Datum $datum) {
-        $val = $datum->r_num();
+        $val = $datum->getRNum();
         
         $result = new NumberDatum();
         $result->setValue($val);
@@ -236,13 +236,13 @@ class StringDatum extends Datum
 {
     public function _getPBDatum() {
         $datum = new pb\Datum();
-        $datum->set_type(pb\Datum_DatumType::PB_R_STR);
-        $datum->set_r_str($this->getValue());
+        $datum->setType(pb\Datum_DatumType::PB_R_STR);
+        $datum->setRStr($this->getValue());
         return $datum;
     }
     
     static public function _fromProtobuffer(pb\Datum $datum) {
-        $val = $datum->r_str();
+        $val = $datum->getRStr();
         
         $result = new StringDatum();
         $result->setValue($val);
@@ -263,20 +263,18 @@ class ArrayDatum extends Datum
 {
     public function _getPBDatum() {
         $datum = new pb\Datum();
-        $datum->set_type(pb\Datum_DatumType::PB_R_ARRAY);
-        $i = 0;
+        $datum->setType(pb\Datum_DatumType::PB_R_ARRAY);
         foreach ($this->getValue() as $val) {
-            $datum->set_r_array($i, $val->_getPBDatum());
-            ++$i;
+            $datum->appendRArray($val->_getPBDatum());
         }
         return $datum;
     }
     
     static public function _fromProtobuffer(pb\Datum $datum) {
-        $size = $datum->r_array_size();
+        $size = $datum->getRArrayCount();
         $val = array();
         for ($i = 0; $i < $size; ++$i) {
-            $v = protobufToDatum($datum->r_array($i));
+            $v = protobufToDatum($datum->getRArrayAt($i));
             $val[$i] = $v;
         }
         
@@ -320,25 +318,23 @@ class ObjectDatum extends Datum
 {
     public function _getPBDatum() {
         $datum = new pb\Datum();
-        $datum->set_type(pb\Datum_DatumType::PB_R_OBJECT);
-        $i = 0;
+        $datum->setType(pb\Datum_DatumType::PB_R_OBJECT);
         foreach ($this->getValue() as $key => $val) {
             $pair = new pb\Datum_AssocPair();
-            $pair->set_key($key);
-            $pair->set_val($val->_getPBDatum());
-            $datum->set_r_object($i, $pair);
-            ++$i;
+            $pair->setKey($key);
+            $pair->setVal($val->_getPBDatum());
+            $datum->appendRObject($pair);
         }
         return $datum;
     }
     
     static public function _fromProtobuffer(pb\Datum $datum) {
-        $size = $datum->r_object_size();
+        $size = $datum->getRObjectCount();
         $val = array();
         for ($i = 0; $i < $size; ++$i) {
-            $pair = $datum->r_object($i);
-            $v = protobufToDatum($pair->val());
-            $val[$pair->key()] = $v;
+            $pair = $datum->getRObject($i);
+            $v = protobufToDatum($pair->getVal());
+            $val[$pair->getKey()] = $v;
         }
         
         $result = new ObjectDatum();

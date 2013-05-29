@@ -58,7 +58,7 @@ message Datum {
     }
     repeated AssocPair r_object = 6;
 
-    extensions 10000 to 20000;
+    //extensions 10000 to 20000;
 }
 
 // A [Term] is either a piece of data (see **Datum** above), or an operator and
@@ -325,7 +325,7 @@ message Term {
 
     // This is only used when type is DATUM.
     optional Datum datum = 2;
-
+PB_
     repeated Term args = 3; // Holds the positional arguments of the query.
     message AssocPair {
         optional string key = 1;
@@ -335,7 +335,7 @@ message Term {
     // (Note that the order of the optional arguments doesn't matter; think of a
     // Hash.)
 
-    extensions 10000 to 20000;
+    //extensions 10000 to 20000;
 }
 
 // You send one of:
