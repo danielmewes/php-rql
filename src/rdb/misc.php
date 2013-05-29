@@ -18,16 +18,15 @@ abstract class Query
 
     public function _getPBTerm() {
         $term = new pb\Term();
-        $term->set_type($this->getTermType());
+        $term->setType($this->getTermType());
         foreach ($this->positionalArgs as $i => $arg) {
-            $term->set_args($i, $arg->_getPBTerm());
+            $term->appendArgs($arg->_getPBTerm());
         }
-        $i = 0;
         foreach ($this->optionalArgs as $key => $val) {
             $pair = new pb\Term_AssocPair();
-            $pair->set_key($key);
-            $pair->set_val($val->_getPBTerm());
-            $term->set_optargs($i++, $pair);
+            $pair->setKey($key);
+            $pair->setVal($val->_getPBTerm());
+            $term->appendOptargs($pair);
         }
         return $term;
     }
@@ -376,7 +375,7 @@ class Cursor implements \Iterator
 
     public function __construct(Connection $connection, pb\Response $initialResponse) {
         $this->connection = $connection;
-        $this->token = $initialResponse->token();
+        $this->token = $initialResponse->getToken();
         $this->wasIterated = false;
         
         $this->setBatch($initialResponse);
@@ -395,12 +394,12 @@ class Cursor implements \Iterator
     }
     
     private function setBatch(pb\Response $response) {
-        $this->isComplete = $response->type() == pb\Response_ResponseType::PB_SUCCESS_SEQUENCE;
+        $this->isComplete = $response->getType() == pb\Response_ResponseType::PB_SUCCESS_SEQUENCE;
         $this->currentIndex = 0;
-        $this->currentSize = $response->response_size();
+        $this->currentSize = $response->getResponseCount();
         $this->currentData = array();
         for ($i = 0; $i < $this->currentSize; ++$i) {
-            $datum = protobufToDatum($response->response($i));
+            $datum = protobufToDatum($response->getResponseAt($i));
             $this->currentData[$i] = $datum;
         }
     }

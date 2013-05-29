@@ -1,7 +1,5 @@
 <?php namespace r;
 
-require_once('protocolbuf/message/pb_message.php');
-require_once('protocolbuf/parser/pb_parser.php');
 require_once('pb_proto_ql2.php');
 require_once("util.php");
 require_once("datum.php");
@@ -160,19 +158,19 @@ class Connection
         }
          
         if ($response->getType() == pb\Response_ResponseType::PB_CLIENT_ERROR) {
-            throw new RqlDriverError("Server says PHP-RQL is buggy: " . $response->getResponseAt(0)->r_str());
+            throw new RqlDriverError("Server says PHP-RQL is buggy: " . $response->getResponseAt(0)->getRStr());
         }
         else if ($response->getType() == pb\Response_ResponseType::PB_COMPILE_ERROR) {
             $backtrace = null;
             if (!is_null($response->getBacktrace()))
                 $backtrace =  Backtrace::_fromProtobuffer($response->getBacktrace());
-            throw new RqlUserError("Compile error: " . $response->getResponseAt(0)->r_str(), $query, $backtrace);
+            throw new RqlUserError("Compile error: " . $response->getResponseAt(0)->getRStr(), $query, $backtrace);
         }
         else if ($response->getType() == pb\Response_ResponseType::PB_RUNTIME_ERROR) {
             $backtrace = null;
             if (!is_null($response->getBacktrace()))
                 $backtrace =  Backtrace::_fromProtobuffer($response->getBacktrace());
-            throw new RqlUserError("Runtime error: " . $response->getResponseAt(0)->r_str(), $query, $backtrace);
+            throw new RqlUserError("Runtime error: " . $response->getResponseAt(0)->getRStr(), $query, $backtrace);
         }
     }
     

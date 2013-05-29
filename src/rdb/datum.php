@@ -332,7 +332,7 @@ class ObjectDatum extends Datum
         $size = $datum->getRObjectCount();
         $val = array();
         for ($i = 0; $i < $size; ++$i) {
-            $pair = $datum->getRObject($i);
+            $pair = $datum->getRObjectAt($i);
             $v = protobufToDatum($pair->getVal());
             $val[$pair->getKey()] = $v;
         }
