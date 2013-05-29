@@ -577,7 +577,7 @@ class ProtobufParser
     ) {
         foreach ($enums as $enum) {
             $buffer->append(
-                'const ' . $enum->getName() . ' = ' . $enum->getValue() . ';'
+                'const PB_' . $enum->getName() . ' = ' . $enum->getValue() . ';'
             );
         }
 
@@ -601,7 +601,7 @@ class ProtobufParser
                 ->increaseIdentation();
 
             foreach ($enums as $enum) {
-                $buffer->append('\'' . $enum->getName() . '\' => self::' . $enum->getName() . ',');
+                $buffer->append('\'' . $enum->getName() . '\' => self::PB_' . $enum->getName() . ',');
             }
 
             $buffer->decreaseIdentation()
