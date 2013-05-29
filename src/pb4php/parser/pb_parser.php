@@ -48,6 +48,14 @@ class PBParser
             $this->namespaceStr = "\\";
         $this->_create_class_file('pb_proto_' . $name . '.php');
     }
+    
+    private function toCamelCase($s)
+    {
+        // Snippet to get CamelCase from php-protobuf
+        $chunks = preg_split('/[^a-z0-9]/is', $s);
+        return implode('', array_map('ucfirst', $chunks));
+        //
+    }
 
     /**
      * Creates php class file for the proto file
@@ -60,6 +68,7 @@ class PBParser
         foreach ($this->m_types as $classfile)
         {
             $classname = str_replace(".", "_", $classfile['name']);
+            //$classname = $this->toCamelCase($classname);
 
             if ($classfile['type'] == 'message')
             {
@@ -117,59 +126,59 @@ class PBParser
 			if ( isset($field['value']['repeated']) && ( isset($this->scalar_types[$field['value']['type']]) 
 			    										|| $type == 'PBEnum') )
 			{
-                $string .= '  function ' . $field['value']['name'] . '($offset)' . "\n  {\n";
+                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'At($offset)' . "\n  {\n";
                 $string .= '    $v = $this->_get_arr_value("' . $field['value']['value'] . '", $offset);'  . "\n";
                 $string .= '    return $v->get_value();' . "\n";;
                 $string .= "  }\n";
 
-                $string .= '  function append_' .  $field['value']['name'] . '($value)' . "\n  {\n";
+                /*$string .= '  function add' .  $field['value']['name'] . '($value)' . "\n  {\n";
                 $string .= '    $v = $this->_add_arr_value("' . $field['value']['value'] . '");'  . "\n";
                 $string .= '    $v->set_value($value);' . "\n";;
-                $string .= "  }\n";
+                $string .= "  }\n";*/
 
-                $string .= '  function set_' .  $field['value']['name'] . '($index, $value)' . "\n  {\n";
+                $string .= '  function append' .  $this->toCamelCase($field['value']['name']) . '($value)' . "\n  {\n";
                 $string .= '    $v = new $this->fields["' . $field['value']['value'] . '"]();' . "\n";
                 $string .= '    $v->set_value($value);' . "\n";
-                $string .= '    $this->_set_arr_value("' . $field['value']['value'] . '", $index, $v);'  . "\n";
+                $string .= '    $this->_set_arr_value("' . $field['value']['value'] . '", $this->_get_arr_size("' .  $field['value']['value'] . '"), $v);'  . "\n";
                 $string .= "  }\n";
 
-                $string .= '  function remove_last_' .  $field['value']['name'] . '()' . "\n  {\n";
+                /*$string .= '  function remove_last_' .  $field['value']['name'] . '()' . "\n  {\n";
                 $string .= '    $this->_remove_last_arr_value("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";
+                $string .= "  }\n";*/
 
-                $string .= '  function ' . $field['value']['name'] . '_size()' . "\n  {\n";
+                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'Count()' . "\n  {\n";
                 $string .= '    return $this->_get_arr_size("' . $field['value']['value'] . '");'  . "\n";
                 $string .= "  }\n";
 			}			
             else if (isset($field['value']['repeated']))
             {
-                $string .= '  function ' . $field['value']['name'] . '($offset)' . "\n  {\n";
+                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'At($offset)' . "\n  {\n";
                 $string .= '    return $this->_get_arr_value("' . $field['value']['value'] . '", $offset);'  . "\n";
                 $string .= "  }\n";
 
-                $string .= '  function add_' .  $field['value']['name'] . '()' . "\n  {\n";
+                /*$string .= '  function add_' .  $field['value']['name'] . '()' . "\n  {\n";
                 $string .= '    return $this->_add_arr_value("' . $field['value']['value'] . '");'  . "\n";
+                $string .= "  }\n";*/
+
+                $string .= '  function append' .  $this->toCamelCase($field['value']['name']) . '($value)' . "\n  {\n";
+                $string .= '    $this->_set_arr_value("' . $field['value']['value'] . '", $this->_get_arr_size("' . $field['value']['value'] . '"), $value);'  . "\n";
                 $string .= "  }\n";
 
-                $string .= '  function set_' .  $field['value']['name'] . '($index, $value)' . "\n  {\n";
-                $string .= '    $this->_set_arr_value("' . $field['value']['value'] . '", $index, $value);'  . "\n";
-                $string .= "  }\n";
-
-                $string .= '  function remove_last_' .  $field['value']['name'] . '()' . "\n  {\n";
+                /*$string .= '  function remove_last_' .  $field['value']['name'] . '()' . "\n  {\n";
                 $string .= '    $this->_remove_last_arr_value("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";
+                $string .= "  }\n";*/
 
-                $string .= '  function ' . $field['value']['name'] . '_size()' . "\n  {\n";
+                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'Count()' . "\n  {\n";
                 $string .= '    return $this->_get_arr_size("' . $field['value']['value'] . '");'  . "\n";
                 $string .= "  }\n";
             }
             else
             {
-                $string .= '  function ' . $field['value']['name'] . "()\n  {\n";
+                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . "()\n  {\n";
                 $string .= '    return $this->_get_value("' . $field['value']['value'] . '");'  . "\n";
                 $string .= "  }\n";
 
-                $string .= '  function set_' .  $field['value']['name'] . '($value)' . "\n  {\n";
+                $string .= '  function set' .  $this->toCamelCase($field['value']['name']) . '($value)' . "\n  {\n";
                 $string .= '    return $this->_set_value("' . $field['value']['value'] . '", $value);'  . "\n";
                 $string .= "  }\n";
             }

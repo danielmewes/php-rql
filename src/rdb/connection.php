@@ -1,6 +1,5 @@
 <?php namespace r;
 
-require_once('pb_proto_ql2.php');
 require_once("util.php");
 require_once("datum.php");
 
