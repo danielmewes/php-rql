@@ -30,25 +30,29 @@
 
       </header>
       <section>
-        <h1>PHP-RQL</h1>
+        <h1>
+<a name="php-rql" class="anchor" href="#php-rql"><span class="octicon octicon-link"></span></a>PHP-RQL</h1>
 
 <p>PHP-RQL provides a driver to access <a href="http://rethinkdb.com">RethinkDB</a> databases from PHP code.
 It is licensed under the terms of the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
 
 <p>Documentation is available in our Wiki: <a href="http://php-rql.dnsalias.net/wiki/">http://php-rql.dnsalias.net/wiki/</a></p>
 
-<h2>Updates</h2>
+<h2>
+<a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>05/29/2013 <strong>Announcement:</strong> The upcoming version of PHP-RQL will come with support for a new protocol buffer backend, <a href="https://github.com/allegro/php-protobuf">PHP Protobuf</a>. PHP Protobuf was recently released as open source by the Allegro Group. It uses a compiled PHP extension. Using PHP Protobuf instead of the current backend (which is based on <a href="http://code.google.com/p/pb4php/">pb4php</a> ) allows for drastic improvements in the driver's efficiency and performance. If you are interested in testing this version, you can install from the <a href="https://github.com/danielmewes/php-rql/tree/php_protobuf">php_protobuf</a> branch (<a href="https://github.com/danielmewes/php-rql/archive/php_protobuf.zip">ZIP archive</a> ). Then install the protobuf extension as explained on <a href="http://php-rql.dnsalias.net/wiki/index.php/InstallExtension">this wiki page</a>. The old backend will still be supported, and offer an alternative for cases where installing a PHP extension is not possible or not worth the hassle.</li>
 <li>05/27/2013 New release: PHP-RQL 1.5.3. Support for query backtraces. Performance optimizations. ObjectDatum objects can now be created with numeric keys. Lots of changes under the hood to make future development easier.</li>
 <li>05/22/2013 New release: PHP-RQL 1.5.2. Bug fix: Problem when using multiple arguments with tableCreate, rDo, groupBy, orderBy, contains, pluck and without.</li>
-<li>05/17/2013 New release: PHP-RQL 1.5.1. Bug fix: Using the noreply option made the default database set on the connection not work. This was unfortunate, because having noreply set also made it difficult to notice that there even was a problem. Sorry for the inconvenience.</li>
-</ul><h2>Requirements</h2>
+</ul><h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>PHP 5.3</li>
 <li>RethinkDB 1.4 or 1.5</li>
-</ul><h2>Installing</h2>
+</ul><h2>
+<a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
 
 <ul>
 <li>Use <a href="http://getcomposer.org">Composer</a>:
@@ -62,7 +66,8 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <li>Copy the contents of the src directory (folders protocolbuf and rdb) into the path of your PHP project, or your system's PHP path (e.g. /usr/share/php).</li>
 </ol>
 </li>
-</ul><h2>Example</h2>
+</ul><h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
 <div class="highlight"><pre><span class="o">&lt;?</span><span class="nx">php</span>
     <span class="c1">// Load the driver</span>
@@ -99,7 +104,8 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <span class="cp">?&gt;</span><span class="x"></span>
 </pre></div>
 
-<h2>Attributions</h2>
+<h2>
+<a name="attributions" class="anchor" href="#attributions"><span class="octicon octicon-link"></span></a>Attributions</h2>
 
 <ul>
 <li>PHP-RQL uses <a href="http://code.google.com/p/pb4php/">pb4php</a> by Nikolai Kordulla.</li>
