@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-05-29 15:39:50
+ * Auto generated from ql2.proto at 2013-05-29 23:14:34
  */
 
 /**
@@ -113,7 +113,7 @@ class Datum_AssocPair extends \ProtobufMessage
         self::VAL => array(
             'name' => 'val',
             'required' => false,
-            'type' => '\r\pb\Datum'
+            'type' => 'r\pb\Datum'
         ),
     );
 
@@ -231,12 +231,12 @@ class Datum extends \ProtobufMessage
         self::R_ARRAY => array(
             'name' => 'r_array',
             'repeated' => true,
-            'type' => '\r\pb\Datum'
+            'type' => 'r\pb\Datum'
         ),
         self::R_OBJECT => array(
             'name' => 'r_object',
             'repeated' => true,
-            'type' => '\r\pb\Datum_AssocPair'
+            'type' => 'r\pb\Datum_AssocPair'
         ),
     );
 
@@ -673,7 +673,7 @@ class Term_AssocPair extends \ProtobufMessage
         self::VAL => array(
             'name' => 'val',
             'required' => false,
-            'type' => '\r\pb\Term'
+            'type' => 'r\pb\Term'
         ),
     );
 
@@ -774,17 +774,17 @@ class Term extends \ProtobufMessage
         self::DATUM => array(
             'name' => 'datum',
             'required' => false,
-            'type' => '\r\pb\Datum'
+            'type' => 'r\pb\Datum'
         ),
         self::ARGS => array(
             'name' => 'args',
             'repeated' => true,
-            'type' => '\r\pb\Term'
+            'type' => 'r\pb\Term'
         ),
         self::OPTARGS => array(
             'name' => 'optargs',
             'repeated' => true,
-            'type' => '\r\pb\Term_AssocPair'
+            'type' => 'r\pb\Term_AssocPair'
         ),
     );
 
@@ -1037,7 +1037,7 @@ class Query_AssocPair extends \ProtobufMessage
         self::VAL => array(
             'name' => 'val',
             'required' => false,
-            'type' => '\r\pb\Term'
+            'type' => 'r\pb\Term'
         ),
     );
 
@@ -1138,7 +1138,7 @@ class Query extends \ProtobufMessage
         self::QUERY => array(
             'name' => 'query',
             'required' => false,
-            'type' => '\r\pb\Term'
+            'type' => 'r\pb\Term'
         ),
         self::TOKEN => array(
             'name' => 'token',
@@ -1148,7 +1148,7 @@ class Query extends \ProtobufMessage
         self::GLOBAL_OPTARGS => array(
             'name' => 'global_optargs',
             'repeated' => true,
-            'type' => '\r\pb\Query_AssocPair'
+            'type' => 'r\pb\Query_AssocPair'
         ),
     );
 
@@ -1479,7 +1479,7 @@ class Backtrace extends \ProtobufMessage
         self::FRAMES => array(
             'name' => 'frames',
             'repeated' => true,
-            'type' => '\r\pb\Frame'
+            'type' => 'r\pb\Frame'
         ),
     );
 
@@ -1634,12 +1634,12 @@ class Response extends \ProtobufMessage
         self::RESPONSE => array(
             'name' => 'response',
             'repeated' => true,
-            'type' => '\r\pb\Datum'
+            'type' => 'r\pb\Datum'
         ),
         self::BACKTRACE => array(
             'name' => 'backtrace',
             'required' => false,
-            'type' => '\r\pb\Backtrace'
+            'type' => 'r\pb\Backtrace'
         ),
     );
 

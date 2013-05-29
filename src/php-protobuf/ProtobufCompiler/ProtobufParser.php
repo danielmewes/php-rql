@@ -91,7 +91,7 @@ class ProtobufParser
      *
      * @return null
      */
-    public function parse($sourceFile, $outputFile = null)
+    public function parse($sourceFile, $outputFile = null, $phpNamespace = null)
     {
         $string = file_get_contents($sourceFile);
         $this->_file = new FileDescriptor($sourceFile);
@@ -105,7 +105,7 @@ class ProtobufParser
         $this->_resolveNamespaces($file);
         $buffer = new CodeStringBuffer(self::TAB, self::EOL);
 
-        $this->_createClassFile($file, $buffer, $outputFile);
+        $this->_createClassFile($file, $buffer, $outputFile, $phpNamespace);
 
         return $file;
     }
@@ -119,14 +119,14 @@ class ProtobufParser
      * @return null
      */
     private function _createClass(
-        MessageDescriptor $descriptor, CodeStringBuffer $buffer
+        MessageDescriptor $descriptor, CodeStringBuffer $buffer, $phpNamespace = null
     ) {
         foreach ($descriptor->getEnums() as $enum) {
             $this->_createEnum($enum, $buffer);
         }
 
         foreach ($descriptor->getNested() as $nested) {
-            $this->_createClass($nested, $buffer);
+            $this->_createClass($nested, $buffer, $phpNamespace);
         }
 
         $buffer->newline();
@@ -147,7 +147,7 @@ class ProtobufParser
             ->append('{')
             ->increaseIdentation();
 
-        $this->_createClassConstructor($descriptor->getFields(), $buffer);
+        $this->_createClassConstructor($descriptor->getFields(), $buffer, $phpNamespace);
         $this->_createClassBody($descriptor->getFields(), $buffer);
 
         $buffer->decreaseIdentation()
@@ -205,7 +205,7 @@ class ProtobufParser
      * @return null
      */
     private function _createClassFile(
-        FileDescriptor $file, CodeStringBuffer $buffer, $outputFile = null
+        FileDescriptor $file, CodeStringBuffer $buffer, $outputFile = null, $phpNamespace = ""
     ) {
         $comment = new CommentStringBuffer(self::TAB, self::EOL);
         $date = strftime("%Y-%m-%d %H:%M:%S");
@@ -223,7 +223,7 @@ class ProtobufParser
         }
 
         foreach ($file->getMessages() as $descriptor) {
-            $this->_createClass($descriptor, $buffer);
+            $this->_createClass($descriptor, $buffer, $phpNamespace);
         }
 
         $requiresString = '';
@@ -241,7 +241,11 @@ class ProtobufParser
             $outputFile = $this->_createOutputFilename($file->getName());
         }
 
-        file_put_contents($outputFile, '<?php' . PHP_EOL . $buffer);
+        if ($phpNamespace)
+            $namespaceDeclaration = " namespace $phpNamespace;";
+        else
+            $namespaceDeclaration = "";
+        file_put_contents($outputFile, '<?php' . $namespaceDeclaration . PHP_EOL . $buffer);
     }
 
     /**
@@ -621,7 +625,7 @@ class ProtobufParser
      *
      * @return null
      */
-    private function _createClassConstructor($fields, CodeStringBuffer $buffer)
+    private function _createClassConstructor($fields, CodeStringBuffer $buffer, $phpNamespace = null)
     {
         $buffer->append('/* Field index constants */');
 
@@ -673,7 +677,10 @@ class ProtobufParser
             if (is_int($type)) {
                 $buffer->append('\'type\' => ' . $type . ',');
             } else {
-                $buffer->append('\'type\' => \'' . $type . '\'');
+                $namespacePrefix = "\\";
+                if ($phpNamespace)
+                    $namespacePrefix = $phpNamespace . "\\";
+                $buffer->append('\'type\' => \'' . $namespacePrefix . $type . '\'');
             }
 
             $buffer->decreaseIdentation();

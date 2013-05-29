@@ -11,13 +11,17 @@ if (!debug_backtrace()) {
         exit(1);
     }
 
-    if (count($argv) != 2) {
-        printf('USAGE: %s PROTO_FILE' . PHP_EOL, $argv[0]);
+    if (count($argv) < 2 || count($argv) > 3) {
+        printf('USAGE: %s PROTO_FILE [NAMESPACE]' . PHP_EOL, $argv[0]);
         exit(1);
     }
 
     $parser = new ProtobufParser();
     $file = $argv[1];
+    if (isset($argv[2]))
+      $namespace = $argv[2];
+    else
+      $namespace = null;
 
     if (!file_exists($file)) {
         printf($file . ' does not exist' . PHP_EOL);
@@ -30,7 +34,7 @@ if (!debug_backtrace()) {
     }
 
     try {
-        $parser->parse($file);
+        $parser->parse($file, null, $namespace);
     } catch (Exception $e) {
         echo $e->getMessage() . PHP_EOL;
     }
