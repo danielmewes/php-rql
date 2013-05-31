@@ -151,15 +151,16 @@ class Connection
     
     private function checkResponse(pb\Response $response, $token, $query = null) {
         if (is_null($response->getType())) throw new RqlDriverError("Response message has no type.");
-        
-        if ($response->getToken() != $token) {
-            throw new RqlDriverError("Received wrong token. Response does not match the request. Expected $token, received " . $response->getToken());
-        }
          
         if ($response->getType() == pb\Response_ResponseType::PB_CLIENT_ERROR) {
             throw new RqlDriverError("Server says PHP-RQL is buggy: " . $response->getResponseAt(0)->getRStr());
         }
-        else if ($response->getType() == pb\Response_ResponseType::PB_COMPILE_ERROR) {
+        
+        if ($response->getToken() != $token) {
+            throw new RqlDriverError("Received wrong token. Response does not match the request. Expected $token, received " . $response->getToken());
+        }
+        
+        if ($response->getType() == pb\Response_ResponseType::PB_COMPILE_ERROR) {
             $backtrace = null;
             if (!is_null($response->getBacktrace()))
                 $backtrace =  Backtrace::_fromProtobuffer($response->getBacktrace());
