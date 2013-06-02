@@ -11,7 +11,7 @@ commands:
 
     dont_need_parenthesis: true
     parent: null
-    returns: r
+    returns: namespace
 
     examples:
       - description: Setup your top level namespace.
@@ -27,13 +27,13 @@ commands:
   - tag: systemInfo
     section: module
     description: |
-      Returns a string describing some information on the current state of the PHP-RQL driver.
-      Currently, it will print the protocol buffer backend used, either php-protobuf or pb4php.
+      Returns a string providing some information on the current state of the PHP-RQL driver.
+      Currently, it prints the protocol buffer backend used. Either php-protobuf or pb4php.
     
 
-    dont_need_parenthesis: true
-    parent: null
-    returns: r
+    dont_need_parenthesis: false
+    parent: r
+    returns: null
 
     examples:
       - description: Check if PHP-RQL is using the faster php-protobuf library.
