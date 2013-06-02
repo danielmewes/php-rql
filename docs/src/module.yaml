@@ -24,6 +24,26 @@ commands:
             include RethinkDB::Shortcuts
           ph: require_once('rdb/rdb.php');
 
+  - tag: systemInfo
+    section: module
+    description: |
+      Returns a string describing some information on the current state of the PHP-RQL driver.
+      Currently, it will print the protocol buffer backend used, either php-protobuf or pb4php.
+    
+
+    dont_need_parenthesis: true
+    parent: null
+    returns: r
+
+    examples:
+      - description: Check if PHP-RQL is using the faster php-protobuf library.
+        validate: true
+        code: echo r\systemInfo();
+          
+    js: false
+    py: false
+    rb: false
+
   - tag: connect
     section: module
     description: |
