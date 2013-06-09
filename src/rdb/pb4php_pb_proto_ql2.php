@@ -206,11 +206,21 @@ class Term_TermType extends \PBEnum
   const PB_DIV  = 27;
   const PB_MOD  = 28;
   const PB_APPEND  = 29;
+  const PB_PREPEND  = 80;
+  const PB_DIFFERENCE  = 95;
+  const PB_SET_INSERT  = 88;
+  const PB_SET_INTERSECTION  = 89;
+  const PB_SET_UNION  = 90;
+  const PB_SET_DIFFERENCE  = 91;
+  const PB_INDEXES_OF  = 87;
+  const PB_CONTAINS  = 93;
   const PB_SLICE  = 30;
   const PB_SKIP  = 70;
   const PB_LIMIT  = 71;
   const PB_GETATTR  = 31;
-  const PB_CONTAINS  = 32;
+  const PB_KEYS  = 94;
+  const PB_HAS_FIELDS  = 32;
+  const PB_WITH_FIELDS  = 96;
   const PB_PLUCK  = 33;
   const PB_WITHOUT  = 34;
   const PB_MERGE  = 35;
@@ -222,6 +232,7 @@ class Term_TermType extends \PBEnum
   const PB_ORDERBY  = 41;
   const PB_DISTINCT  = 42;
   const PB_COUNT  = 43;
+  const PB_IS_EMPTY  = 86;
   const PB_UNION  = 44;
   const PB_NTH  = 45;
   const PB_GROUPED_MAP_REDUCE  = 46;
@@ -230,6 +241,10 @@ class Term_TermType extends \PBEnum
   const PB_OUTER_JOIN  = 49;
   const PB_EQ_JOIN  = 50;
   const PB_ZIP  = 72;
+  const PB_INSERT_AT  = 82;
+  const PB_DELETE_AT  = 83;
+  const PB_CHANGE_AT  = 84;
+  const PB_SPLICE_AT  = 85;
   const PB_COERCE_TO  = 51;
   const PB_TYPEOF  = 52;
   const PB_UPDATE  = 53;
@@ -254,6 +269,8 @@ class Term_TermType extends \PBEnum
   const PB_ASC  = 73;
   const PB_DESC  = 74;
   const PB_INFO  = 79;
+  const PB_SAMPLE  = 81;
+  const PB_DEFAULT  = 92;
 }
 class Term_AssocPair extends \PBMessage
 {

@@ -113,7 +113,7 @@ class Contains extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_CONTAINS;
+        return pb\Term_TermType::PB_HAS_FIELDS;
     }
 }
 

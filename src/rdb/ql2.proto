@@ -156,6 +156,23 @@ message Term {
         // DATUM Array Ops
         // Append a single element to the end of an array (like `snoc`).
         APPEND = 29; // ARRAY, DATUM -> ARRAY
+        // Prepend a single element to the end of an array (like `cons`).
+        PREPEND = 80; // ARRAY, DATUM -> ARRAY
+        //Remove the elements of one array from another array.
+        DIFFERENCE = 95; // ARRAY, ARRAY -> ARRAY
+
+        // DATUM Set Ops
+        // Set ops work on arrays. They don't use actual sets and thus have
+        // performance characteristics you would expect from arrays rather than
+        // from sets. All set operations have the post condition that they
+        // array they return contains no duplicate values.
+        SET_INSERT = 88; // ARRAY, DATUM -> ARRAY
+        SET_INTERSECTION = 89; // ARRAY, ARRAY -> ARRAY
+        SET_UNION = 90; // ARRAY, ARRAY -> ARRAY
+        SET_DIFFERENCE = 91; // ARRAY, ARRAY -> ARRAY
+        INDEXES_OF = 87; // Sequence, DATUM -> Sequence | Sequence, Function(1) -> Sequence
+        CONTAINS = 93; // Sequence, DATUM -> BOOL
+        
         SLICE  = 30; // Sequence, NUMBER, NUMBER -> Sequence
         SKIP  = 70; // Sequence, NUMBER -> Sequence
         LIMIT = 71; // Sequence, NUMBER -> Sequence
@@ -164,9 +181,14 @@ message Term {
         // Get a particular attribute out of an object, or map that over a
         // sequence.
         GETATTR  = 31; // OBJECT, STRING -> DATUM
-        // Check whether an object contains all of a set of attributes, or map
-        // that over a sequence.
-        CONTAINS = 32; // OBJECT, STRING... -> BOOL
+        // Return an array containing the keys of the object.
+        KEYS = 94; // OBJECT -> ARRAY
+        // Check whether an object contains all the specified fields,
+        // or filters a sequence so that all objects inside of it
+        // contain all the specified fields.
+        HAS_FIELDS = 32; // OBJECT, STRING... -> BOOL
+        // x.with_fields(...) <=> x.has_fields(...).pluck(...)
+        WITH_FIELDS = 96; // Sequence, STRING... -> Sequence
         // Get a subset of an object by selecting some attributes to preserve,
         // or map that over a sequence.  (Both pick and pluck, polymorphic.)
         PLUCK    = 33; // Sequence, STRING... -> Sequence | OBJECT, STRING... -> OBJECT
@@ -190,6 +212,7 @@ message Term {
         DISTINCT  = 42; // Sequence -> Sequence
         // Count the number of elements in a sequence.
         COUNT     = 43; // Sequence -> NUMBER
+        IS_EMPTY  = 86; // Sequence -> BOOL
         // Take the union of multiple sequences (preserves duplicate elements! (use distinct)).
         UNION     = 44; // Sequence... -> Sequence
         // Get the Nth element of a sequence.
@@ -206,6 +229,17 @@ message Term {
         // An inner-join that does an equality comparison on two attributes.
         EQ_JOIN            = 50; // Sequence, !STRING, Sequence, {index:!STRING} -> Sequence
         ZIP                = 72; // Sequence -> Sequence
+        
+        // Array Ops
+        // Insert an element in to an array at a given index.
+        INSERT_AT = 82; // ARRAY, NUMBER, DATUM -> ARRAY
+        // Remove an element at a given index from an array.
+        DELETE_AT = 83; // ARRAY, NUMBER -> ARRAY |
+                                 // ARRAY, NUMBER, NUMBER -> ARRAY
+        // Change the element at a given index of an array.
+        CHANGE_AT = 84; // ARRAY, NUMBER, DATUM -> ARRAY
+        // Splice one array in to another array.
+        SPLICE_AT = 85; // ARRAY, NUMBER, ARRAY -> ARRAY
 
         // * Type Ops
         // Coerces a datum to a named type (e.g. "bool").
@@ -318,8 +352,21 @@ message Term {
         // Indicates to ORDER_BY that this attribute is to be sorted in descending order.
         DESC = 74; // !STRING -> Ordering
         
-        // Gets info about anythin; most useful for tables.
+        // Gets info about anything. INFO is most commonly called on tables.
         INFO = 79; // Top -> OBJECT
+        
+        // Select a number of elements from sequence with uniform distribution.
+        SAMPLE = 81; // Sequence, NUMBER -> Sequence
+
+        // Evaluates its first argument. If that argument returns
+        // NULL or throws an error related to the absence of an
+        // expected value (for instance, accessing a non-existent
+        // field or adding NULL to an integer), DEFAULT will either
+        // return its second argument or execute it if it's a
+        // function. If the second argument is a function, it will be
+        // passed either the text of the error or NULL as its
+        // argument.
+        DEFAULT = 92; // Top, Top -> Top
     }
     optional TermType type = 1;
 

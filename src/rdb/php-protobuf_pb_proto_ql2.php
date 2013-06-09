@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-05-29 23:14:34
+ * Auto generated from ql2.proto at 2013-06-09 21:43:08
  */
 
 /**
@@ -521,11 +521,21 @@ final class Term_TermType
     const PB_DIV = 27;
     const PB_MOD = 28;
     const PB_APPEND = 29;
+    const PB_PREPEND = 80;
+    const PB_DIFFERENCE = 95;
+    const PB_SET_INSERT = 88;
+    const PB_SET_INTERSECTION = 89;
+    const PB_SET_UNION = 90;
+    const PB_SET_DIFFERENCE = 91;
+    const PB_INDEXES_OF = 87;
+    const PB_CONTAINS = 93;
     const PB_SLICE = 30;
     const PB_SKIP = 70;
     const PB_LIMIT = 71;
     const PB_GETATTR = 31;
-    const PB_CONTAINS = 32;
+    const PB_KEYS = 94;
+    const PB_HAS_FIELDS = 32;
+    const PB_WITH_FIELDS = 96;
     const PB_PLUCK = 33;
     const PB_WITHOUT = 34;
     const PB_MERGE = 35;
@@ -537,6 +547,7 @@ final class Term_TermType
     const PB_ORDERBY = 41;
     const PB_DISTINCT = 42;
     const PB_COUNT = 43;
+    const PB_IS_EMPTY = 86;
     const PB_UNION = 44;
     const PB_NTH = 45;
     const PB_GROUPED_MAP_REDUCE = 46;
@@ -545,6 +556,10 @@ final class Term_TermType
     const PB_OUTER_JOIN = 49;
     const PB_EQ_JOIN = 50;
     const PB_ZIP = 72;
+    const PB_INSERT_AT = 82;
+    const PB_DELETE_AT = 83;
+    const PB_CHANGE_AT = 84;
+    const PB_SPLICE_AT = 85;
     const PB_COERCE_TO = 51;
     const PB_TYPEOF = 52;
     const PB_UPDATE = 53;
@@ -569,6 +584,8 @@ final class Term_TermType
     const PB_ASC = 73;
     const PB_DESC = 74;
     const PB_INFO = 79;
+    const PB_SAMPLE = 81;
+    const PB_DEFAULT = 92;
 
     /**
      * Returns defined enum values
@@ -602,11 +619,21 @@ final class Term_TermType
             'DIV' => self::PB_DIV,
             'MOD' => self::PB_MOD,
             'APPEND' => self::PB_APPEND,
+            'PREPEND' => self::PB_PREPEND,
+            'DIFFERENCE' => self::PB_DIFFERENCE,
+            'SET_INSERT' => self::PB_SET_INSERT,
+            'SET_INTERSECTION' => self::PB_SET_INTERSECTION,
+            'SET_UNION' => self::PB_SET_UNION,
+            'SET_DIFFERENCE' => self::PB_SET_DIFFERENCE,
+            'INDEXES_OF' => self::PB_INDEXES_OF,
+            'CONTAINS' => self::PB_CONTAINS,
             'SLICE' => self::PB_SLICE,
             'SKIP' => self::PB_SKIP,
             'LIMIT' => self::PB_LIMIT,
             'GETATTR' => self::PB_GETATTR,
-            'CONTAINS' => self::PB_CONTAINS,
+            'KEYS' => self::PB_KEYS,
+            'HAS_FIELDS' => self::PB_HAS_FIELDS,
+            'WITH_FIELDS' => self::PB_WITH_FIELDS,
             'PLUCK' => self::PB_PLUCK,
             'WITHOUT' => self::PB_WITHOUT,
             'MERGE' => self::PB_MERGE,
@@ -618,6 +645,7 @@ final class Term_TermType
             'ORDERBY' => self::PB_ORDERBY,
             'DISTINCT' => self::PB_DISTINCT,
             'COUNT' => self::PB_COUNT,
+            'IS_EMPTY' => self::PB_IS_EMPTY,
             'UNION' => self::PB_UNION,
             'NTH' => self::PB_NTH,
             'GROUPED_MAP_REDUCE' => self::PB_GROUPED_MAP_REDUCE,
@@ -626,6 +654,10 @@ final class Term_TermType
             'OUTER_JOIN' => self::PB_OUTER_JOIN,
             'EQ_JOIN' => self::PB_EQ_JOIN,
             'ZIP' => self::PB_ZIP,
+            'INSERT_AT' => self::PB_INSERT_AT,
+            'DELETE_AT' => self::PB_DELETE_AT,
+            'CHANGE_AT' => self::PB_CHANGE_AT,
+            'SPLICE_AT' => self::PB_SPLICE_AT,
             'COERCE_TO' => self::PB_COERCE_TO,
             'TYPEOF' => self::PB_TYPEOF,
             'UPDATE' => self::PB_UPDATE,
@@ -650,6 +682,8 @@ final class Term_TermType
             'ASC' => self::PB_ASC,
             'DESC' => self::PB_DESC,
             'INFO' => self::PB_INFO,
+            'SAMPLE' => self::PB_SAMPLE,
+            'DEFAULT' => self::PB_DEFAULT,
         );
     }
 }
