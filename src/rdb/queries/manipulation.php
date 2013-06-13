@@ -78,6 +78,21 @@ class Append extends ValuedQuery
     }
 }
 
+class Prepend extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
+            $value = nativeToDatum($value);
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_PREPEND;
+    }
+}
+
 class Getattr extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute) {

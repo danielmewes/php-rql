@@ -28,6 +28,11 @@ class ManipulationsTest extends TestCase
             array(1, 2, 3, 4));
         $this->checkQueryResult(r\expr(array(1, 2, 3))->append(r\expr(4)),
             array(1, 2, 3, 4));
+        
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->prepend(4),
+            array(4, 1, 2, 3));
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->prepend(r\expr(4)),
+            array(4, 1, 2, 3));
             
         $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('x'),
             true);

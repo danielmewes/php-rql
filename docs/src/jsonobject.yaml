@@ -173,6 +173,7 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').prepend('newBoots').run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].prepend('newBoots').run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].prepend('new_boots').run(conn)
+          ph: r\table('marvel')->get('IronMan')->pluck('equipment')->prepend('newBoots')->run($conn);
 
   - tag: difference
     section: jsonobject

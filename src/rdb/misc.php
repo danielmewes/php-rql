@@ -232,6 +232,9 @@ abstract class ValuedQuery extends Query
     public function append($value) {
         return new Append($this, $value);
     }
+    public function prepend($value) {
+        return new Prepend($this, $value);
+    }
     public function __invoke($attribute) {
         return new Getattr($this, $attribute);
     }
