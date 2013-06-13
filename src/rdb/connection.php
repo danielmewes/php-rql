@@ -5,13 +5,16 @@ require_once("datum.php");
 
 class Connection
 {
-    public function __construct($host, $port = 28015, $db = null, $apiKey = "") {
+    public function __construct($host, $port = 28015, $apiKey = null, $db = null) {
         if (!isset($host)) throw new RqlDriverError("No host given.");
         if (!isset($port)) throw new RqlDriverError("No port given.");
         if (isset($db) && !is_string($db)) throw new RqlDriverError("Database must be a string.");
+        if (isset($apiKey) && !is_string($apiKey)) throw new RqlDriverError("The API key must be a string.");
         
         $this->host = $host;
         $this->port = $port;
+        if (!isset($apiKey))
+            $apiKey = "";
         $this->apiKey = $apiKey;
         
         if (isset($db))

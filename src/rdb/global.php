@@ -5,9 +5,9 @@ require_once("connection.php");
 
 // ------------- Global functions in namespace r -------------
 
-function connect($host, $port = 28015, $db = null)
+function connect($host, $port = 28015, $apiKey = null, $db = null)
 {
-    return new Connection($host, $port, $db);
+    return new Connection($host, $port, $apiKey, $db);
 }
 
 function db($dbName)
