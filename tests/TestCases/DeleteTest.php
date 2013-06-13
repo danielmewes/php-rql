@@ -10,7 +10,7 @@ class DeleteTest extends TestCase
         
         $count = r\db('Heroes')->table('marvel')->count()->run($this->conn)->toNative();
         
-        $this->checkQueryResult(r\db('Heroes')->table('marvel')->delete(), array('unchanged' => 0, 'skipped' => 0, 'replaced' => 0, 'inserted' => 0, 'errors' => 0, 'deleted' => $count));
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->delete(array('durability' => 'soft')), array('unchanged' => 0, 'skipped' => 0, 'replaced' => 0, 'inserted' => 0, 'errors' => 0, 'deleted' => $count));
         
         $this->datasets['Heroes']->reset();
     }

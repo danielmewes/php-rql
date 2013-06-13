@@ -135,14 +135,14 @@ abstract class Query
 // We simply define all remaining operations on this.
 abstract class ValuedQuery extends Query
 {
-    public function update($delta, $nonAtomic = null) {
-        return new Update($this, $delta, $nonAtomic);
+    public function update($delta, $opts = null) {
+        return new Update($this, $delta, $opts);
     }
-    public function delete() {
-        return new Delete($this);
+    public function delete($opts = null) {
+        return new Delete($this, $opts);
     }
-    public function replace($delta, $nonAtomic = null) {
-        return new Replace($this, $delta, $nonAtomic);
+    public function replace($delta, $opts = null) {
+        return new Replace($this, $delta, $opts);
     }
     public function between($leftBound, $rightBound, $index = null) {
         return new Between($this, $leftBound, $rightBound, $index);

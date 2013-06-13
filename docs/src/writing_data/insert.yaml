@@ -25,6 +25,7 @@ commands:
       js: json | [json][, {upsert:true}]
       py: json | [json][, upsert=False]
       rb: json | [json][, { :upsert => false }]
+      ph: json | array(json1, json2, ...)[, opts]
     parent: table
     returns: object
 
@@ -85,5 +86,5 @@ commands:
           ph: |
             r\table('marvel')->insert( 
                 array( 'superhero' => 'Iron Man', 'superpower' => 'Arc Reactor' ),
-                true)->run($conn);
+                array('upsert' => true))->run($conn);
 
