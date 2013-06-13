@@ -67,10 +67,12 @@ class RForeach extends ValuedQuery
 
 class Error extends ValuedQuery
 {
-    public function __construct($message) {
-        if (!(is_object($message) && is_subclass_of($message, "\\r\\Query")))
-            $message = new StringDatum($message);
-        $this->setPositionalArg(0, $message);
+    public function __construct($message = null) {
+        if (isset($message)) {
+            if (!(is_object($message) && is_subclass_of($message, "\\r\\Query")))
+                $message = new StringDatum($message);
+            $this->setPositionalArg(0, $message);
+        }
     }
     
     protected function getTermType() {

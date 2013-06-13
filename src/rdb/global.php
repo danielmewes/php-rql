@@ -88,7 +88,7 @@ function js($code, $timeout = null)
     return new Js($code, $timeout);
 }
 
-function error($message)
+function error($message = null)
 {
     return new Error($message);
 }

@@ -151,8 +151,8 @@ abstract class ValuedQuery extends Query
     public function between($leftBound, $rightBound, $index = null) {
         return new Between($this, $leftBound, $rightBound, $index);
     }
-    public function filter($predicate) {
-        return new Filter($this, $predicate);
+    public function filter($predicate, $default = null) {
+        return new Filter($this, $predicate, $default);
     }
     public function innerJoin(ValuedQuery $otherSequence, $predicate) {
         return new InnerJoin($this, $otherSequence, $predicate);

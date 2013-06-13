@@ -158,7 +158,7 @@ commands:
       argument to `r.error()` will cause any non-existence errors to
       abort the filter.
 
-    body: predicate
+    body: predicate[, default]
     parent: selection
     returns: selection
 
