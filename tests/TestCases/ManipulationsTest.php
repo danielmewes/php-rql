@@ -57,6 +57,23 @@ class ManipulationsTest extends TestCase
             
         $this->checkQueryResult(r\expr(array(1, 2, 3))->setDifference(array(1, 4)),
             array(2, 3));
+            
+        $this->checkQueryResult(r\expr(array('a' => 1, 'b' => 2, 'c' => 3))->keys(),
+            array('a', 'b', 'c'));
+            
+        $this->checkQueryResult(r\expr(array("Iron Man", "Spider-Man"))->insertAt(1, "Hulk"),
+            array("Iron Man", "Hulk", "Spider-Man"));
+        
+        $this->checkQueryResult(r\expr(array("Iron Man", "Spider-Man"))->spliceAt(1, array("Hulk", "Thor")),
+            array("Iron Man", "Hulk", "Thor",  "Spider-Man"));
+        
+        $this->checkQueryResult(r\expr(array("Iron Man", "Hulk", "Spider-Man"))->deleteAt(1),
+            array("Iron Man", "Spider-Man"));
+        $this->checkQueryResult(r\expr(array("Iron Man", "Hulk", "Thor", "Spider-Man"))->deleteAt(1,2),
+            array("Iron Man", "Spider-Man"));
+            
+        $this->checkQueryResult(r\expr(array("Iron Man", "Bruce", "Spider-Man"))->changeAt(1, "Hulk"),
+            array("Iron Man", "Hulk", "Spider-Man"));
     }
 }
 

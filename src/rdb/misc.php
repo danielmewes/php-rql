@@ -259,6 +259,21 @@ abstract class ValuedQuery extends Query
     public function hasFields($attributes) {
         return new HasFields($this, $attributes);
     }
+    public function insertAt($index, $value) {
+        return new InsertAt($this, $index, $value);
+    }
+    public function spliceAt($index, $value) {
+        return new SpliceAt($this, $index, $value);
+    }
+    public function deleteAt($index, $endIndex = null) {
+        return new DeleteAt($this, $index, $endIndex);
+    }
+    public function changeAt($index, $value) {
+        return new changeAt($this, $index, $value);
+    }
+    public function keys() {
+        return new Keys($this);
+    }
     public function add($other) {
         return new Add($this, $other);
     }

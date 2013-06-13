@@ -367,6 +367,10 @@ commands:
           js: r(["Iron Man", "Spider-Man"]).insertAt(1, "Hulk").run(conn, callback)
           py: r.expr(["Iron Man", "Spider-Man"]).insert_at(1, "Hulk").run(conn)
           rb: r(["Iron Man", "Spider-Man"]).insert_at(1, "Hulk").run(conn)
+          ph: r\expr(array("Iron Man", "Spider-Man"))->insertAt(1, "Hulk")->run($conn);
+
+    ph:
+      name: insertAt
 
   - tag: splice_at
     section: jsonobject
@@ -382,6 +386,10 @@ commands:
           js: r(["Iron Man", "Spider-Man"]).spliceAt(1, ["Hulk", "Thor"]).run(conn, callback)
           py: r.expr(["Iron Man", "Spider-Man"]).splice_at(1, ["Hulk", "Thor"]).run(conn)
           rb: r(["Iron Man", "Spider-Man"]).splice_at(1, ["Hulk", "Thor"]).run(conn)
+          ph: r\expr(array("Iron Man", "Spider-Man"))->spliceAt(1, array("Hulk", "Thor"))->run($conn);
+
+    ph:
+      name: spliceAt
 
   - tag: delete_at
     section: jsonobject
@@ -397,11 +405,16 @@ commands:
           js: r(["Iron Man", "Hulk", "Spider-Man"]).deleteAt(1).run(conn, callback)
           py: r.expr(["Iron Man", "Hulk", "Spider-Man"]).delete_at(1).run(conn)
           rb: r(["Iron Man", "Hulk", "Spider-Man"]).delete_at(1).run(conn)
+          ph: r\expr(array("Iron Man", "Hulk", "Spider-Man"))->deleteAt(1)->run($conn);
       - description: Hulk and Thor decide to leave the avengers.
         code:
           js: r(["Iron Man", "Hulk", "Thor", "Spider-Man"]).deleteAt(1,2).run(conn, callback)
           py: r.expr(["Iron Man", "Hulk", "Thor", "Spider-Man"]).delete_at(1,2).run(conn)
           rb: r(["Iron Man", "Hulk", "Thor", "Spider-Man"]).delete_at(1,2).run(conn)
+          ph: r\expr(array("Iron Man", "Hulk", "Thor", "Spider-Man"))->deleteAt(1,2)->run($conn);
+
+    ph:
+      name: deleteAt
 
   - tag: change_at
     section: jsonobject
@@ -417,6 +430,10 @@ commands:
           js: r(["Iron Man", "Bruce", "Spider-Man"]).changeAt(1, "Hulk").run(conn, callback)
           py: r.expr(["Iron Man", "Bruce", "Spider-Man"]).change_at(1, "Hulk").run(conn)
           rb: r(["Iron Man", "Bruce", "Spider-Man"]).change_at(1, "Hulk").run(conn)
+          ph: r\expr(array("Iron Man", "Bruce", "Spider-Man"))->changeAt(1, "Hulk")->run($conn);
+
+    ph:
+      name: changeAt
 
   - tag: keys
     section: jsonobject
@@ -431,4 +448,5 @@ commands:
           rb: r.table('marvel').get('ironman').keys.run(conn)
           py: r.table('marvel').get('ironman').keys().run(conn)
           js: r.table('marvel').get('ironman').keys().run(conn, callback)
+          ph: r\table('marvel')->get('ironman')->keys()->run($conn);
 
