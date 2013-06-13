@@ -61,11 +61,11 @@ commands:
               {:superhero => 'Wolverine', :superpower => 'Adamantium'},
               {:superhero => 'Spiderman', :superpower => 'spidy sense'}
             ], :durability => 'soft').run(conn)
-+          ph: |
-+            r\table('marvel')->insert(array(
-+                array( 'superhero' => 'Wolverine', 'superpower' => 'Adamantium' ),
-+                array( 'superhero' => 'Spiderman', 'superpower' => 'spidy sense' )
-+              ), array('durability' => 'soft'))->run($conn);
+          ph: |
+            r\table('marvel')->insert(array(
+                array( 'superhero' => 'Wolverine', 'superpower' => 'Adamantium' ),
+                array( 'superhero' => 'Spiderman', 'superpower' => 'spidy sense' )
+              ), array('durability' => 'soft'))->run($conn);
       - description: Insert a row into a table named 'marvel', overwriting if the document already exists.
         code:
           js: |

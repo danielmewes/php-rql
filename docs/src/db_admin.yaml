@@ -23,13 +23,11 @@ commands:
           py: r.db_create('superheroes').run(conn)
           rb: r.db_create('superheroes').run(conn)
           js: r.dbCreate('superheroes').run(conn, callback)
+          ph: r\dbCreate('superheroes')->run($conn);
           
-ph:
+    ph:
       name: dbCreate
       body: dbName
-      examples:
-        0:
-          code: r\dbCreate('superheroes')->run($conn);
 
   - tag: db_drop
     section: db_admin
