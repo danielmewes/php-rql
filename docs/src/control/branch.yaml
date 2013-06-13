@@ -41,10 +41,3 @@ commands:
                 r\row('name')->add(' is a hero'))
               )->run($conn);
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
-

@@ -36,10 +36,3 @@ commands:
     ph:
       name: rForeach
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
-
