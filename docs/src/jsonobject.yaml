@@ -157,7 +157,7 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').append('newBoots').run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].append('newBoots').run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].append('new_boots').run(conn)
-          ph: r\table('marvel')->get('IronMan')->pluck('equipment')->append('newBoots')->run($conn);
+          ph: r\table('marvel')->get('IronMan')->attr('equipment')->append('newBoots')->run($conn);
 
   - tag: prepend
     section: jsonobject
@@ -173,7 +173,7 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').prepend('newBoots').run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].prepend('newBoots').run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].prepend('new_boots').run(conn)
-          ph: r\table('marvel')->get('IronMan')->pluck('equipment')->prepend('newBoots')->run($conn);
+          ph: r\table('marvel')->get('IronMan')->attr('equipment')->prepend('newBoots')->run($conn);
 
   - tag: difference
     section: jsonobject
@@ -189,6 +189,7 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').difference(['Boots']).run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].difference(['Boots']).run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].difference(['Boots']).run(conn)
+          ph: r\table('marvel')->get('IronMan')->attr('equipment')->difference(array('newBoots'))->run($conn);
 
   - tag: set_insert
     section: jsonobject
@@ -206,6 +207,10 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').setInsert('newBoots').run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].set_insert('newBoots').run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].set_insert('new_boots').run(conn)
+          ph: r\table('marvel')->get('IronMan')->attr('equipment')->setInsert('newBoots')->run($conn);
+          
+    ph:
+      name: setInsert
 
   - tag: set_union
     section: jsonobject
@@ -225,6 +230,12 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').setUnion(['newBoots', 'arc_reactor']).run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].set_union(['newBoots', 'arc_reactor']).run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].set_union(['newBoots', 'arc_reactor']).run(conn)
+          ph: |
+            r\table('marvel')->get('IronMan')->attr('equipment')->setUnion(
+              array('newBoots', 'arc_reactor'))->run($conn);
+
+    ph:
+      name: setUnion
 
   - tag: set_intersection
     section: jsonobject
@@ -242,6 +253,12 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').setIntersection(['newBoots', 'arc_reactor']).run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].set_intersection(['newBoots', 'arc_reactor']).run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].set_intersection(['newBoots', 'arc_reactor']).run(conn)
+          ph: |
+            r\table('marvel')->get('IronMan')->attr('equipment')->setIntersection(
+              array('newBoots', 'arc_reactor'))->run($conn);
+
+    ph:
+      name: setIntersection
 
   - tag: set_difference
     section: jsonobject
@@ -259,6 +276,12 @@ commands:
           js: r.table('marvel').get('IronMan')('equipment').setDifference(['newBoots', 'arc_reactor']).run(conn, callback)
           py: r.table('marvel').get('IronMan')['equipment'].set_difference(['newBoots', 'arc_reactor']).run(conn)
           rb: r.table('marvel').get('IronMan')[:equipment].set_difference(['newBoots', 'arc_reactor']).run(conn)
+          ph: |
+            r\table('marvel')->get('IronMan')->attr('equipment')->setDifference(
+              array('newBoots', 'arc_reactor'))->run($conn);
+    
+    ph:
+      name: setDifference
 
   - tag: getattr
     section: jsonobject
@@ -286,6 +309,24 @@ commands:
       name: ()
       name1: (
       name2: )
+      
+  - tag: attr
+    section: jsonobject
+    description: Get a single attribute from an object. Alias for ().
+
+    name: attr
+    body: attr
+    parent: json
+    returns: json
+
+    examples:
+      - description: What was Iron Man's first appearance in a comic?
+        code:
+          ph: r\table('marvel')->get('IronMan')->attr('firstAppearance')->run($conn);;
+          
+    js: false
+    rb: false
+    py: false
 
   - tag: has_fields
     section: jsonobject
@@ -307,7 +348,7 @@ commands:
             r\table('marvel')->filter(function($hero) {
                 return $hero->hasFields('spouse');
               })->run($conn);
-              
+
     ph:
       body: field | array(field1, field2, ...)
       name: hasFields

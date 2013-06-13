@@ -93,6 +93,81 @@ class Prepend extends ValuedQuery
     }
 }
 
+class Difference extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
+            $value = nativeToDatum($value);
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DIFFERENCE;
+    }
+}
+
+class SetInsert extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
+            $value = nativeToDatum($value);
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SET_INSERT;
+    }
+}
+
+class SetIntersection extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
+            $value = nativeToDatum($value);
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SET_INTERSECTION;
+    }
+}
+
+class SetDifference extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
+            $value = nativeToDatum($value);
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SET_DIFFERENCE;
+    }
+}
+
+class SetUnion extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
+            $value = nativeToDatum($value);
+        
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SET_UNION;
+    }
+}
+
 class Getattr extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute) {

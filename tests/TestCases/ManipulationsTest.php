@@ -34,10 +34,29 @@ class ManipulationsTest extends TestCase
         $this->checkQueryResult(r\expr(array(1, 2, 3))->prepend(r\expr(4)),
             array(4, 1, 2, 3));
             
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->difference(array(1, 2)),
+            array(3));
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->difference(r\expr(array(1, 2))),
+            array(3));
+            
         $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('x'),
             true);
         $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('foo'),
             false);
+            
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setInsert(4),
+            array(1, 2, 3, 4));
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setInsert(1),
+            array(1, 2, 3));
+            
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setUnion(array(1, 4)),
+            array(1, 2, 3, 4));
+        
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setIntersection(array(1, 4)),
+            array(1));
+            
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setDifference(array(1, 4)),
+            array(2, 3));
     }
 }
 

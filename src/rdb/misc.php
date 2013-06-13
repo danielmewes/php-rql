@@ -235,6 +235,21 @@ abstract class ValuedQuery extends Query
     public function prepend($value) {
         return new Prepend($this, $value);
     }
+    public function difference($value) {
+        return new Difference($this, $value);
+    }
+    public function setInsert($value) {
+        return new SetInsert($this, $value);
+    }
+    public function setUnion($value) {
+        return new SetUnion($this, $value);
+    }
+    public function setIntersection($value) {
+        return new SetIntersection($this, $value);
+    }
+    public function setDifference($value) {
+        return new SetDifference($this, $value);
+    }
     public function __invoke($attribute) {
         return new Getattr($this, $attribute);
     }
