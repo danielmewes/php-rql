@@ -38,6 +38,10 @@ abstract class Query
     public function info() {
         return new Info($this);
     }
+    public function rDefault($defaultCase)
+    {
+        return new RDefault($this, $defaultCase);
+    }
     
     public function __toString() {
         $backtrace = null;

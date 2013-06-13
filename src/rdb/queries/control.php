@@ -78,6 +78,26 @@ class Error extends ValuedQuery
     }
 }
 
+class RDefault extends ValuedQuery
+{
+    public function __construct(Query $query, $defaultCase) {
+        if (!(is_object($defaultCase) && is_subclass_of($defaultCase, "\\r\\Query"))) {
+            try {
+                $defaultCase = nativeToDatum($defaultCase);
+            } catch (RqlDriverError $e) {
+                $defaultCase = nativeToFunction($defaultCase);
+            }
+        }
+        
+        $this->setPositionalArg(0, $query);
+        $this->setPositionalArg(1, $defaultCase);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DEFAULT;
+    }
+}
+
 class Js extends FunctionQuery
 {
     public function __construct($code, $timeout = null) {

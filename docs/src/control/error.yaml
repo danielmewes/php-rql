@@ -42,7 +42,7 @@ commands:
     description: Handle non-existence errors.  Tries to evaluate and return its first argument.  If an error related to the absence of a value is thrown in the process, or if its first argument returns null, returns its second argument.  (Alternatively, the second argument may be a function which will be called with either the text of the non-existence error or null.)
 
     body: query, default_case
-    parent: r
+    parent: query
     returns: query
 
     examples:
@@ -60,4 +60,12 @@ commands:
             r.table('projects').map {|p|
               p[:staff].default(0) + p[:management].default(0)
             }.run(conn)
+          ph: |-
+            r\table('projects')->map(function($p) {
+                return $p('staff')->rDefault(0)->add($p('management')->default(0));
+              })->run($conn);
+            
+    ph:
+      name: rDefault
+      body: defaultCase
 
