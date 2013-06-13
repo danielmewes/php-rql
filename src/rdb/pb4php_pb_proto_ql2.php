@@ -10,6 +10,7 @@ class VersionDummy extends \PBMessage
 class VersionDummy_Version extends \PBEnum
 {
   const PB_V0_1  = 0x3f61ba36;
+  const PB_V0_2  = 0x723081e1;
 }
 class Datum extends \PBMessage
 {
@@ -212,11 +213,11 @@ class Term_TermType extends \PBEnum
   const PB_SET_INTERSECTION  = 89;
   const PB_SET_UNION  = 90;
   const PB_SET_DIFFERENCE  = 91;
-  const PB_INDEXES_OF  = 87;
-  const PB_CONTAINS  = 93;
   const PB_SLICE  = 30;
   const PB_SKIP  = 70;
   const PB_LIMIT  = 71;
+  const PB_INDEXES_OF  = 87;
+  const PB_CONTAINS  = 93;
   const PB_GETATTR  = 31;
   const PB_KEYS  = 94;
   const PB_HAS_FIELDS  = 32;
@@ -269,6 +270,7 @@ class Term_TermType extends \PBEnum
   const PB_ASC  = 73;
   const PB_DESC  = 74;
   const PB_INFO  = 79;
+  const PB_MATCH  = 97;
   const PB_SAMPLE  = 81;
   const PB_DEFAULT  = 92;
 }

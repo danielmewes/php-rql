@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-06-09 21:43:08
+ * Auto generated from ql2.proto at 2013-06-13 13:14:28
  */
 
 /**
@@ -9,6 +9,7 @@
 final class VersionDummy_Version
 {
     const PB_V0_1 = 0x3f61ba36;
+    const PB_V0_2 = 0x723081e1;
 
     /**
      * Returns defined enum values
@@ -19,6 +20,7 @@ final class VersionDummy_Version
     {
         return array(
             'V0_1' => self::PB_V0_1,
+            'V0_2' => self::PB_V0_2,
         );
     }
 }
@@ -527,11 +529,11 @@ final class Term_TermType
     const PB_SET_INTERSECTION = 89;
     const PB_SET_UNION = 90;
     const PB_SET_DIFFERENCE = 91;
-    const PB_INDEXES_OF = 87;
-    const PB_CONTAINS = 93;
     const PB_SLICE = 30;
     const PB_SKIP = 70;
     const PB_LIMIT = 71;
+    const PB_INDEXES_OF = 87;
+    const PB_CONTAINS = 93;
     const PB_GETATTR = 31;
     const PB_KEYS = 94;
     const PB_HAS_FIELDS = 32;
@@ -584,6 +586,7 @@ final class Term_TermType
     const PB_ASC = 73;
     const PB_DESC = 74;
     const PB_INFO = 79;
+    const PB_MATCH = 97;
     const PB_SAMPLE = 81;
     const PB_DEFAULT = 92;
 
@@ -625,11 +628,11 @@ final class Term_TermType
             'SET_INTERSECTION' => self::PB_SET_INTERSECTION,
             'SET_UNION' => self::PB_SET_UNION,
             'SET_DIFFERENCE' => self::PB_SET_DIFFERENCE,
-            'INDEXES_OF' => self::PB_INDEXES_OF,
-            'CONTAINS' => self::PB_CONTAINS,
             'SLICE' => self::PB_SLICE,
             'SKIP' => self::PB_SKIP,
             'LIMIT' => self::PB_LIMIT,
+            'INDEXES_OF' => self::PB_INDEXES_OF,
+            'CONTAINS' => self::PB_CONTAINS,
             'GETATTR' => self::PB_GETATTR,
             'KEYS' => self::PB_KEYS,
             'HAS_FIELDS' => self::PB_HAS_FIELDS,
@@ -682,6 +685,7 @@ final class Term_TermType
             'ASC' => self::PB_ASC,
             'DESC' => self::PB_DESC,
             'INFO' => self::PB_INFO,
+            'MATCH' => self::PB_MATCH,
             'SAMPLE' => self::PB_SAMPLE,
             'DEFAULT' => self::PB_DEFAULT,
         );
