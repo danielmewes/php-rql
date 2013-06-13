@@ -42,12 +42,6 @@ commands:
                 return $marvelRow('strength')->lt($dcRow('strength'));
               })->run($conn);
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
   - tag: outer
     section: joins
     description: Computes a left outer join by retaining each row in the left table
@@ -82,12 +76,6 @@ commands:
             r\table('marvel')->outerJoin(r\table('dc'), function($marvelRow, $dcRow) {
                 return $marvelRow('strength')->lt($dcRow('strength'));
               })->run($conn);
-
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
 
   - tag: eqJoin
     section: joins
@@ -148,16 +136,6 @@ commands:
     ph:
       name: eqJoin
 
-    js:
-      name: eqJoin
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-        1:
-          can_try: true
-          dataset: marvel
-
   - tag: zip
     section: joins
     description: Used to 'zip' up the result of a join by merging the 'right' fields into 
@@ -180,8 +158,3 @@ commands:
     rb:
       dont_need_parenthesis: true
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel

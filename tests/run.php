@@ -3,6 +3,7 @@
 $phpRqlIncludePath = "../src";
 $serverHost = 'localhost';
 $serverPort = 28015;
+$serverKey = null;
 
 // TODO: Implement proper command line argument parsing using getopt(), so we
 //  can also specify the server address etc.
@@ -40,7 +41,7 @@ foreach ($datasetTypes as $datasetType) {
 
 
 // Establish a connection to the server
-$conn = r\connect($serverHost, $serverPort);
+$conn = r\connect($serverHost, $serverPort, null, $serverKey);
 
 
 // Include one test case at a time and run it

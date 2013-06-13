@@ -5,9 +5,9 @@ require_once("connection.php");
 
 // ------------- Global functions in namespace r -------------
 
-function connect($host, $port = 28015, $db = null)
+function connect($host, $port = 28015, $db = null, $apiKey = null)
 {
-    return new Connection($host, $port, $db);
+    return new Connection($host, $port, $db, $apiKey);
 }
 
 function db($dbName)
@@ -88,7 +88,7 @@ function js($code, $timeout = null)
     return new Js($code, $timeout);
 }
 
-function error($message)
+function error($message = null)
 {
     return new Error($message);
 }

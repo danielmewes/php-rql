@@ -31,13 +31,3 @@ commands:
       examples:
         1: {}
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-        1:
-          can_try: true
-          dataset: marvel
-
-

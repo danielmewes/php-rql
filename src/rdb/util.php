@@ -6,9 +6,9 @@ class Backtrace
     static public function _fromProtobuffer(pb\Backtrace $backtrace) {
         $result = new Backtrace();
         $result->frames = array();
-        $size = $backtrace->frames_size();
+        $size = $backtrace->getFramesCount();
         for ($i = 0; $i < $size; ++$i)
-            $result->frames[$i] = Frame::_fromProtobuffer($backtrace->frames($i));
+            $result->frames[$i] = Frame::_fromProtobuffer($backtrace->getFramesAt($i));
         return $result;
     }
 
@@ -27,13 +27,13 @@ class Frame
 {
     static public function _fromProtobuffer(pb\Frame $frame) {
         $result = new Frame();
-        if ($frame->type() == pb\Frame_FrameType::PB_POS) {
+        if ($frame->getType() == pb\Frame_FrameType::PB_POS) {
             $result->isPositionalArg = true;
-            $result->positionalArgPosition = $frame->pos();
+            $result->positionalArgPosition = $frame->getPos();
         }
-        else if ($frame->type() == pb\Frame_FrameType::PB_OPT) {
+        else if ($frame->getType() == pb\Frame_FrameType::PB_OPT) {
             $result->isOptionalArg = true;
-            $result->optionalArgName = $frame->opt();
+            $result->optionalArgName = $frame->getOpt();
         }
         else
             throw new RqlDriverError("Unhandled backtrace frame time: " . $frame->type());

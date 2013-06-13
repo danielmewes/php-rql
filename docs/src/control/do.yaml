@@ -31,10 +31,3 @@ commands:
       name: rDo
       body: arg|array(arg1, arg2, ...), inExpr
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
-

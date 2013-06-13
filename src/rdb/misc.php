@@ -18,16 +18,15 @@ abstract class Query
 
     public function _getPBTerm() {
         $term = new pb\Term();
-        $term->set_type($this->getTermType());
+        $term->setType($this->getTermType());
         foreach ($this->positionalArgs as $i => $arg) {
-            $term->set_args($i, $arg->_getPBTerm());
+            $term->appendArgs($arg->_getPBTerm());
         }
-        $i = 0;
         foreach ($this->optionalArgs as $key => $val) {
             $pair = new pb\Term_AssocPair();
-            $pair->set_key($key);
-            $pair->set_val($val->_getPBTerm());
-            $term->set_optargs($i++, $pair);
+            $pair->setKey($key);
+            $pair->setVal($val->_getPBTerm());
+            $term->appendOptargs($pair);
         }
         return $term;
     }
@@ -38,6 +37,10 @@ abstract class Query
     
     public function info() {
         return new Info($this);
+    }
+    public function rDefault($defaultCase)
+    {
+        return new RDefault($this, $defaultCase);
     }
     
     public function __toString() {
@@ -136,20 +139,20 @@ abstract class Query
 // We simply define all remaining operations on this.
 abstract class ValuedQuery extends Query
 {
-    public function update($delta, $nonAtomic = null) {
-        return new Update($this, $delta, $nonAtomic);
+    public function update($delta, $opts = null) {
+        return new Update($this, $delta, $opts);
     }
-    public function delete() {
-        return new Delete($this);
+    public function delete($opts = null) {
+        return new Delete($this, $opts);
     }
-    public function replace($delta, $nonAtomic = null) {
-        return new Replace($this, $delta, $nonAtomic);
+    public function replace($delta, $opts = null) {
+        return new Replace($this, $delta, $opts);
     }
     public function between($leftBound, $rightBound, $index = null) {
         return new Between($this, $leftBound, $rightBound, $index);
     }
-    public function filter($predicate) {
-        return new Filter($this, $predicate);
+    public function filter($predicate, $default = null) {
+        return new Filter($this, $predicate, $default);
     }
     public function innerJoin(ValuedQuery $otherSequence, $predicate) {
         return new InnerJoin($this, $otherSequence, $predicate);
@@ -162,6 +165,9 @@ abstract class ValuedQuery extends Query
     }
     public function zip() {
         return new Zip($this);
+    }
+    public function withFields($attributes) {
+        return new WithFields($this, $attributes);
     }
     public function map($mappingFunction) {
         return new Map($this, $mappingFunction);
@@ -184,8 +190,17 @@ abstract class ValuedQuery extends Query
     public function nth($index) {
         return new Nth($this, $index);
     }
+    public function indexesOf($predicate) {
+        return new IndexesOf($this, $predicate);
+    }
+    public function isEmpty() {
+        return new IsEmpty($this);
+    }
     public function union(ValuedQuery $otherSequence) {
         return new Union($this, $otherSequence);
+    }
+    public function sample($n) {
+        return new Sample($this, $n);
     }
     public function reduce($reductionFunction, $base = null) {
         return new Reduce($this, $reductionFunction, $base);
@@ -204,6 +219,11 @@ abstract class ValuedQuery extends Query
     public function groupBy($keys, MakeObject $reductionObject) {
         return new GroupBy($this, $keys, $reductionObject);
     }
+    // Note: The API docs suggest that as of 1.6, contains can accept multiple values.
+    //  We do not support that for the time being.
+    public function contains($value) {
+        return new Contains($this, $value);
+    }
     public function pluck($attributes) {
         return new Pluck($this, $attributes);
     }
@@ -216,14 +236,47 @@ abstract class ValuedQuery extends Query
     public function append($value) {
         return new Append($this, $value);
     }
+    public function prepend($value) {
+        return new Prepend($this, $value);
+    }
+    public function difference($value) {
+        return new Difference($this, $value);
+    }
+    public function setInsert($value) {
+        return new SetInsert($this, $value);
+    }
+    public function setUnion($value) {
+        return new SetUnion($this, $value);
+    }
+    public function setIntersection($value) {
+        return new SetIntersection($this, $value);
+    }
+    public function setDifference($value) {
+        return new SetDifference($this, $value);
+    }
     public function __invoke($attribute) {
         return new Getattr($this, $attribute);
     }
     public function attr($attribute) {
         return new Getattr($this, $attribute);
     }
-    public function contains($attributes) {
-        return new Contains($this, $attributes);
+    public function hasFields($attributes) {
+        return new HasFields($this, $attributes);
+    }
+    public function insertAt($index, $value) {
+        return new InsertAt($this, $index, $value);
+    }
+    public function spliceAt($index, $value) {
+        return new SpliceAt($this, $index, $value);
+    }
+    public function deleteAt($index, $endIndex = null) {
+        return new DeleteAt($this, $index, $endIndex);
+    }
+    public function changeAt($index, $value) {
+        return new changeAt($this, $index, $value);
+    }
+    public function keys() {
+        return new Keys($this);
     }
     public function add($other) {
         return new Add($this, $other);
@@ -266,6 +319,9 @@ abstract class ValuedQuery extends Query
     }
     public function not() {
         return new Not($this);
+    }
+    public function match($expression) {
+        return new Match($this, $expression);
     }
     public function rForeach($queryFunction) {
         return new RForeach($this, $queryFunction);
@@ -376,7 +432,7 @@ class Cursor implements \Iterator
 
     public function __construct(Connection $connection, pb\Response $initialResponse) {
         $this->connection = $connection;
-        $this->token = $initialResponse->token();
+        $this->token = $initialResponse->getToken();
         $this->wasIterated = false;
         
         $this->setBatch($initialResponse);
@@ -395,12 +451,12 @@ class Cursor implements \Iterator
     }
     
     private function setBatch(pb\Response $response) {
-        $this->isComplete = $response->type() == pb\Response_ResponseType::PB_SUCCESS_SEQUENCE;
+        $this->isComplete = $response->getType() == pb\Response_ResponseType::PB_SUCCESS_SEQUENCE;
         $this->currentIndex = 0;
-        $this->currentSize = $response->response_size();
+        $this->currentSize = $response->getResponseCount();
         $this->currentData = array();
         for ($i = 0; $i < $this->currentSize; ++$i) {
-            $datum = protobufToDatum($response->response($i));
+            $datum = protobufToDatum($response->getResponseAt($i));
             $this->currentData[$i] = $datum;
         }
     }

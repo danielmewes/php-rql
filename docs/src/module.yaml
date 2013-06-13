@@ -11,7 +11,7 @@ commands:
 
     dont_need_parenthesis: true
     parent: null
-    returns: r
+    returns: namespace
 
     examples:
       - description: Setup your top level namespace.
@@ -24,6 +24,26 @@ commands:
             include RethinkDB::Shortcuts
           ph: require_once('rdb/rdb.php');
 
+  - tag: systemInfo
+    section: module
+    description: |
+      Returns a string providing some information on the current state of the PHP-RQL driver.
+      Currently, it prints the protocol buffer backend used. Either php-protobuf or pb4php.
+    
+
+    dont_need_parenthesis: false
+    parent: r
+    returns: null
+
+    examples:
+      - description: Check if PHP-RQL is using the faster php-protobuf library.
+        validate: true
+        code: echo r\systemInfo();
+          
+    js: false
+    py: false
+    rb: false
+
   - tag: connect
     section: module
     description: |
@@ -35,7 +55,7 @@ commands:
       js: opts, callback
       py: host='localhost', port=28015, db='test'
       rb: host='localhost', port=28015, default_db='test'
-      ph: host, port=28015[, db]
+      ph: host, port=28015[, db[, authKey]]
     parent: r
     returns: connection
 
@@ -202,6 +222,31 @@ commands:
           py: r.table('marvel').run(conn, noreply=True)
           rb: r.table('marvel').run(conn, :noreply => true)
           ph: r\table('marvel')->run($conn, array('noreply' => true));
+      - description: |
+          If you want to specify whether to wait for a write to be
+          written to disk (overriding the table's default settings),
+          you can set `durability` to `'hard'` or `'soft'` in the
+          options.
+        validate: false
+        code:
+          js: |
+            r.table('marvel')
+             .insert({ superhero: 'Iron Man', superpower: 'Arc Reactor' })
+             .run({connection:conn, noreply:true, durability: 'soft'},
+                  function (err, cursor) { ... });
+          py: |
+            r.table('marvel')
+             .insert({ 'superhero': 'Iron Man', 'superpower': 'Arc Reactor' })
+             .run(conn, noreply=True, durability='soft')
+          rb: |
+            r.table('marvel')
+             .insert({ :superhero => 'Iron Man', :superpower => 'Arc Reactor' })
+             .run(conn, :noreply => true, :durability => 'soft')
+          ph: |
+            r\table('marvel')
+             ->insert(array( 'superhero' => 'Iron Man', 'superpower' => 'Arc Reactor' ))
+             ->run($conn, array('noreply' => true, 'durability' => 'soft'))
+
 
   - tag: next
     section: module
@@ -241,7 +286,7 @@ commands:
     section: module
     description: Lazily iterate over the result set one element at a time.
 
-    body: callback
+    body: callback[, onFinished]
 
     parent: cursor
     returns: null
@@ -250,8 +295,23 @@ commands:
       - description: Let's process all the elements!
         code: |
           cur.each(function(err, row) {
-            return processRow(row);
+            processRow(row);
           });
+      - description: If we need to know when iteration is complete
+                     each also accepts a second `onFinished` callback.
+        code: |
+          cur.each(function(err, row) {
+            return processRow(row);
+          }, function() {
+            doneProcessing();
+          });
+      - description: Iteration can be stopped prematurely by returning `false`
+                     from the callback.
+        code: |
+            cur.each(function(err, row) {
+                if (processRow(row) < 0)
+                    return false;
+            });
 
     py: false
     rb: false
@@ -268,7 +328,7 @@ commands:
     examples:
       - description: For small result sets it may be more convenient to process them at once as an array.
         validate: false
-        code:
+        code: 
           js: |
             cur.toArray(function(err, results) {
               for(var i in results) {
@@ -282,6 +342,7 @@ commands:
 
     py: false
     rb: false
+    
     
   - tag: toNative
     section: module
@@ -304,3 +365,44 @@ commands:
     py: false
     rb: false
     js: false
+
+  - tag: addListener
+    section: module
+    description: |
+        The connection object also supports the event emitter interface so you can listen for
+        changes in connection state.
+
+    body: event, listener
+    parent: connection
+
+    examples:
+      - description: Monitor connection state with events 'connect', 'close', and 'error'.
+        validate: false
+        code: |
+
+          r.connect({}, function(err, conn) {
+              if (err) throw err;
+
+              conn.addListener('error', function(e) {
+                processNetworkError(e);
+              });
+
+              conn.addListener('close', function() {
+                cleanup();
+              });
+
+              runQueries(conn);
+          });
+
+      - description: As in Node, 'on' is a synonym for 'addListener'.
+        validate: false
+        code: |
+            conn.on('close', function() {
+                cleanup();
+            });
+
+            conn.close();
+
+    py: false
+    rb: false
+    ph: false

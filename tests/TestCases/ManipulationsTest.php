@@ -28,11 +28,52 @@ class ManipulationsTest extends TestCase
             array(1, 2, 3, 4));
         $this->checkQueryResult(r\expr(array(1, 2, 3))->append(r\expr(4)),
             array(1, 2, 3, 4));
+        
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->prepend(4),
+            array(4, 1, 2, 3));
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->prepend(r\expr(4)),
+            array(4, 1, 2, 3));
             
-        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->contains('x'),
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->difference(array(1, 2)),
+            array(3));
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->difference(r\expr(array(1, 2))),
+            array(3));
+            
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('x'),
             true);
-        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->contains('foo'),
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('foo'),
             false);
+            
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setInsert(4),
+            array(1, 2, 3, 4));
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setInsert(1),
+            array(1, 2, 3));
+            
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setUnion(array(1, 4)),
+            array(1, 2, 3, 4));
+        
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setIntersection(array(1, 4)),
+            array(1));
+            
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->setDifference(array(1, 4)),
+            array(2, 3));
+            
+        $this->checkQueryResult(r\expr(array('a' => 1, 'b' => 2, 'c' => 3))->keys(),
+            array('a', 'b', 'c'));
+            
+        $this->checkQueryResult(r\expr(array("Iron Man", "Spider-Man"))->insertAt(1, "Hulk"),
+            array("Iron Man", "Hulk", "Spider-Man"));
+        
+        $this->checkQueryResult(r\expr(array("Iron Man", "Spider-Man"))->spliceAt(1, array("Hulk", "Thor")),
+            array("Iron Man", "Hulk", "Thor",  "Spider-Man"));
+        
+        $this->checkQueryResult(r\expr(array("Iron Man", "Hulk", "Spider-Man"))->deleteAt(1),
+            array("Iron Man", "Spider-Man"));
+        $this->checkQueryResult(r\expr(array("Iron Man", "Hulk", "Thor", "Spider-Man"))->deleteAt(1,2),
+            array("Iron Man", "Spider-Man"));
+            
+        $this->checkQueryResult(r\expr(array("Iron Man", "Bruce", "Spider-Man"))->changeAt(1, "Hulk"),
+            array("Iron Man", "Hulk", "Spider-Man"));
     }
 }
 

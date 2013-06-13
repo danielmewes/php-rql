@@ -15,15 +15,10 @@ commands:
 
     examples:
       - description: Before we can query a table we have to select the correct database.
-        code: r.db('heroes').table('marvel').run(conn)
-
-    js:
-      body: dbName
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-          code: r.db('heroes').table('marvel').run(conn, callback)
+        code:
+          py: r.db('heroes').table('marvel').run(conn)
+          rb: r.db('heroes').table('marvel').run(conn)
+          js: r.db('heroes').table('marvel').run(conn, callback)
           
     ph:
       body: dbName
@@ -47,9 +42,17 @@ commands:
 
     examples:
       - description: Return all documents in the table 'marvel' of the default database.
-        code: r.table('marvel').run(conn)
+        code:
+          py: r.table('marvel').run(conn)
+          rb: r.table('marvel').run(conn)
+          js: r.table('marvel').run(conn, callback)
+          ph: r\table('marvel')->run($conn);
       - description: Return all documents in the table 'marvel' of the database 'heroes'.
-        code: r.db('heroes').table('marvel').run(conn)
+        code:
+          py: r.db('heroes').table('marvel').run(conn)
+          rb: r.db('heroes').table('marvel').run(conn)
+          js: r.db('heroes').table('marvel').run(conn, callback)
+          ph: r\db('heroes')->table('marvel')->run($conn);
       - description: |
           If you are OK with potentially out of date data
           from this table and want potentially faster reads, pass
@@ -59,27 +62,6 @@ commands:
           py: r.db('heroes').table('marvel', True).run(conn)
           rb: r.db('heroes').table('marvel', {:use_outdated => true}).run(conn)
           ph: r\db('heroes')->table('marvel', true)->run($conn);
-
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-          code: r.table('marvel').run(conn, callback)
-        1:
-          can_try: true
-          dataset: marvel
-          code: r.db('heroes').table('marvel').run(conn, callback)
-        2:
-          can_try: true
-          dataset: marvel
-          
-    ph:
-      examples:
-        0:
-          code: r\table('marvel')->run($conn);
-        1:
-          code: r\db('heroes')->table('marvel')->run($conn);
 
   - tag: get
     section: select
@@ -91,18 +73,11 @@ commands:
 
     examples:
       - description: Find a document with the primary key 'superman'.
-        code: r.table('marvel').get('superman').run(conn)
-
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-          code: r.table('marvel').get('superman').run(conn, callback)
-    ph:
-      examples:
-        0:
-          code: r\table('marvel')->get('superman')->run($conn);
+        code:
+          py: r.table('marvel').get('superman').run(conn)
+          rb: r.table('marvel').get('superman').run(conn)
+          js: r.table('marvel').get('superman').run(conn, callback)
+          ph: r\table('marvel')->get('superman')->run($conn);
 
   - tag: get_all
     section: select
@@ -156,7 +131,11 @@ commands:
 
     examples:
         - description: Find all users with primary keys between 10 and 20, inclusive.
-          code: r.table('marvel').between(10, 20).run(conn)
+          code:
+            py: r.table('marvel').between(10, 20).run(conn)
+            rb: r.table('marvel').between(10, 20).run(conn)
+            js: r.table('marvel').between(10, 20).run(conn, callback)
+            ph: r\table('marvel')->between(10, 20)->run($conn);
         - description: |
             Between can be used on secondary indexes too. Just pass an optional index
             argument giving the secondary index to query.
@@ -166,27 +145,20 @@ commands:
             rb: r.table('dc').between('dark_knight', 'man_of_steel', :index => 'code_name').run(conn)
             ph: r\table('marvel')->between('dark_knight', 'man_of_steel', 'code_name')->run($conn);
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-          code: r.table('marvel').between(10, 20).run(conn, callback)
-          
-    ph:
-      examples:
-        0:
-          code: r\table('marvel')->between(10, 20)->run($conn);
-
   - tag: filter
     section: select
     description: |
-      Get all the documents for which the given predicate is true.<br /><br />
-      <code>filter</code> can be called on a sequence, selection, or a
-      field containing an array of elements. The return type is the
-      same as the type on which the function was called on.
+      Get all the documents for which the given predicate is true.<br
+      /><br /> <code>filter</code> can be called on a sequence,
+      selection, or a field containing an array of elements. The
+      return type is the same as the type on which the function was
+      called on.  The body of every filter is wrapped in an implicit
+      `.default(false)`, and the default value can be changed by
+      passing the optional argument `default`.  Setting this optional
+      argument to `r.error()` will cause any non-existence errors to
+      abort the filter.
 
-    body: predicate
+    body: predicate[, default]
     parent: selection
     returns: selection
 
@@ -210,14 +182,14 @@ commands:
         code:
           js: |
             r.table('marvel').filter(function(hero) {
-              return hero('abilities').contains('super-strength')
+              return hero('abilities').hasFields('super-strength')
             }).run(conn, callback)
           py: |
             r.table('marvel').filter(
-                lambda hero: hero['abilities'].contains('super-strength')).run(conn)
+                lambda hero: hero['abilities'].has_fields('super-strength')).run(conn)
           rb: |
             r.table('marvel').filter {|hero|
-              hero[:abilities].contains('super-strength')
+              hero[:abilities].has_fields('super-strength')
             }.run(conn)
           ph: |
             r\table('marvel')->filter(function($hero) {
@@ -236,7 +208,7 @@ commands:
               r.row['powers'].filter(lambda el: el == 10).count() > 0
             ).run(conn)
           rb: |
-            r.table('marvel').filter { |hero| 
+            r.table('marvel').filter { |hero|
               hero[:powers].filter { |power_rank| power_rank.eq(10) }.count() > 0
             }.run(conn)
           ph: |
@@ -244,14 +216,3 @@ commands:
                 return $hero('abilities')->contains('super-strength'); 
               })->run($conn);
 
-    js:
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-        1:
-          can_try: true
-          dataset: marvel
-        2:
-          can_try: true
-          dataset: marvel

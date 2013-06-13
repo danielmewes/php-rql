@@ -141,6 +141,8 @@ echo 'Running PHP validation.\n';
 class BlackHoleRDBHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         magic = self.request.recv(4)
+        self.request.recv(4); # api-key length
+        self.request.sendall("SUCCESS\0");
 
         while (True):
             header = self.request.recv(4)

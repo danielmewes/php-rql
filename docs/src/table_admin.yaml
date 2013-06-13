@@ -14,13 +14,13 @@ commands:
       <br /><br />When creating a table you can specify the following options:
       <ul>
       <li><code>primary_key</code>(string): the name of the primary key. The default primary key is <code>id</code>;</li>
-      <li><code>hard_durability</code>(boolean): if set to <code>false</code>, this enables <strong>soft durability</strong>
-       on this table: writes will be acknowledged by the server immediately and flushed to disk in the background. 
-       Default is <code>true</code> (hard durability);</li>
-      <li><code>cache_size</code>(number): set the cache size (in MB) to be used by the table. Default is 1024MB;</li>
+      <li><code>durability</code>(string): if set to <code>'soft'</code>, this enables <strong>soft durability</strong>
+       on this table: writes will be acknowledged by the server immediately and flushed to disk in the background.
+       Default is <code>'hard'</code> (acknowledgement of writes happens after data has been written to disk);</li>
+      <li><code>cache_size</code>(number): set the cache size (in bytes) to be used by the table. Default is 1024MB (1024*1024*1024);</li>
       <li><code>datacenter</code>(string): the name of the datacenter this table should be assigned to.</li>
       </ul>
-      <br /><br />In Javascript, these options can use either the underscore or camelcase form (e.g. primaryKey, hardDurability).
+      <br /><br />In Javascript, these options can use either the underscore or camelcase form (e.g. primaryKey, cacheSize).
 
     body: tableName[, options]
     parent: db
@@ -31,7 +31,11 @@ commands:
           Create a table named 'dc_universe' with the primary key set to field 'id'.
           If a new document doesn't contain the field 'id', the database will
           autogenerate a value for it.
-        code: r.db('test').table_create('dc_universe').run(conn)
+        code:
+          py: r.db('test').table_create('dc_universe').run(conn)
+          rb: r.db('test').table_create('dc_universe').run(conn)
+          js: r.db('test').tableCreate('dc_universe').run(conn, callback)
+          ph: r\db('test')->tableCreate('dc_universe')->run($conn);
       - description: |
           Create a table named 'dc_universe' using the field 'name'
           as primary key.
@@ -42,32 +46,13 @@ commands:
       - description: |
           Create a table to log the very fast actions of the heroes.
         code:
-          py: r.db('test').table_create('hero_actions', hard_durability=False).run(conn)
-          rb: r.db('test').table_create('dc_universe', :hard_durability => false).run(conn)
-          ph: r\db('test')->tableCreate('dc_universe', array('hard_durability' => false))->run($conn);
-
+          py: r.db('test').table_create('hero_actions', durability='soft').run(conn)
+          rb: r.db('test').table_create('dc_universe', :durability => 'soft').run(conn)
+          ph: r\db('test')->tableCreate('hero_actions', array('durability' => 'soft'))->run($conn);
+          
     ph:
       name: tableCreate
       body: tableName[, array(option1 => value1, option2 => value2, ...)]
-      examples:
-        0:
-          code: r\db('test')->tableCreate('dc_universe')->run($conn);
-
-    js:
-      name: tableCreate
-      examples:
-        0:
-          code: r.db('test').tableCreate('dc_universe').run(conn, callback)
-          can_try: true
-          dataset: marvel
-        1:
-          code: r.db('test').tableCreate('dc_universe', {primaryKey:'name'}).run(conn, callback)
-          can_try: true
-          dataset: marvel
-        2:
-          code: r.db('test').tableCreate('dc_universe', {hardDurability:false}).run(conn, callback)
-          can_try: true
-          dataset: marvel
 
   - tag: table_drop
     section: table_admin
@@ -82,27 +67,19 @@ commands:
 
     examples:
       - description: Drop a table named 'dc_universe'.
-        code: r.db('test').table_drop('dc_universe').run(conn)
-        
+        code:
+          py: r.db('test').table_drop('dc_universe').run(conn)
+          rb: r.db('test').table_drop('dc_universe').run(conn)
+          js: r.db('test').tableDrop('dc_universe').run(conn, callback)
+          ph: r\db('test')->tableDrop('dc_universe')->run($conn);
+          
     ph:
       name: tableDrop
-      body: tableName
-      examples:
-        0:
-          code: r\db('test')->tableDrop('dc_universe')->run($conn);
-
-    js:
-      name: tableDrop
-      body: tableName
-      examples:
-        0:
-          code: r.db('test').tableDrop('dc_universe').run(conn, callback)
-          can_try: true
-          dataset: marvel
+      body: tableName 
 
   - tag: table_list
     section: table_admin
-    description: | 
+    description: |
       List all table names in a database.<br /><br />
       The result is a list of strings.
 
@@ -111,21 +88,14 @@ commands:
 
     examples:
       - description: List all tables of the 'test' database.
-        code: r.db('test').table_list().run(conn)
-        
+        code:
+          py: r.db('test').table_list().run(conn)
+          rb: r.db('test').table_list().run(conn)
+          js: r.db('test').tableList().run(conn, callback)
+          ph: r\db('test')->tableList()->run($conn);
+
     ph:
       name: tableList
-      examples:
-        0:
-          code: r\db('test')->tableList()->run($conn);
-
-    js:
-      name: tableList
-      examples:
-        0:
-          code: r.db('test').tableList().run(conn, callback)
-          can_try: true
-          dataset: marvel
 
     rb:
       dont_need_parenthesis: true

@@ -42,6 +42,10 @@ class ControlTest extends TestCase
         
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->info(),
             array('type' => "TABLE", 'primary_key' => 'superhero', 'name' => 'marvel', 'indexes' => array(), 'db' => array('type' => 'DB', 'name' => 'Heroes') ));
+            
+        $this->checkQueryResult(r\expr(array('a' => 4))->attr('a')->rDefault(5), 4.0);
+        $this->checkQueryResult(r\expr(array('a' => 4))->attr('b')->rDefault(5), 5.0);
+        $this->checkQueryResult(r\expr(array('a' => 4))->attr('b')->rDefault(function ($e) { return r\expr(5); } ), 5.0);
         
         $this->datasets['Control']->reset();
     }

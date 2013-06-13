@@ -1,5 +1,29 @@
 <?php namespace r;
 
+class WithFields extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attributes) {
+        if (is_string($attributes))
+            $attributes = array($attributes);
+        if (!is_array($attributes)) throw new RqlDriverError("Attributes must be an array or a single attribute.");        
+        // Check keys and convert strings
+        foreach ($attributes as &$val) {
+            $val = new StringDatum($val);
+            unset($val);
+        }
+        
+        $this->setPositionalArg(0, $sequence);
+        $i = 1;
+        foreach ($attributes as $val) {
+            $this->setPositionalArg($i++, $val);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_WITH_FIELDS;
+    }
+}
+
 class Map extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $mappingFunction) {
@@ -128,6 +152,43 @@ class Nth extends ValuedQuery
     }
 }
 
+class IndexesOf extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $predicate) {
+        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query"))) {
+            try {
+                $predicate = nativeToDatum($predicate);
+                if (!is_subclass_of($predicate, "\\r\\Datum")) {
+                    // $predicate is not a simple datum. Wrap it into a function:                
+                    $predicate = new RFunction(array(new RVar('_')), $predicate);
+                }
+            } catch (RqlDriverError $e) {
+                $predicate = nativeToFunction($predicate);
+            }
+        } else if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\FunctionQuery"))) {
+            $predicate = new RFunction(array(new RVar('_')), $predicate);
+        }
+
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $predicate);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_INDEXES_OF;
+    }
+}
+
+class IsEmpty extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence) {
+        $this->setPositionalArg(0, $sequence);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_IS_EMPTY;
+    }
+}
+
 class Union extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, ValuedQuery $otherSequence) {        
@@ -137,6 +198,21 @@ class Union extends ValuedQuery
     
     protected function getTermType() {
         return pb\Term_TermType::PB_UNION;
+    }
+}
+
+class Sample extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $n) {
+        if (!(is_object($n) && is_subclass_of($n, "\\r\\Query")))
+            $n = new NumberDatum($n);
+
+        $this->setPositionalArg(0, $sequence);
+        $this->setPositionalArg(1, $n);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SAMPLE;
     }
 }
 

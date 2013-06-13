@@ -4,33 +4,42 @@
 
 // Process: When you first open a connection, send the magic number
 // for the version of the protobuf you're targetting (in the [Version]
-// enum).  This should **NOT** be sent as a protobuf; just send the
-// little-endian 32-bit integer over the wire raw.  This number should
+// enum). This should **NOT** be sent as a protobuf; just send the
+// little-endian 32-bit integer over the wire raw. This number should
 // only be sent once per connection.
 
+// The magic number shall be followed by an authorization key. The
+// first 4 bytes are the length of the key to be sent as a little-endian
+// 32-bit integer, followed by the key string. Even if there is no key,
+// an empty string should be sent (length 0 and no data). The server will
+// then respond with a NULL-terminated string response. "SUCCESS" indicates
+// that the connection has been accepted. Any other response indicates an
+// error, and the response string should describe the error.
+
 // Next, for each query you want to send, construct a [Query] protobuf
-// and serialize it to a binary blob.  Send the blob's size to the
+// and serialize it to a binary blob. Send the blob's size to the
 // server encoded as a little-endian 32-bit integer, followed by the
-// blob itself.  You will recieve a [Response] protobuf back preceded
+// blob itself. You will recieve a [Response] protobuf back preceded
 // by its own size, once again encoded as a little-endian 32-bit
-// integer.  You can see an example exchange below in **EXAMPLE**.
+// integer. You can see an example exchange below in **EXAMPLE**.
 
 // A query consists of a [Term] to evaluate and a unique-per-connection
 // [token].
 
 // Tokens are used for two things:
 // * Keeping track of which responses correspond to which queries.
-// * Batched queries.  Some queries return lots of results, so we send back
-//   batches of <1000, and you need to send a [CONTINUE] query with the same
-//   token to get more results from the original query.
+// * Batched queries. Some queries return lots of results, so we send back
+// batches of <1000, and you need to send a [CONTINUE] query with the same
+// token to get more results from the original query.
 ////////////////////////////////////////////////////////////////////////////////
 
-// This enum contains the magic numbers for your version.  See **THE HIGH-LEVEL
+// This enum contains the magic numbers for your version. See **THE HIGH-LEVEL
 // VIEW** for what to do with it.
 message VersionDummy { // We need to wrap it like this for some
                        // non-conforming protobuf libraries
     enum Version {
         V0_1 = 0x3f61ba36;
+        V0_2 = 0x723081e1;
     }
 }
 
@@ -58,51 +67,51 @@ message Datum {
     }
     repeated AssocPair r_object = 6;
 
-    extensions 10000 to 20000;
+    //extensions 10000 to 20000;
 }
 
 // A [Term] is either a piece of data (see **Datum** above), or an operator and
-// its operands.  If you have a [Datum], it's stored in the member [datum].  If
+// its operands. If you have a [Datum], it's stored in the member [datum]. If
 // you have an operator, its positional arguments are stored in [args] and its
 // optional arguments are stored in [optargs].
 //
 // A note about type signatures:
 // We use the following notation to denote types:
-//   arg1_type, arg2_type, argrest_type... -> result_type
+// arg1_type, arg2_type, argrest_type... -> result_type
 // So, for example, if we have a function `avg` that takes any number of
 // arguments and averages them, we might write:
-//   NUMBER... -> NUMBER
+// NUMBER... -> NUMBER
 // Or if we had a function that took one number modulo another:
-//   NUMBER, NUMBER -> NUMBER
+// NUMBER, NUMBER -> NUMBER
 // Or a function that takes a table and a primary key of any Datum type, then
 // retrieves the entry with that primary key:
-//   Table, DATUM -> OBJECT
+// Table, DATUM -> OBJECT
 // Some arguments must be provided as literal values (and not the results of sub
-// terms).  These are marked with a `!`.
+// terms). These are marked with a `!`.
 // Optional arguments are specified within curly braces as argname `:` value
 // type (e.x `{use_outdated:BOOL}`)
 // Many RQL operations are polymorphic. For these, alterantive type signatures
 // are separated by `|`.
 //
 // The RQL type hierarchy is as follows:
-//   Top
-//     DATUM
-//       NULL
-//       BOOL
-//       NUMBER
-//       STRING
-//       OBJECT
-//         SingleSelection
-//       ARRAY
-//     Sequence
-//       ARRAY
-//       Stream
-//         StreamSelection
-//           Table
-//     Database
-//     Function
-//     Ordering - used only by ORDER_BY
-//   Error
+// Top
+// DATUM
+// NULL
+// BOOL
+// NUMBER
+// STRING
+// OBJECT
+// SingleSelection
+// ARRAY
+// Sequence
+// ARRAY
+// Stream
+// StreamSelection
+// Table
+// Database
+// Function
+// Ordering - used only by ORDER_BY
+// Error
 message Term {
     enum TermType {
         // A RQL datum, stored in `datum` below.
@@ -110,41 +119,45 @@ message Term {
 
         MAKE_ARRAY = 2; // DATUM... -> ARRAY
         // Evaluate the terms in [optargs] and make an object
-        MAKE_OBJ   = 3; // {...} -> OBJECT
+        MAKE_OBJ = 3; // {...} -> OBJECT
 
         // * Compound types
         // Takes an integer representing a variable and returns the value stored
-        // in that variable.  It's the responsibility of the client to translate
+        // in that variable. It's the responsibility of the client to translate
         // from their local representation of a variable to a unique integer for
-        // that variable.  (We do it this way instead of letting clients provide
+        // that variable. (We do it this way instead of letting clients provide
         // variable names as strings to discourage variable-capturing client
         // libraries, and because it's more efficient on the wire.)
-        VAR          = 10; // !NUMBER -> DATUM
+        VAR = 10; // !NUMBER -> DATUM
         // Takes some javascript code and executes it.
         JAVASCRIPT = 11; // STRING {timeout: !NUMBER} -> DATUM |
                            // STRING {timeout: !NUMBER} -> Function(*)
+
         // Takes a string and throws an error with that message.
-        ERROR        = 12; // STRING -> Error
+        // Inside of a `default` block, you can omit the first
+        // argument to rethrow whatever error you catch (this is most
+        // useful as an argument to the `default` filter optarg).
+        ERROR = 12; // STRING -> Error | -> Error
         // Takes nothing and returns a reference to the implicit variable.
         IMPLICIT_VAR = 13; // -> DATUM
 
         // * Data Operators
         // Returns a reference to a database.
-        DB    = 14; // STRING -> Database
+        DB = 14; // STRING -> Database
         // Returns a reference to a table.
         TABLE = 15; // Database, STRING, {use_outdated:BOOL} -> Table | STRING, {use_outdated:BOOL} -> Table
         // Gets a single element from a table by its primary or a secondary key.
-        GET     = 16; // Table, STRING -> SingleSelection | Table, NUMBER -> SingleSelection |
+        GET = 16; // Table, STRING -> SingleSelection | Table, NUMBER -> SingleSelection |
                     // Table, STRING -> NULL | Table, NUMBER -> NULL |
         GET_ALL = 78; // Table, JSON {index:!STRING} => ARRAY
 
         // Simple DATUM Ops
-        EQ  = 17; // DATUM... -> BOOL
-        NE  = 18; // DATUM... -> BOOL
-        LT  = 19; // DATUM... -> BOOL
-        LE  = 20; // DATUM... -> BOOL
-        GT  = 21; // DATUM... -> BOOL
-        GE  = 22; // DATUM... -> BOOL
+        EQ = 17; // DATUM... -> BOOL
+        NE = 18; // DATUM... -> BOOL
+        LT = 19; // DATUM... -> BOOL
+        LE = 20; // DATUM... -> BOOL
+        GT = 21; // DATUM... -> BOOL
+        GE = 22; // DATUM... -> BOOL
         NOT = 23; // BOOL -> BOOL
         // ADD can either add two numbers or concatenate two arrays.
         ADD = 24; // NUMBER... -> NUMBER | STRING... -> STRING
@@ -156,56 +169,106 @@ message Term {
         // DATUM Array Ops
         // Append a single element to the end of an array (like `snoc`).
         APPEND = 29; // ARRAY, DATUM -> ARRAY
-        SLICE  = 30; // Sequence, NUMBER, NUMBER -> Sequence
-        SKIP  = 70; // Sequence, NUMBER -> Sequence
+        // Prepend a single element to the end of an array (like `cons`).
+        PREPEND = 80; // ARRAY, DATUM -> ARRAY
+        //Remove the elements of one array from another array.
+        DIFFERENCE = 95; // ARRAY, ARRAY -> ARRAY
+
+        // DATUM Set Ops
+        // Set ops work on arrays. They don't use actual sets and thus have
+        // performance characteristics you would expect from arrays rather than
+        // from sets. All set operations have the post condition that they
+        // array they return contains no duplicate values.
+        SET_INSERT = 88; // ARRAY, DATUM -> ARRAY
+        SET_INTERSECTION = 89; // ARRAY, ARRAY -> ARRAY
+        SET_UNION = 90; // ARRAY, ARRAY -> ARRAY
+        SET_DIFFERENCE = 91; // ARRAY, ARRAY -> ARRAY
+
+        SLICE = 30; // Sequence, NUMBER, NUMBER -> Sequence
+        SKIP = 70; // Sequence, NUMBER -> Sequence
         LIMIT = 71; // Sequence, NUMBER -> Sequence
+        INDEXES_OF = 87; // Sequence, DATUM -> Sequence | Sequence, Function(1) -> Sequence
+        CONTAINS = 93; // Sequence, DATUM -> BOOL
 
         // Stream/Object Ops
         // Get a particular attribute out of an object, or map that over a
         // sequence.
-        GETATTR  = 31; // OBJECT, STRING -> DATUM
-        // Check whether an object contains all of a set of attributes, or map
-        // that over a sequence.
-        CONTAINS = 32; // OBJECT, STRING... -> BOOL
+        GETATTR = 31; // OBJECT, STRING -> DATUM
+        // Return an array containing the keys of the object.
+        KEYS = 94; // OBJECT -> ARRAY
+        // Check whether an object contains all the specified fields,
+        // or filters a sequence so that all objects inside of it
+        // contain all the specified fields.
+        HAS_FIELDS = 32; // OBJECT, STRING... -> BOOL
+        // x.with_fields(...) <=> x.has_fields(...).pluck(...)
+        WITH_FIELDS = 96; // Sequence, STRING... -> Sequence
         // Get a subset of an object by selecting some attributes to preserve,
-        // or map that over a sequence.  (Both pick and pluck, polymorphic.)
-        PLUCK    = 33; // Sequence, STRING... -> Sequence | OBJECT, STRING... -> OBJECT
+        // or map that over a sequence. (Both pick and pluck, polymorphic.)
+        PLUCK = 33; // Sequence, STRING... -> Sequence | OBJECT, STRING... -> OBJECT
         // Get a subset of an object by selecting some attributes to discard, or
-        // map that over a sequence.  (Both unpick and without, polymorphic.)
-        WITHOUT  = 34; // Sequence, STRING... -> Sequence | OBJECT, STRING... -> OBJECT
+        // map that over a sequence. (Both unpick and without, polymorphic.)
+        WITHOUT = 34; // Sequence, STRING... -> Sequence | OBJECT, STRING... -> OBJECT
         // Merge objects (right-preferential)
-        MERGE    = 35; // OBJECT... -> OBJECT | Sequence -> Sequence
+        MERGE = 35; // OBJECT... -> OBJECT | Sequence -> Sequence
 
         // Sequence Ops
         // Get all elements of a sequence between two values.
-        BETWEEN   = 36; // StreamSelection, DATUM, DATUM, {:index:!STRING} -> StreamSelection
-        REDUCE    = 37; // Sequence, Function(2), {base:DATUM} -> DATUM
-        MAP       = 38; // Sequence, Function(1) -> Sequence
-        FILTER    = 39; // Sequence, Function(1) -> Sequence | Sequence, OBJECT -> Sequence
+        BETWEEN = 36; // StreamSelection, DATUM, DATUM, {:index:!STRING} -> StreamSelection
+        REDUCE = 37; // Sequence, Function(2), {base:DATUM} -> DATUM
+        MAP = 38; // Sequence, Function(1) -> Sequence
+
+        // Filter a sequence with either a function or a shortcut
+        // object (see API docs for details). The body of FILTER is
+        // wrapped in an implicit `.default(false)`, and you can
+        // change the default value by specifying the `default`
+        // optarg. If you make the default `r.error`, all errors
+        // caught by `default` will be rethrown as if the `default`
+        // did not exist.
+        FILTER = 39; // Sequence, Function(1), {default:DATUM} -> Sequence |
+                        // Sequence, OBJECT, {default:DATUM} -> Sequence
         // Map a function over a sequence and then concatenate the results together.
         CONCATMAP = 40; // Sequence, Function(1) -> Sequence
         // Order a sequence based on one or more attributes.
-        ORDERBY   = 41; // Sequence, (!STRING | Ordering)... -> Sequence
+        ORDERBY = 41; // Sequence, (!STRING | Ordering)... -> Sequence
         // Get all distinct elements of a sequence (like `uniq`).
-        DISTINCT  = 42; // Sequence -> Sequence
-        // Count the number of elements in a sequence.
-        COUNT     = 43; // Sequence -> NUMBER
+        DISTINCT = 42; // Sequence -> Sequence
+        // Count the number of elements in a sequence, or only the elements that match
+        // a given filter.
+        COUNT = 43; // Sequence -> NUMBER | Sequence, DATUM -> NUMBER | Sequence, Function(1) -> NUMBER
+        IS_EMPTY = 86; // Sequence -> BOOL
         // Take the union of multiple sequences (preserves duplicate elements! (use distinct)).
-        UNION     = 44; // Sequence... -> Sequence
+        UNION = 44; // Sequence... -> Sequence
         // Get the Nth element of a sequence.
-        NTH       = 45; // Sequence, NUMBER -> DATUM
+        NTH = 45; // Sequence, NUMBER -> DATUM
         // Takes a sequence, and three functions:
         // - A function to group the sequence by.
         // - A function to map over the groups.
         // - A reduction to apply to each of the groups.
-        GROUPED_MAP_REDUCE = 46; // Sequence, Function(1), Function(1), Function(2), {base:DATUM} -> Sequence
+        GROUPED_MAP_REDUCE = 46; // Sequence, Function(1), Function(1), Function(2), {base:DATUM} -> ARRAY
         // Groups a sequence by one or more attributes, and then applies a reduction.
-        GROUPBY            = 47; // Sequence, ARRAY, !OBJECT -> Sequence
-        INNER_JOIN         = 48; // Sequence, Sequence, Function(2) -> Sequence
-        OUTER_JOIN         = 49; // Sequence, Sequence, Function(2) -> Sequence
+        // The third argument is a special object literal giving the kind of operation to be
+        // performed and any necessary arguments.
+        // At present, GROUPBY suports the following operations
+        // * {'COUNT': <ignored>} - count the size of the group
+        // * {'SUM': attr} - sum the values of the given attribute across the group
+        // * {'AVG': attr} - average the values of the given attribute across the group
+        GROUPBY = 47; // Sequence, ARRAY, !GROUP_BY_OBJECT -> Sequence
+        INNER_JOIN = 48; // Sequence, Sequence, Function(2) -> Sequence
+        OUTER_JOIN = 49; // Sequence, Sequence, Function(2) -> Sequence
         // An inner-join that does an equality comparison on two attributes.
-        EQ_JOIN            = 50; // Sequence, !STRING, Sequence, {index:!STRING} -> Sequence
-        ZIP                = 72; // Sequence -> Sequence
+        EQ_JOIN = 50; // Sequence, !STRING, Sequence, {index:!STRING} -> Sequence
+        ZIP = 72; // Sequence -> Sequence
+
+        // Array Ops
+        // Insert an element in to an array at a given index.
+        INSERT_AT = 82; // ARRAY, NUMBER, DATUM -> ARRAY
+        // Remove an element at a given index from an array.
+        DELETE_AT = 83; // ARRAY, NUMBER -> ARRAY |
+                                 // ARRAY, NUMBER, NUMBER -> ARRAY
+        // Change the element at a given index of an array.
+        CHANGE_AT = 84; // ARRAY, NUMBER, DATUM -> ARRAY
+        // Splice one array in to another array.
+        SPLICE_AT = 85; // ARRAY, NUMBER, ARRAY -> ARRAY
 
         // * Type Ops
         // Coerces a datum to a named type (e.g. "bool").
@@ -216,35 +279,43 @@ message Term {
         TYPEOF = 52; // Top -> STRING
 
         // * Write Ops (the OBJECTs contain data about number of errors etc.)
-        // Updates all the rows in a selection.  Calls its Function with the row
+        // Updates all the rows in a selection. Calls its Function with the row
         // to be updated, and then merges the result of that call.
-        UPDATE   = 53; // StreamSelection, Function(1), {non_atomic:BOOL} -> OBJECT |
+        UPDATE = 53; // StreamSelection, Function(1), {non_atomic:BOOL} -> OBJECT |
                        // SingleSelection, Function(1), {non_atomic:BOOL} -> OBJECT |
-                       // StreamSelection, OBJECT,      {non_atomic:BOOL} -> OBJECT |
-                       // SingleSelection, OBJECT,      {non_atomic:BOOL} -> OBJECT
+                       // StreamSelection, OBJECT, {non_atomic:BOOL} -> OBJECT |
+                       // SingleSelection, OBJECT, {non_atomic:BOOL} -> OBJECT
         // Deletes all the rows in a selection.
-        DELETE   = 54; // StreamSelection -> OBJECT | SingleSelection -> OBJECT
-        // Replaces all the rows in a selection.  Calls its Function with the row
+        DELETE = 54; // StreamSelection -> OBJECT | SingleSelection -> OBJECT
+        // Replaces all the rows in a selection. Calls its Function with the row
         // to be replaced, and then discards it and stores the result of that
         // call.
-        REPLACE  = 55; // StreamSelection, Function(1), {non_atomic:BOOL} -> OBJECT | SingleSelection, Function(1), {non_atomic:BOOL} -> OBJECT
-        // Inserts into a table.  If `upsert` is true, overwrites entries with
+        REPLACE = 55; // StreamSelection, Function(1), {non_atomic:BOOL} -> OBJECT | SingleSelection, Function(1), {non_atomic:BOOL} -> OBJECT
+        // Inserts into a table. If `upsert` is true, overwrites entries with
         // the same primary key (otherwise errors).
-        INSERT   = 56; // Table, OBJECT, {upsert:BOOL} -> OBJECT | Table, Sequence, {upsert:BOOL} -> OBJECT
+        INSERT = 56; // Table, OBJECT, {upsert:BOOL} -> OBJECT | Table, Sequence, {upsert:BOOL} -> OBJECT
 
         // * Administrative OPs
         // Creates a database with a particular name.
-        DB_CREATE    = 57; // STRING -> OBJECT
+        DB_CREATE = 57; // STRING -> OBJECT
         // Drops a database with a particular name.
-        DB_DROP      = 58; // STRING -> OBJECT
-        // Lists all the databases by name.  (Takes no arguments)
-        DB_LIST      = 59; // -> ARRAY
-        // Creates a table with a particular name in a particular database.
-        TABLE_CREATE = 60; // Database, STRING, {datacenter:STRING, primary_key:STRING, cache_size:NUMBER} -> OBJECT
-        // Drops a table with a particular name from a particular database.
-        TABLE_DROP   = 61; // Database, STRING -> OBJECT
-        // Lists all the tables in a particular database.
-        TABLE_LIST   = 62; // Database -> ARRAY
+        DB_DROP = 58; // STRING -> OBJECT
+        // Lists all the databases by name. (Takes no arguments)
+        DB_LIST = 59; // -> ARRAY
+        // Creates a table with a particular name in a particular
+        // database. (You may omit the first argument to use the
+        // default database.)
+        TABLE_CREATE = 60; // Database, STRING, {datacenter:STRING, primary_key:STRING, cache_size:NUMBER, hard_durability:BOOL} -> OBJECT
+                           // STRING, {datacenter:STRING, primary_key:STRING, cache_size:NUMBER, hard_durability:BOOL} -> OBJECT
+        // Drops a table with a particular name from a particular
+        // database. (You may omit the first argument to use the
+        // default database.)
+        TABLE_DROP = 61; // Database, STRING -> OBJECT
+                           // STRING -> OBJECT
+        // Lists all the tables in a particular database. (You may
+        // omit the first argument to use the default database.)
+        TABLE_LIST = 62; // Database -> ARRAY
+                           // -> ARRAY
 
         // * Secondary indexes OPs
         // Creates a new secondary index with a particular name and definition.
@@ -256,17 +327,17 @@ message Term {
 
         // * Control Operators
         // Calls a function on data
-        FUNCALL  = 64; // Function(*), DATUM... -> DATUM
+        FUNCALL = 64; // Function(*), DATUM... -> DATUM
         // Executes its first argument, and returns its second argument if it
         // got [true] or its third argument if it got [false] (like an `if`
         // statement).
-        BRANCH  = 65; // BOOL, Top, Top -> Top
+        BRANCH = 65; // BOOL, Top, Top -> Top
         // Returns true if any of its arguments returns true (short-circuits).
         // (Like `or` in most languages.)
-        ANY     = 66; // BOOL... -> BOOL
+        ANY = 66; // BOOL... -> BOOL
         // Returns true if all of its arguments return true (short-circuits).
         // (Like `and` in most languages.)
-        ALL     = 67; // BOOL... -> BOOL
+        ALL = 67; // BOOL... -> BOOL
         // Calls its Function with each entry in the sequence
         // and executes the array of terms that Function returns.
         FOREACH = 68; // Sequence, Function(1) -> OBJECT
@@ -275,51 +346,68 @@ message Term {
 ////////// Special Terms
 ////////////////////////////////////////////////////////////////////////////////
 
-        // An anonymous function.  Takes an array of numbers representing
+        // An anonymous function. Takes an array of numbers representing
         // variables (see [VAR] above), and a [Term] to execute with those in
-        // scope.  Returns a function that may be passed an array of arguments,
-        // then executes the Term with those bound to the variable names.  The
-        // user will never construct this directly.  We use it internally for
-        // things like `map` which take a function.  The "arity" of a [Function] is
+        // scope. Returns a function that may be passed an array of arguments,
+        // then executes the Term with those bound to the variable names. The
+        // user will never construct this directly. We use it internally for
+        // things like `map` which take a function. The "arity" of a [Function] is
         // the number of arguments it takes.
         // For example, here's what `_X_.map{|x| x+2}` turns into:
         // Term {
-        //   type = MAP;
-        //   args = [_X_,
-        //           Term {
-        //             type = Function;
-        //             args = [Term {
-        //                       type = DATUM;
-        //                       datum = Datum {
-        //                         type = R_ARRAY;
-        //                         r_array = [Datum { type = R_NUM; r_num = 1; }];
-        //                       };
-        //                     },
-        //                     Term {
-        //                       type = ADD;
-        //                       args = [Term {
-        //                                 type = VAR;
-        //                                 args = [Term {
-        //                                           type = DATUM;
-        //                                           datum = Datum { type = R_NUM;
-        //                                                           r_num = 1};
-        //                                         }];
-        //                               },
-        //                               Term {
-        //                                 type = DATUM;
-        //                                 datum = Datum { type = R_NUM; r_num = 2; };
-        //                               }];
-        //                     }];
-        //           }];
+        // type = MAP;
+        // args = [_X_,
+        // Term {
+        // type = Function;
+        // args = [Term {
+        // type = DATUM;
+        // datum = Datum {
+        // type = R_ARRAY;
+        // r_array = [Datum { type = R_NUM; r_num = 1; }];
+        // };
+        // },
+        // Term {
+        // type = ADD;
+        // args = [Term {
+        // type = VAR;
+        // args = [Term {
+        // type = DATUM;
+        // datum = Datum { type = R_NUM;
+        // r_num = 1};
+        // }];
+        // },
+        // Term {
+        // type = DATUM;
+        // datum = Datum { type = R_NUM; r_num = 2; };
+        // }];
+        // }];
+        // }];
         FUNC = 69; // ARRAY, Top -> ARRAY -> Top
 
         // Indicates to ORDER_BY that this attribute is to be sorted in ascending order.
         ASC = 73; // !STRING -> Ordering
         // Indicates to ORDER_BY that this attribute is to be sorted in descending order.
         DESC = 74; // !STRING -> Ordering
-        
-        // Gets info about anythin; most useful for tables.
+
+        // Gets info about anything. INFO is most commonly called on tables.
         INFO = 79; // Top -> OBJECT
+
+        // `a.match(b)` returns a match object if the string `a`
+        // matches the regular expression `b`.
+        MATCH = 97; // STRING, STRING -> DATUM
+
+        // Select a number of elements from sequence with uniform distribution.
+        SAMPLE = 81; // Sequence, NUMBER -> Sequence
+
+        // Evaluates its first argument. If that argument returns
+        // NULL or throws an error related to the absence of an
+        // expected value (for instance, accessing a non-existent
+        // field or adding NULL to an integer), DEFAULT will either
+        // return its second argument or execute it if it's a
+        // function. If the second argument is a function, it will be
+        // passed either the text of the error or NULL as its
+        // argument.
+        DEFAULT = 92; // Top, Top -> Top
     }
     optional TermType type = 1;
 
@@ -335,7 +423,7 @@ message Term {
     // (Note that the order of the optional arguments doesn't matter; think of a
     // Hash.)
 
-    extensions 10000 to 20000;
+    //extensions 10000 to 20000;
 }
 
 // You send one of:

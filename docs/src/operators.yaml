@@ -1,19 +1,54 @@
 sections:
   - tag: operators
-    name: Math and logic
-    description: These commands provide basic mathematical and logical operators.
+    name: Math, logic, and string manipulation
+    description: These commands provide basic math, logic, and string operators.
     order: 10
 
 commands:
+  - tag: match
+    section: operators
+    description: Match against a regular expression.  Returns a match object containing the matched string, that string's start/end position, and the capture groups.  Accepts RE2 syntax (https://code.google.com/p/re2/wiki/Syntax).  You can enable case-insensitive matching by prefixing the regular expression with `(?i)`.  (See linked RE2 documentation for more flags.)
+    name: match
+    is_operator: true
+    body: regexp
+    parent: string
+    returns: json
+
+    examples:
+      - description: Get all users whose name starts with A.
+        code:
+          rb: r.table('users').filter{|row| row[:name].match("^A")}.run(conn)
+          py: r.table('users').filter(lambda row:row['name'].match("^A")).run(conn)
+          js: r.table('users').filter(function(row){return row('name').match("^A")}).run(conn, callback)
+          ph: r\table('users')->filter(function($row) { return $row('name')->match("^A"); })->run($conn);
+      - description: Parse out a name (returns "mlucy").
+        code:
+          rb: r('id:0,name:mlucy,foo:bar').match('name:(\w+)')[:groups][0][:str].run(conn)
+          py: r.expr('id:0,name:mlucy,foo:bar').match('name:(\w+)')['groups'][0]['str'].run(conn)
+          js: r.expr('id:0,name:mlucy,foo:bar').match('name:(\w+)')('groups').nth(0)('str').run(conn, callback)
+          ph: |
+            r\expr('id:0,name:mlucy,foo:bar')->match('name:(\w+)')
+              ->attr('groups')->nth(0)
+              ->attr('str')->run($conn);
+      - description: Fail to parse out a name (returns null).
+        code:
+          rb: r('id:0,foo:bar').match('name:(\w+)')[:groups][0][:str].run(conn)
+          py: r.expr('id:0,foo:bar').match('name:(\w+)')['groups'][0]['str'].run(conn)
+          js: r.expr('id:0,foo:bar').match('name:(\w+)')('groups').nth(0)('str').run(conn, callback)
+          ph: |
+            r\expr('id:0,foo:bar')->match('name:(\w+)')
+              ->attr('groups')->nth(0)
+              ->attr('str')->run($conn);
+
   - tag: add
     section: operators
-    description: Sum two numbers or concatenate two strings.
+    description: Sum two numbers, concatenate two strings, or concatenate 2 arrays.
 
     name: +
     is_operator: true
-    body: other
-    parent: number | string
-    returns: number | string
+    body: number | string | array
+    parent: number | string | array
+    returns: number | string | array
 
     examples:
       - description: It's as easy as 2 + 2 = 4.
@@ -28,21 +63,16 @@ commands:
           py: (r.expr("foo") + "bar").run(conn)
           rb: (r("foo") + "bar").run(conn)
           ph: r\expr('foo')->add('bar')->run($conn);
-    
+      - description: Arrays can be concatenated too.
+        code:
+          js: r.expr(["foo", "bar"]).add("buzz").run(conn, callback)
+          py: (r.expr(["foo", "bar"]) + ["buzz"]).run(conn)
+          rb: (r(["foo", "bar"]) + ["buzz"]).run(conn)
+          ph: r\expr(array('foo', 'bar'))->add(array('buzz'))->run($conn);
+          
     ph:
       name: add
       is_operator: false
-
-    js:
-      name: add
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-        1:
-          can_try: true
-          dataset: marvel
 
   - tag: sub
     section: operators
@@ -66,23 +96,15 @@ commands:
       name: sub
       is_operator: false
 
-    js:
-      name: sub
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
   - tag: mul
     section: operators
-    description: Multiply two numbers.
+    description: Multiply two numbers, or make a periodic array.
 
     name: '*'
-    body: number
+    body: number | array
     is_operator: true
-    parent: number
-    returns: number
+    parent: number | array
+    returns: number | array
 
     examples:
       - description: It's as easy as 2 * 2 = 4.
@@ -91,18 +113,16 @@ commands:
           py: (r.expr(2) * 2).run(conn)
           rb: (r(2) * 2).run(conn)
           ph: r\expr(2)->mul(2)->run($conn);
+      - description: Arrays can be multiplied by numbers as well.
+        code:
+          js: r.expr(["This", "is", "the", "song", "that", "never", "ends."]).mul(100).run(conn, callback)
+          py: (r.expr(["This", "is", "the", "song", "that", "never", "ends."]) * 100).run(conn)
+          rb: (r(["This", "is", "the", "song", "that", "never", "ends."]) * 100).run(conn)
+          ph: r\expr(array("This", "is", "the", "song", "that", "never", "ends."))->mul(100)->run($conn);
 
     ph:
       name: mul
       is_operator: false
-
-    js:
-      name: mul
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
 
   - tag: div
     section: operators
@@ -126,14 +146,6 @@ commands:
       name: div
       is_operator: false
 
-    js:
-      name: div
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
   - tag: mod
     section: operators
     description: Find the remainder when dividing two numbers.
@@ -155,14 +167,6 @@ commands:
     ph:
       name: mod
       is_operator: false
-
-    js:
-      name: mod
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
 
   - tag: and
     section: operators
@@ -186,15 +190,6 @@ commands:
       name: rAnd
       is_operator: false
 
-    js:
-      name: and
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
-
   - tag: or
     section: operators
     description: Compute the logical or of two values.
@@ -216,14 +211,6 @@ commands:
     ph:
       name: rOr
       is_operator: false
-
-    js:
-      name: or
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
 
   - tag: eq
     section: operators
@@ -248,13 +235,6 @@ commands:
     ph:
       is_operator: false
 
-    js:
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
   - tag: ne
     section: operators
     description: Test if two values are not equal.
@@ -278,14 +258,6 @@ commands:
     ph:
       is_operator: false
 
-    js:
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
-
   - tag: gt
     section: operators
     description: Test if the first value is greater than other.
@@ -307,14 +279,6 @@ commands:
     ph:
       name: gt
       is_operator: false
-
-    js:
-      name: gt
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
 
   - tag: ge
     section: operators
@@ -338,14 +302,6 @@ commands:
       name: ge
       is_operator: false
 
-    js:
-      name: ge
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
   - tag: lt
     section: operators
     description: Test if the first value is less than other.
@@ -368,14 +324,6 @@ commands:
       name: lt
       is_operator: false
 
-    js:
-      name: lt
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
   - tag: le
     section: operators
     description: Test if the first value is less than or equal to other.
@@ -397,14 +345,6 @@ commands:
     ph:
       name: le
       is_operator: false
-
-    js:
-      name: le
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
 
   - tag: not
     section: operators
@@ -432,11 +372,4 @@ commands:
     py:
       name: '~'
       operator_first: true
-
-    js:
-      is_operator: false
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
 

@@ -1,14 +1,24 @@
 <?php namespace r;
 
-require_once('protocolbuf/message/pb_message.php');
-require_once('protocolbuf/parser/pb_parser.php');
+$__PHP_RQL_PROTOBUF_BACKEND = 'pb4php';
+if (class_exists('\ProtobufMessage')) {
+    // Use (faster) php-protobuf backend
+    $__PHP_RQL_PROTOBUF_BACKEND = 'php-protobuf';
+}
 
-if (!@include_once('pb_proto_ql2.php')) {
-    echo "pb_proto_ql2.php not found. Assuming that we must generate it...\n";
-    $rdbProtocolParser = new \PBParser();
-    $rdbProtocolParser->parse('rdb/ql2.proto', 'r\pb');
-    require_once('pb_proto_ql2.php');
-    echo "pb_proto_ql2.php has been generated.\n";
+if ($__PHP_RQL_PROTOBUF_BACKEND == 'php-protobuf') {
+    require_once('php-protobuf_pb_proto_ql2.php');
+}
+else if ($__PHP_RQL_PROTOBUF_BACKEND == 'pb4php') {
+    require_once('pb4php/message/pb_message.php');
+    require_once('pb4php_pb_proto_ql2.php');
+}
+else throw new Exception("Unknown PHP-RQL protobuf backend: " . $__PHP_RQL_PROTOBUF_BACKEND);
+
+function systemInfo()
+{
+    global $__PHP_RQL_PROTOBUF_BACKEND;
+    return "Protobuf backend: " . $__PHP_RQL_PROTOBUF_BACKEND . "\n";
 }
 
 require_once("util.php");

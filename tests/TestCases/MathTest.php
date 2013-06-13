@@ -4,6 +4,13 @@ class MathTest extends TestCase
 {
     public function run()
     {   
+        $this->checkQueryResult(r\expr('a')->match('b'),
+            null);
+        $this->checkQueryResult(r\expr('b')->match('b'),
+            array('str' => 'b', 'start' => 0, 'groups' => array(), 'end' => 1));
+        $this->checkQueryResult(r\expr('id:0,name:mlucy,foo:bar')->match('name:(\w+)'),
+            array('str' => 'name:mlucy', 'start' => 5, 'groups' => array(array('str' => 'mlucy', 'start' => 10, 'end' => 15)), 'end' => 15));
+    
         $this->checkQueryResult(r\expr('a')->add('b'),
             'ab'); 
         $this->checkQueryResult(r\expr(1)->add(2),

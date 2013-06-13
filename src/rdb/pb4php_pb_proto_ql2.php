@@ -10,6 +10,7 @@ class VersionDummy extends \PBMessage
 class VersionDummy_Version extends \PBEnum
 {
   const PB_V0_1  = 0x3f61ba36;
+  const PB_V0_2  = 0x723081e1;
 }
 class Datum extends \PBMessage
 {
@@ -30,75 +31,59 @@ class Datum extends \PBMessage
     $this->fields[6] = "\\r\\pb\\Datum_AssocPair";
     $this->values[6] = array();
   }
-  function type()
+  function getType()
   {
     return $this->_get_value("1");
   }
-  function set_type($value)
+  function setType($value)
   {
     return $this->_set_value("1", $value);
   }
-  function r_bool()
+  function getRBool()
   {
     return $this->_get_value("2");
   }
-  function set_r_bool($value)
+  function setRBool($value)
   {
     return $this->_set_value("2", $value);
   }
-  function r_num()
+  function getRNum()
   {
     return $this->_get_value("3");
   }
-  function set_r_num($value)
+  function setRNum($value)
   {
     return $this->_set_value("3", $value);
   }
-  function r_str()
+  function getRStr()
   {
     return $this->_get_value("4");
   }
-  function set_r_str($value)
+  function setRStr($value)
   {
     return $this->_set_value("4", $value);
   }
-  function r_array($offset)
+  function getRArrayAt($offset)
   {
     return $this->_get_arr_value("5", $offset);
   }
-  function add_r_array()
+  function appendRArray($value)
   {
-    return $this->_add_arr_value("5");
+    $this->_set_arr_value("5", $this->_get_arr_size("5"), $value);
   }
-  function set_r_array($index, $value)
-  {
-    $this->_set_arr_value("5", $index, $value);
-  }
-  function remove_last_r_array()
-  {
-    $this->_remove_last_arr_value("5");
-  }
-  function r_array_size()
+  function getRArrayCount()
   {
     return $this->_get_arr_size("5");
   }
-  function r_object($offset)
+  function getRObjectAt($offset)
   {
     return $this->_get_arr_value("6", $offset);
   }
-  function add_r_object()
+  function appendRObject($value)
   {
-    return $this->_add_arr_value("6");
+    $this->_set_arr_value("6", $this->_get_arr_size("6"), $value);
   }
-  function set_r_object($index, $value)
-  {
-    $this->_set_arr_value("6", $index, $value);
-  }
-  function remove_last_r_object()
-  {
-    $this->_remove_last_arr_value("6");
-  }
-  function r_object_size()
+  function getRObjectCount()
   {
     return $this->_get_arr_size("6");
   }
@@ -123,19 +108,19 @@ class Datum_AssocPair extends \PBMessage
     $this->fields[2] = "\\r\\pb\\Datum";
     $this->values[2] = null;
   }
-  function key()
+  function getKey()
   {
     return $this->_get_value("1");
   }
-  function set_key($value)
+  function setKey($value)
   {
     return $this->_set_value("1", $value);
   }
-  function val()
+  function getVal()
   {
     return $this->_get_value("2");
   }
-  function set_val($value)
+  function setVal($value)
   {
     return $this->_set_value("2", $value);
   }
@@ -155,59 +140,43 @@ class Term extends \PBMessage
     $this->fields[4] = "\\r\\pb\\Term_AssocPair";
     $this->values[4] = array();
   }
-  function type()
+  function getType()
   {
     return $this->_get_value("1");
   }
-  function set_type($value)
+  function setType($value)
   {
     return $this->_set_value("1", $value);
   }
-  function datum()
+  function getDatum()
   {
     return $this->_get_value("2");
   }
-  function set_datum($value)
+  function setDatum($value)
   {
     return $this->_set_value("2", $value);
   }
-  function args($offset)
+  function getArgsAt($offset)
   {
     return $this->_get_arr_value("3", $offset);
   }
-  function add_args()
+  function appendArgs($value)
   {
-    return $this->_add_arr_value("3");
+    $this->_set_arr_value("3", $this->_get_arr_size("3"), $value);
   }
-  function set_args($index, $value)
-  {
-    $this->_set_arr_value("3", $index, $value);
-  }
-  function remove_last_args()
-  {
-    $this->_remove_last_arr_value("3");
-  }
-  function args_size()
+  function getArgsCount()
   {
     return $this->_get_arr_size("3");
   }
-  function optargs($offset)
+  function getOptargsAt($offset)
   {
     return $this->_get_arr_value("4", $offset);
   }
-  function add_optargs()
+  function appendOptargs($value)
   {
-    return $this->_add_arr_value("4");
+    $this->_set_arr_value("4", $this->_get_arr_size("4"), $value);
   }
-  function set_optargs($index, $value)
-  {
-    $this->_set_arr_value("4", $index, $value);
-  }
-  function remove_last_optargs()
-  {
-    $this->_remove_last_arr_value("4");
-  }
-  function optargs_size()
+  function getOptargsCount()
   {
     return $this->_get_arr_size("4");
   }
@@ -238,11 +207,21 @@ class Term_TermType extends \PBEnum
   const PB_DIV  = 27;
   const PB_MOD  = 28;
   const PB_APPEND  = 29;
+  const PB_PREPEND  = 80;
+  const PB_DIFFERENCE  = 95;
+  const PB_SET_INSERT  = 88;
+  const PB_SET_INTERSECTION  = 89;
+  const PB_SET_UNION  = 90;
+  const PB_SET_DIFFERENCE  = 91;
   const PB_SLICE  = 30;
   const PB_SKIP  = 70;
   const PB_LIMIT  = 71;
+  const PB_INDEXES_OF  = 87;
+  const PB_CONTAINS  = 93;
   const PB_GETATTR  = 31;
-  const PB_CONTAINS  = 32;
+  const PB_KEYS  = 94;
+  const PB_HAS_FIELDS  = 32;
+  const PB_WITH_FIELDS  = 96;
   const PB_PLUCK  = 33;
   const PB_WITHOUT  = 34;
   const PB_MERGE  = 35;
@@ -254,6 +233,7 @@ class Term_TermType extends \PBEnum
   const PB_ORDERBY  = 41;
   const PB_DISTINCT  = 42;
   const PB_COUNT  = 43;
+  const PB_IS_EMPTY  = 86;
   const PB_UNION  = 44;
   const PB_NTH  = 45;
   const PB_GROUPED_MAP_REDUCE  = 46;
@@ -262,6 +242,10 @@ class Term_TermType extends \PBEnum
   const PB_OUTER_JOIN  = 49;
   const PB_EQ_JOIN  = 50;
   const PB_ZIP  = 72;
+  const PB_INSERT_AT  = 82;
+  const PB_DELETE_AT  = 83;
+  const PB_CHANGE_AT  = 84;
+  const PB_SPLICE_AT  = 85;
   const PB_COERCE_TO  = 51;
   const PB_TYPEOF  = 52;
   const PB_UPDATE  = 53;
@@ -286,6 +270,9 @@ class Term_TermType extends \PBEnum
   const PB_ASC  = 73;
   const PB_DESC  = 74;
   const PB_INFO  = 79;
+  const PB_MATCH  = 97;
+  const PB_SAMPLE  = 81;
+  const PB_DEFAULT  = 92;
 }
 class Term_AssocPair extends \PBMessage
 {
@@ -298,19 +285,19 @@ class Term_AssocPair extends \PBMessage
     $this->fields[2] = "\\r\\pb\\Term";
     $this->values[2] = null;
   }
-  function key()
+  function getKey()
   {
     return $this->_get_value("1");
   }
-  function set_key($value)
+  function setKey($value)
   {
     return $this->_set_value("1", $value);
   }
-  function val()
+  function getVal()
   {
     return $this->_get_value("2");
   }
-  function set_val($value)
+  function setVal($value)
   {
     return $this->_set_value("2", $value);
   }
@@ -330,47 +317,39 @@ class Query extends \PBMessage
     $this->fields[6] = "\\r\\pb\\Query_AssocPair";
     $this->values[6] = array();
   }
-  function type()
+  function getType()
   {
     return $this->_get_value("1");
   }
-  function set_type($value)
+  function setType($value)
   {
     return $this->_set_value("1", $value);
   }
-  function query()
+  function getQuery()
   {
     return $this->_get_value("2");
   }
-  function set_query($value)
+  function setQuery($value)
   {
     return $this->_set_value("2", $value);
   }
-  function token()
+  function getToken()
   {
     return $this->_get_value("3");
   }
-  function set_token($value)
+  function setToken($value)
   {
     return $this->_set_value("3", $value);
   }
-  function global_optargs($offset)
+  function getGlobalOptargsAt($offset)
   {
     return $this->_get_arr_value("6", $offset);
   }
-  function add_global_optargs()
+  function appendGlobalOptargs($value)
   {
-    return $this->_add_arr_value("6");
+    $this->_set_arr_value("6", $this->_get_arr_size("6"), $value);
   }
-  function set_global_optargs($index, $value)
-  {
-    $this->_set_arr_value("6", $index, $value);
-  }
-  function remove_last_global_optargs()
-  {
-    $this->_remove_last_arr_value("6");
-  }
-  function global_optargs_size()
+  function getGlobalOptargsCount()
   {
     return $this->_get_arr_size("6");
   }
@@ -392,19 +371,19 @@ class Query_AssocPair extends \PBMessage
     $this->fields[2] = "\\r\\pb\\Term";
     $this->values[2] = null;
   }
-  function key()
+  function getKey()
   {
     return $this->_get_value("1");
   }
-  function set_key($value)
+  function setKey($value)
   {
     return $this->_set_value("1", $value);
   }
-  function val()
+  function getVal()
   {
     return $this->_get_value("2");
   }
-  function set_val($value)
+  function setVal($value)
   {
     return $this->_set_value("2", $value);
   }
@@ -422,27 +401,27 @@ class Frame extends \PBMessage
     $this->fields[3] = "\\I_PBString";
     $this->values[3] = null;
   }
-  function type()
+  function getType()
   {
     return $this->_get_value("1");
   }
-  function set_type($value)
+  function setType($value)
   {
     return $this->_set_value("1", $value);
   }
-  function pos()
+  function getPos()
   {
     return $this->_get_value("2");
   }
-  function set_pos($value)
+  function setPos($value)
   {
     return $this->_set_value("2", $value);
   }
-  function opt()
+  function getOpt()
   {
     return $this->_get_value("3");
   }
-  function set_opt($value)
+  function setOpt($value)
   {
     return $this->_set_value("3", $value);
   }
@@ -461,23 +440,15 @@ class Backtrace extends \PBMessage
     $this->fields[1] = "\\r\\pb\\Frame";
     $this->values[1] = array();
   }
-  function frames($offset)
+  function getFramesAt($offset)
   {
     return $this->_get_arr_value("1", $offset);
   }
-  function add_frames()
+  function appendFrames($value)
   {
-    return $this->_add_arr_value("1");
+    $this->_set_arr_value("1", $this->_get_arr_size("1"), $value);
   }
-  function set_frames($index, $value)
-  {
-    $this->_set_arr_value("1", $index, $value);
-  }
-  function remove_last_frames()
-  {
-    $this->_remove_last_arr_value("1");
-  }
-  function frames_size()
+  function getFramesCount()
   {
     return $this->_get_arr_size("1");
   }
@@ -497,47 +468,39 @@ class Response extends \PBMessage
     $this->fields[4] = "\\r\\pb\\Backtrace";
     $this->values[4] = null;
   }
-  function type()
+  function getType()
   {
     return $this->_get_value("1");
   }
-  function set_type($value)
+  function setType($value)
   {
     return $this->_set_value("1", $value);
   }
-  function token()
+  function getToken()
   {
     return $this->_get_value("2");
   }
-  function set_token($value)
+  function setToken($value)
   {
     return $this->_set_value("2", $value);
   }
-  function response($offset)
+  function getResponseAt($offset)
   {
     return $this->_get_arr_value("3", $offset);
   }
-  function add_response()
+  function appendResponse($value)
   {
-    return $this->_add_arr_value("3");
+    $this->_set_arr_value("3", $this->_get_arr_size("3"), $value);
   }
-  function set_response($index, $value)
-  {
-    $this->_set_arr_value("3", $index, $value);
-  }
-  function remove_last_response()
-  {
-    $this->_remove_last_arr_value("3");
-  }
-  function response_size()
+  function getResponseCount()
   {
     return $this->_get_arr_size("3");
   }
-  function backtrace()
+  function getBacktrace()
   {
     return $this->_get_value("4");
   }
-  function set_backtrace($value)
+  function setBacktrace($value)
   {
     return $this->_set_value("4", $value);
   }

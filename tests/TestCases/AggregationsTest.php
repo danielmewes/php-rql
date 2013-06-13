@@ -30,6 +30,9 @@ class AggregationsTest extends TestCase
             array(array('reduction' => 1, 'group' => array(1)), array('reduction' => 2, 'group' => array(2)), array('reduction' => 4, 'group' => array(4))));
          $this->checkQueryResult(r\expr(array(array('v' => 1, 'x' => 1), array('v' => 2, 'x' => 2), array('v' => 2, 'x' => 3), array('v' => 4, 'x' => 4)))->groupBy(array('v', 'x'), r\count()),
             array(array('reduction' => 1, 'group' => array(1, 1)), array('reduction' => 1, 'group' => array(2, 2)), array('reduction' => 1, 'group' => array(2, 3)), array('reduction' => 1, 'group' => array(4, 4))));
+            
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('a'), true);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('z'), false);
     }
 }
 

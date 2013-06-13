@@ -64,8 +64,8 @@ class TableDrop extends ValuedQuery
 
 class Table extends ValuedQuery
 {
-    public function insert($document, $upsert = null) {
-        return new Insert($this, $document, $upsert);
+    public function insert($document, $opts = null) {
+        return new Insert($this, $document, $opts);
     }
     public function get($key) {
         return new Get($this, $key);

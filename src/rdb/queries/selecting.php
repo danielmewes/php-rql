@@ -59,7 +59,7 @@ class Between extends ValuedQuery
 
 class Filter extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $predicate) {
+    public function __construct(ValuedQuery $sequence, $predicate, $default = null) {
         if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query"))) {
             try {
                 $predicate = nativeToDatum($predicate);
@@ -73,9 +73,14 @@ class Filter extends ValuedQuery
         } else if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\FunctionQuery"))) {
             $predicate = new RFunction(array(new RVar('_')), $predicate);
         }
+        if (isset($default) && !(is_object($default) && is_subclass_of($default, "\\r\\Query"))) {
+            $default = nativeToDatum($default);
+        }
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $predicate);
+        if (isset($default))
+            $this->setOptionalArg('default', $default);
     }
     
     protected function getTermType() {

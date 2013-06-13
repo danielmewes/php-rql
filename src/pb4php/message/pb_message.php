@@ -40,11 +40,6 @@ abstract class PBMessage
     // the value of a class
     var $value = null;
 
-    // modus byte or string parse (byte for productive string for better reading and debuging)
-    // 1 = byte, 2 = String
-    // TODO (daniel): It seems that modus 2 is currently broken. Maybe remove it altogether, or fix it.
-    const MODUS = 1;
-
     // now use pointer for speed improvement
     // pointer to begin
     protected $reader;
@@ -58,12 +53,12 @@ abstract class PBMessage
     /**
      * Constructor - initialize base128 class
      */
-    public function __construct($reader=null, $base128=null)
+    public function __construct(&$reader=null, $base128=null)
     {
-        $this->reader = $reader;
+        $this->reader = &$reader;
         $this->value = $this;
         if ($base128 === null)            
-            $this->base128 = new base128varint(PBMessage::MODUS);
+            $this->base128 = new base128varint();
         else
             $this->base128 = $base128;
     }
@@ -75,13 +70,9 @@ abstract class PBMessage
      */
     public function get_types($number)
     {
-        $binstring = decbin($number);
         $types = array();
-        $binstringLength = strlen($binstring);
-        $low = substr($binstring, $binstringLength - 3, $binstringLength);
-        $high = substr($binstring,0, $binstringLength - 3) . '0000';
-        $types['wired'] = bindec($low);
-        $types['field'] = bindec($binstring) >> 3;
+        $types['wired'] = $number & 7;
+        $types['field'] = ($number ^ 7) >> 3;
         return $types;
     }
 
@@ -139,7 +130,7 @@ abstract class PBMessage
 
         if ($this->wired_type == PBMessage::WIRED_LENGTH_DELIMITED && $rec > -1)
         {
-            $stringinner = $this->base128->set_value(strlen($stringinner) / PBMessage::MODUS) . $stringinner;
+            $stringinner = $this->base128->set_value(strlen($stringinner)) . $stringinner;
         }
 
         return $string . $stringinner;
@@ -207,7 +198,7 @@ abstract class PBMessage
                 }
                 else
                 {
-                    throw new Exception('I dont understand this wired code:' . $messtypes['wired']);
+                    throw new Exception('I dont understand this wired code: ' . $messtypes['wired']);
                 }
 
                 // perhaps send a warning out
@@ -298,7 +289,8 @@ abstract class PBMessage
             }
             else
             {
-                $this->values[$index] = new $this->fields[$index](null, $this->base128);
+                $nullReader = null;
+                $this->values[$index] = new $this->fields[$index]($nullReader, $this->base128);
                 $this->values[$index]->value = $value;
             }
         }
