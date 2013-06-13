@@ -258,7 +258,7 @@ class Connection
         
         if ($response != "SUCCESS") {
             $this->close();
-            throw new RqlDriverError("Handshake failed: $response. Disconnected.");
+            throw new RqlDriverError("Handshake failed: $response Disconnected.");
         }
     }
     
