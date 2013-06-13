@@ -57,14 +57,11 @@ commands:
           rb: r.table('marvel').with_fields('id', 'nemesis')
           py: r.table('marvel').with_fields('id', 'nemesis')
           js: r.table('marvel').withFields('id', 'nemesis')
-
-
-    js:
-      body: mappingFunction
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
+          ph: r\table('marvel')->withFields(array('id', 'nemesis'))->run($conn);
+          
+    ph:
+      name: withFields
+      body: field | array(field1, field2, ...)
 
 
   - tag: concat_map
@@ -239,6 +236,7 @@ commands:
           js: r.expr(['a','b','c']).indexesOf('c').run(conn, callback)
           py: r.expr(['a','b','c']).indexes_of('c').run(conn)
           rb: r(['a','b','c']).indexes_of('c').run(conn)
+          ph: r\expr(array('a','b','c'))->indexesOf('c')->run($conn);
       - description: Find the popularity ranking of invisible heroes.
         code:
           py: |-
@@ -253,6 +251,13 @@ commands:
             r.table('marvel').union(r.table('dc')).order_by(:popularity).indexes_of{
               |row| row[:superpowers].contains('invisibility')
             }.run(conn)
+          ph: |-
+            r\table('marvel')->union(r\table('dc'))->orderBy('popularity')->indexesOf(
+              r\row('superpowers')->contains('invisibility')
+            )->run($conn);
+            
+    ph:
+      name: indexesOf
 
   - tag: is_empty
     section: transformations
@@ -268,6 +273,10 @@ commands:
           js: r.table('marvel').isEmpty().run(conn, callback)
           py: r.table('marvel').is_empty().run(conn)
           rb: r.table('marvel').is_empty().run(conn)
+          ph: r\table('marvel')->isEmpty()->run($conn);
+          
+    ph:
+      name: isEmpty
 
   - tag: union
     section: transformations
@@ -301,4 +310,5 @@ commands:
           js: r.table('marvel').sample(3).run(conn, callback)
           rb: r.table('marvel').sample(3).run(conn)
           py: r.table('marvel').sample(3).run(conn)
+          ph: r\table('marvel')->sample(3)->run($conn);
 

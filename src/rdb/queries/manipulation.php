@@ -93,7 +93,7 @@ class Getattr extends ValuedQuery
     }
 }
 
-class Contains extends ValuedQuery
+class HasFields extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
         if (is_string($attributes))

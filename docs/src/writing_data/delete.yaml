@@ -21,6 +21,7 @@ commands:
 
     parent: selection
     returns: object
+    body: "[opts]"
 
     examples:
       - description: Delete superman from the database.

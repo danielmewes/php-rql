@@ -29,9 +29,9 @@ class ManipulationsTest extends TestCase
         $this->checkQueryResult(r\expr(array(1, 2, 3))->append(r\expr(4)),
             array(1, 2, 3, 4));
             
-        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->contains('x'),
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('x'),
             true);
-        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->contains('foo'),
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('foo'),
             false);
     }
 }

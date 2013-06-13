@@ -55,7 +55,7 @@ commands:
       js: opts, callback
       py: host='localhost', port=28015, db='test'
       rb: host='localhost', port=28015, default_db='test'
-      ph: host, port=28015[, db]
+      ph: host, port=28015[, db[, authKey]]
     parent: r
     returns: connection
 

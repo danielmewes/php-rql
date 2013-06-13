@@ -162,6 +162,9 @@ abstract class ValuedQuery extends Query
     public function zip() {
         return new Zip($this);
     }
+    public function withFields($attributes) {
+        return new WithFields($this, $attributes);
+    }
     public function map($mappingFunction) {
         return new Map($this, $mappingFunction);
     }
@@ -183,8 +186,17 @@ abstract class ValuedQuery extends Query
     public function nth($index) {
         return new Nth($this, $index);
     }
+    public function indexesOf($predicate) {
+        return new IndexesOf($this, $predicate);
+    }
+    public function isEmpty() {
+        return new IsEmpty($this);
+    }
     public function union(ValuedQuery $otherSequence) {
         return new Union($this, $otherSequence);
+    }
+    public function sample($n) {
+        return new Sample($this, $n);
     }
     public function reduce($reductionFunction, $base = null) {
         return new Reduce($this, $reductionFunction, $base);
@@ -221,8 +233,8 @@ abstract class ValuedQuery extends Query
     public function attr($attribute) {
         return new Getattr($this, $attribute);
     }
-    public function contains($attributes) {
-        return new Contains($this, $attributes);
+    public function hasFields($attributes) {
+        return new HasFields($this, $attributes);
     }
     public function add($other) {
         return new Add($this, $other);
