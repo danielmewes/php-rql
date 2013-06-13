@@ -215,6 +215,11 @@ abstract class ValuedQuery extends Query
     public function groupBy($keys, MakeObject $reductionObject) {
         return new GroupBy($this, $keys, $reductionObject);
     }
+    // Note: The API docs suggest that as of 1.6, contains can accept multiple values.
+    //  We do not support that for the time being.
+    public function contains($value) {
+        return new Contains($this, $value);
+    }
     public function pluck($attributes) {
         return new Pluck($this, $attributes);
     }

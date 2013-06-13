@@ -182,3 +182,7 @@ commands:
           rb: r.table('marvel').get('ironman')[:opponents].contains('superman').run(conn)
           py: r.table('marvel').get('ironman')['opponents'].contains('superman').run(conn)
           js: r.table('marvel').get('ironman')('opponents').contains('superman').run(conn, callback)
+          ph: r\table('marvel')->get('ironman')->attr('opponents')->contains('superman')->run($conn);
+             
+    ph:
+      body: value
