@@ -29,6 +29,17 @@ class TransformationsTest extends TestCase
             
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->pluck('superhero')->union(r\expr(array(array('superhero' => 'foo'))))->map(r\row('superhero')),
             array('Iron Man', 'Wolverine', 'Spiderman', 'foo'));
+            
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->withFields(array('superhero', 'nemesis'))->count(), 0.0);
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->withFields('superhero')->count(), 3.0);
+        
+        $this->checkQueryResult(r\expr(array('a','b','c'))->indexesOf('c'), array(2));
+        
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->isEmpty(), false);
+        $this->checkQueryResult(r\expr(new r\ArrayDatum(array()))->isEmpty(), true);
+        
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->sample(1)->count(), 1.0);
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->sample(3)->count(), 3.0);
     }
 }
 
