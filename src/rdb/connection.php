@@ -5,13 +5,14 @@ require_once("datum.php");
 
 class Connection
 {
-    public function __construct($host, $port = 28015, $db = null) {
+    public function __construct($host, $port = 28015, $db = null, $apiKey = "") {
         if (!isset($host)) throw new RqlDriverError("No host given.");
         if (!isset($port)) throw new RqlDriverError("No port given.");
         if (isset($db) && !is_string($db)) throw new RqlDriverError("Database must be a string.");
         
         $this->host = $host;
         $this->port = $port;
+        $this->apiKey = $apiKey;
         
         if (isset($db))
             $this->useDb($db);
@@ -220,14 +221,42 @@ class Connection
             throw new RqlDriverError("Unable to connect: " . $errstr);
         }
         
-        $this->sendVersion();
+        $this->sendHandshake();
+        $this->receiveHandshakeResponse();
     }
     
-    private function sendVersion() {
+    private function sendHandshake() {
         if (!$this->isOpen()) throw new RqlDriverError("Not connected");
     
-        $binaryVersion = pack("V", pb\VersionDummy_Version::PB_V0_1); // "V" is little endian, 32 bit unsigned integer
-        $this->sendStr($binaryVersion);
+        $binaryVersion = pack("V", pb\VersionDummy_Version::PB_V0_2); // "V" is little endian, 32 bit unsigned integer
+        $handshake = $binaryVersion;
+        
+        $binaryKeyLength = pack("V", strlen($this->apiKey));
+        $handshake .= $binaryKeyLength . $this->apiKey;
+        
+        $this->sendStr($handshake);
+    }
+    
+    private function receiveHandshakeResponse() {
+        if (!$this->isOpen()) throw new RqlDriverError("Not connected");
+        
+        $response = "";
+        while (true) {
+            $ch = stream_get_contents($this->socket, 1);
+            if ($ch === false || strlen($ch) < 1) {
+                $this->close();
+                throw new RqlDriverError("Unable to read from socket during handshake. Disconnected.");
+            }
+            if ($ch === chr(0))
+                break;
+            else
+                $response .= $ch;
+        }
+        
+        if ($response != "SUCCESS") {
+            $this->close();
+            throw new RqlDriverError("Handshake failed: $response. Disconnected.");
+        }
     }
     
     private function sendStr($s) {
@@ -247,6 +276,7 @@ class Connection
     private $host;
     private $port;
     private $defaultDb;
+    private $apiKey;
     private $activeTokens;
 }
 
