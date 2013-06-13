@@ -20,16 +20,25 @@ commands:
           rb: r.table('users').filter{|row| row[:name].match("^A")}.run(conn)
           py: r.table('users').filter(lambda row:row['name'].match("^A")).run(conn)
           js: r.table('users').filter(function(row){return row('name').match("^A")}).run(conn, callback)
+          ph: r\table('users')->filter(function($row) { return $row('name')->match("^A"); })->run($conn)
       - description: Parse out a name (returns "mlucy").
         code:
           rb: r('id:0,name:mlucy,foo:bar').match('name:(\w+)')[:groups][0][:str].run(conn)
           py: r.expr('id:0,name:mlucy,foo:bar').match('name:(\w+)')['groups'][0]['str'].run(conn)
           js: r.expr('id:0,name:mlucy,foo:bar').match('name:(\w+)')('groups').nth(0)('str').run(conn, callback)
+          ph: |
+            r\expr('id:0,name:mlucy,foo:bar')->match('name:(\w+)')
+              ->attr('groups')->nth(0)
+              ->attr('str')->run($conn);
       - description: Fail to parse out a name (returns null).
         code:
           rb: r('id:0,foo:bar').match('name:(\w+)')[:groups][0][:str].run(conn)
           py: r.expr('id:0,foo:bar').match('name:(\w+)')['groups'][0]['str'].run(conn)
           js: r.expr('id:0,foo:bar').match('name:(\w+)')('groups').nth(0)('str').run(conn, callback)
+          ph: |
+            r\expr('id:0,foo:bar')->match('name:(\w+)')
+              ->attr('groups')->nth(0)
+              ->attr('str')->run($conn);
 
   - tag: add
     section: operators

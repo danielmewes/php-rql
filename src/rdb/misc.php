@@ -316,6 +316,9 @@ abstract class ValuedQuery extends Query
     public function not() {
         return new Not($this);
     }
+    public function match($expression) {
+        return new Match($this, $expression);
+    }
     public function rForeach($queryFunction) {
         return new RForeach($this, $queryFunction);
     }
