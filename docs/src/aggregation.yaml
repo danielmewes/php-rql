@@ -62,7 +62,7 @@ commands:
           js: r.table('marvel').concatMap(r.row('superpowers')).count('invisibility').run(conn, callback)
           rb: r.table('marvel').concat_map{ |row| row[:superpowers] }.count('invisibility').run(conn)
           py: r.table('marvel').concat_map(r.row['superpowers']).count('invisibility').run(conn)
-          ph: r\table('marvel')->concat_map(r\row('superpowers'))->count('invisibility')->run($conn);
+          ph: r\table('marvel')->concatMap(r\row('superpowers'))->count('invisibility')->run($conn);
       - description: Just how many super heroes have defeated the Sphinx?
         code:
           js: r.table('marvel').count(r.row('monstersKilled').contains('Sphinx')).run(conn, callback)

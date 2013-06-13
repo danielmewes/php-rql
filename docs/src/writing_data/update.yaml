@@ -43,7 +43,7 @@ commands:
           rb: r.table('marvel').update(:durability => 'soft') {|hero| {:age => hero[:age] + 1}}.run(conn)
           ph: |
             r\table('marvel')->update(array( 'age' => r\row('age')->add(1) ),
-              array('durability' = 'soft'))->run($conn);
+              array('durability' => 'soft'))->run($conn);
       - description: Allow the server to run non-atomic operations.
         code:
           js: |

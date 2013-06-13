@@ -62,7 +62,7 @@ commands:
             }.run(conn)
           ph: |-
             r\table('projects')->map(function($p) {
-                return $p('staff')->rDefault(0)->add($p('management')->default(0));
+                return $p('staff')->rDefault(0)->add($p('management')->rDefault(0));
               })->run($conn);
             
     ph:

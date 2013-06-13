@@ -327,6 +327,7 @@ commands:
 
     examples:
       - description: For small result sets it may be more convenient to process them at once as an array.
+        validate: false
         code: 
           js: |
             cur.toArray(function(err, results) {
