@@ -11,6 +11,10 @@ class AggregationsTest extends TestCase
             
         $this->checkQueryResult(r\expr(array(1, 2, 3, 4))->count(),
             4.0);
+        $this->checkQueryResult(r\expr(array(1, 2, 3, 4))->count(2),
+            1.0);
+        $this->checkQueryResult(r\expr(array(1, 2, 3, 4))->count(r\row()->lt(3)),
+            2.0);
             
         $this->checkQueryResult(r\expr(array(1, 2, 2, 4))->distinct(),
             array(1, 2, 4));
