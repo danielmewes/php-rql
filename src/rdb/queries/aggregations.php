@@ -22,8 +22,27 @@ class Reduce extends ValuedQuery
 
 class Count extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence) {
+    public function __construct(ValuedQuery $sequence, $filter = null) {
+        if (isset($filter)) {
+            if (!(is_object($filter) && is_subclass_of($filter, "\\r\\Query"))) {
+                try {
+                    $filter = nativeToDatum($filter);
+                    if (!is_subclass_of($filter, "\\r\\Datum")) {
+                        // $filter is not a simple datum. Wrap it into a function:                
+                        $filter = new RFunction(array(new RVar('_')), $filter);
+                    }
+                } catch (RqlDriverError $e) {
+                    $filter = nativeToFunction($filter);
+                }
+            } else if (!(is_object($filter) && is_subclass_of($filter, "\\r\\FunctionQuery"))) {
+                $filter = new RFunction(array(new RVar('_')), $filter);
+            }
+        }
+    
         $this->setPositionalArg(0, $sequence);
+        if (isset($filter)) {
+            $this->setPositionalArg(1, $filter);
+        }
     }
     
     protected function getTermType() {

@@ -205,8 +205,8 @@ abstract class ValuedQuery extends Query
     public function reduce($reductionFunction, $base = null) {
         return new Reduce($this, $reductionFunction, $base);
     }
-    public function count() {
-        return new Count($this);
+    public function count($filter = null) {
+        return new Count($this, $filter);
     }
     public function distinct() {
         return new Distinct($this);
