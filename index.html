@@ -42,15 +42,15 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>07/07/2013 New release: PHP-RQL 1.7.0. Support for the <a href="https://github.com/rethinkdb/rethinkdb/blob/v1.7.x/NOTES">new features</a> of RethinkDB 1.7. Note that the variant of getAll which takes multiple keys is called getMultiple in PHP-RQL. The attr function to access a specific field of a document is now deprecated, and might be removed at some point in the farther future. The equivalent getField should be used instead. PHP-RQL 1.7.0 also adds a $conn-&gt;setTimeout(seconds) function to change the socket timeout.</li>
 <li>06/14/2013 New release: PHP-RQL 1.6.1. Adds support for a filter argument to count() that was missing in 1.6.0 (<a href="http://php-rql.dnsalias.net/api/#ph:aggregation-count">examples</a>).</li>
 <li>06/13/2013 New release: PHP-RQL 1.6.0. Support for the RethinkDB 1.6 wire protocol and its <a href="https://github.com/rethinkdb/rethinkdb/blob/v1.6.x/NOTES">new features</a>. This release also features the new <a href="https://github.com/allegro/php-protobuf">PHP Protobuf</a> backend for dramatically increased client performance. Please read the <a href="http://php-rql.dnsalias.net/wiki/index.php/InstallExtension">installation guide</a> for learning how to set up the new backend.</li>
-<li>05/29/2013 <strong>Announcement:</strong> The upcoming version of PHP-RQL will come with support for a new protocol buffer backend, <a href="https://github.com/allegro/php-protobuf">PHP Protobuf</a>. PHP Protobuf was recently released as open source by the Allegro Group. It uses a compiled PHP extension. Using PHP Protobuf instead of the current backend (which is based on <a href="http://code.google.com/p/pb4php/">pb4php</a> ) allows for drastic improvements in the driver's efficiency and performance. If you are interested in testing this version, you can install from the <a href="https://github.com/danielmewes/php-rql/tree/php_protobuf">php_protobuf</a> branch (<a href="https://github.com/danielmewes/php-rql/archive/php_protobuf.zip">ZIP archive</a> ). Then install the protobuf extension as explained on <a href="http://php-rql.dnsalias.net/wiki/index.php/InstallExtension">this wiki page</a>. The old backend will still be supported, and offer an alternative for cases where installing a PHP extension is not possible or not worth the hassle.</li>
 </ul><h2>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 1.6</li>
+<li>RethinkDB 1.7</li>
 </ul><h2>
 <a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
 
