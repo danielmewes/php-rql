@@ -77,7 +77,7 @@ function row($attribute = null)
 {
     if (isset($attribute)) {
         // A shortcut to do row()($attribute)
-        return new Getattr(new ImplicitVar(), $attribute);
+        return new GetField(new ImplicitVar(), $attribute);
     } else {
         return new ImplicitVar();
     }
@@ -105,6 +105,10 @@ function desc($attribute) {
 
 function asc($attribute) {
     return new Asc($attribute);
+}
+
+function json($json) {
+    return new Json($json);
 }
 
 ?>

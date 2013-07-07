@@ -13,6 +13,12 @@ class ManipulationsTest extends TestCase
             array(array('x' => 1)));
         $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => 2)))->pluck(array('x', 'y')),
             array(array('x' => 1, 'y' => 2)));
+        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => array('a' => 2.1, 'b' => 2.2))))->pluck(array('x' => true)),
+            array(array('x' => 1)));
+        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => array('a' => 2.1, 'b' => 2.2))))->pluck(array('y' => array('a', 'b'))),
+            array(array('y' => array('a' => 2.1, 'b' => 2.2))));
+        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => array('a' => 2.1, 'b' => 2.2))))->pluck(array('y' => array('b' => true))),
+            array(array('y' => array('b' => 2.2))));
             
         $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => 2)))->without('x'),
             array(array('y' => 2)));

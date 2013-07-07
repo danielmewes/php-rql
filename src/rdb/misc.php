@@ -255,10 +255,14 @@ abstract class ValuedQuery extends Query
         return new SetDifference($this, $value);
     }
     public function __invoke($attribute) {
-        return new Getattr($this, $attribute);
+        return new GetField($this, $attribute);
     }
+    // Deprecated as of 1.7.0. Use getField instead.
     public function attr($attribute) {
-        return new Getattr($this, $attribute);
+        return new GetField($this, $attribute);
+    }
+    public function getField($attribute) {
+        return new GetField($this, $attribute);
     }
     public function hasFields($attributes) {
         return new HasFields($this, $attributes);
@@ -377,6 +381,20 @@ class Info extends ValuedQuery {
     
     protected function getTermType() {
         return pb\Term_TermType::PB_INFO;
+    }
+}
+
+class Json extends ValuedQuery {
+    public function __construct($json) {
+        if (!(is_object($json) && is_subclass_of($json, "\\r\\Query"))) {
+            if (!is_string($json)) throw new RqlDriverError("JSON must be a string.");
+            $json = new StringDatum($json);
+        }
+        $this->setPositionalArg(0, $json);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_JSON;
     }
 }
 
