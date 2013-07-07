@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-06-13 13:14:28
+ * Auto generated from ql2.proto at 2013-07-07 12:58:05
  */
 
 /**
@@ -534,7 +534,7 @@ final class Term_TermType
     const PB_LIMIT = 71;
     const PB_INDEXES_OF = 87;
     const PB_CONTAINS = 93;
-    const PB_GETATTR = 31;
+    const PB_GET_FIELD = 31;
     const PB_KEYS = 94;
     const PB_HAS_FIELDS = 32;
     const PB_WITH_FIELDS = 96;
@@ -589,6 +589,7 @@ final class Term_TermType
     const PB_MATCH = 97;
     const PB_SAMPLE = 81;
     const PB_DEFAULT = 92;
+    const PB_JSON = 98;
 
     /**
      * Returns defined enum values
@@ -633,7 +634,7 @@ final class Term_TermType
             'LIMIT' => self::PB_LIMIT,
             'INDEXES_OF' => self::PB_INDEXES_OF,
             'CONTAINS' => self::PB_CONTAINS,
-            'GETATTR' => self::PB_GETATTR,
+            'GET_FIELD' => self::PB_GET_FIELD,
             'KEYS' => self::PB_KEYS,
             'HAS_FIELDS' => self::PB_HAS_FIELDS,
             'WITH_FIELDS' => self::PB_WITH_FIELDS,
@@ -688,6 +689,7 @@ final class Term_TermType
             'MATCH' => self::PB_MATCH,
             'SAMPLE' => self::PB_SAMPLE,
             'DEFAULT' => self::PB_DEFAULT,
+            'JSON' => self::PB_JSON,
         );
     }
 }
