@@ -16,6 +16,7 @@ class Connection
         if (!isset($apiKey))
             $apiKey = "";
         $this->apiKey = $apiKey;
+        $this->timeout = null;
         
         if (isset($db))
             $this->useDb($db);
@@ -48,6 +49,11 @@ class Connection
     
     public function useDb($dbName) {
         $this->defaultDb = new Db($dbName);
+    }
+    
+    public function setTimeout($timeout) {
+        $this->applyTimeout($timeout);
+        $this->timeout = $timeout;
     }
     
     public function _run(Query $query, $options) {
@@ -200,19 +206,19 @@ class Connection
     }
     
     private function receiveProtobuf() {
-        $responseSize = stream_get_contents($this->socket, 4);
-        if ($responseSize === false || strlen($responseSize) < 4) {
-            $this->close();
-            throw new RqlDriverError("Unable to read from socket. Disconnected.");
-        }
+        $responseSize = $this->receiveStr(4);
         $responseSize = unpack("V", $responseSize);
         $responseSize = $responseSize[1];
-        $responseBuf = stream_get_contents($this->socket, $responseSize);
-        if ($responseBuf === false || strlen($responseBuf) < $responseSize) {
-            $this->close();
-            throw new RqlDriverError("Unable to read from socket. Disconnected.");
-        }
+        $responseBuf = $this->receiveStr($responseSize);
         return $responseBuf;
+    }
+    
+    private function applyTimeout($timeout) {
+        if ($this->isOpen()) {
+            if (!stream_set_timeout($this->socket, $timeout)) {
+                throw new RqlDriverError("Could not set timeout");
+            }
+        }
     }
     
     private function connect() {
@@ -222,6 +228,9 @@ class Connection
         if ($errno != 0 || $this->socket === false) {
             $this->socket = null;
             throw new RqlDriverError("Unable to connect: " . $errstr);
+        }
+        if ($this->timeout) {
+            $this->applyTimeout($this->timeout);
         }
         
         $this->sendHandshake();
@@ -267,11 +276,28 @@ class Connection
         while ($bytesWritten < strlen($s)) {
             $result = fwrite($this->socket, substr($s, $bytesWritten));
             if ($result === false) {
+                $metaData = stream_get_meta_data($this->socket);
                 $this->close();
+                if ($metaData['timed_out']) {
+                    throw new RqlDriverError("Timed out while writing to socket. Disconnected. Call setTimeout(seconds) on the connection to change the timeout.");
+                }
                 throw new RqlDriverError("Unable to write to socket. Disconnected.");
             }
             $bytesWritten += $result;
         }
+    }
+    
+    private function receiveStr($length) {
+        $s = stream_get_contents($this->socket, $length);
+        if ($s === false || strlen($s) < $length) {
+            $metaData = stream_get_meta_data($this->socket);
+            $this->close();
+            if ($metaData['timed_out']) {
+                throw new RqlDriverError("Timed out while reading from socket. Disconnected. Call setTimeout(seconds) on the connection to change the timeout.");
+            }
+            throw new RqlDriverError("Unable to read from socket. Disconnected.");
+        }
+        return $s;
     }
     
     
@@ -281,6 +307,7 @@ class Connection
     private $defaultDb;
     private $apiKey;
     private $activeTokens;
+    private $timeout;
 }
 
 ?>
