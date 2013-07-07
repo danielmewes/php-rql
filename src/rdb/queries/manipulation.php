@@ -3,20 +3,21 @@
 class Pluck extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
+        // It would appear that the new pattern-matching syntax in 1.7 would make this
+        // a little cumbersome. The problem seems to be that we must distinguish 
+        // pattern such as array('a' => true) from a list of field names such as
+        // array('a', 'b').
+        // Luckily it turns out, that the new interface also supports passing in a plain
+        // ArrayDatum, which will be interpreted correctly. So we can just always
+        // interpret arrays as patterns.
+    
         if (is_string($attributes))
             $attributes = array($attributes);
-        if (!is_array($attributes)) throw new RqlDriverError("Attributes must be an array or a single attribute.");        
-        // Check keys and convert strings
-        foreach ($attributes as &$val) {
-            $val = new StringDatum($val);
-            unset($val);
-        }
+        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
+            $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
-        $i = 1;
-        foreach ($attributes as $val) {
-            $this->setPositionalArg($i++, $val);
-        }
+        $this->setPositionalArg(1, $attributes);
     }
     
     protected function getTermType() {
@@ -168,7 +169,7 @@ class SetUnion extends ValuedQuery
     }
 }
 
-class Getattr extends ValuedQuery
+class GetField extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute) {
         if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query")))
@@ -179,7 +180,7 @@ class Getattr extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_GETATTR;
+        return pb\Term_TermType::PB_GET_FIELD;
     }
 }
 

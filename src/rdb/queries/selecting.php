@@ -37,6 +37,32 @@ class GetAll extends ValuedQuery
     }
 }
 
+class GetMultiple extends ValuedQuery
+{
+    public function __construct(Table $table, $keys, $index = null) {
+        if (isset($index))
+            $index = new StringDatum($index);
+        if (!is_array($keys)) throw new RqlDriverError("Keys in GetMultiple must be an array.");
+        foreach ($keys as &$key) {
+            if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
+                $key = nativeToDatum($key);
+            }
+            unset($key);
+        }
+        $this->setPositionalArg(0, $table);
+        $i = 1;
+        foreach ($keys as $key) {
+            $this->setPositionalArg($i++, $key);
+        }
+        if (isset($index))
+            $this->setOptionalArg('index', $index);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_GET_ALL;
+    }
+}
+
 class Between extends ValuedQuery
 {
     public function __construct(ValuedQuery $selection, $leftBound, $rightBound, $index = null) {

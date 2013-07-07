@@ -73,6 +73,9 @@ class Table extends ValuedQuery
     public function getAll($key, $index = null) {
         return new GetAll($this, $key, $index);
     }
+    public function getMultiple($keys, $index = null) {
+        return new GetMultiple($this, $keys, $index);
+    }
     public function indexCreate($indexName, $keyFunction = null) {
         return new IndexCreate($this, $indexName, $keyFunction);
     }
