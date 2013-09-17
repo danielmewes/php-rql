@@ -63,6 +63,16 @@ function nativeToDatum($v) {
     }
 }
 
+function tryEncodeAsJson($v) {
+    if (canEncodeAsJson($v)) {
+        $json = json_encode($v);
+        if ($json === false) throw new RqlDriverError("Failed to encode document as JSON: " . json_last_error());
+        return $json;
+    } else {
+        return false;
+    }
+}
+
 // ------------- Helpers -------------
 function protobufToDatum(pb\Datum $datum) {
     switch ($datum->getType()) {
@@ -73,6 +83,31 @@ function protobufToDatum(pb\Datum $datum) {
         case pb\Datum_DatumType::PB_R_ARRAY: return ArrayDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_OBJECT: return ObjectDatum::_fromProtobuffer($datum);
         default: throw new RqlDriverError("Unhandled datum type " . $datum->getType());
+    }
+}
+
+function canEncodeAsJson($v) {
+    if (is_array($v)) {
+        foreach($v as $key => $val) {
+            if (!is_numeric($key) && !is_string($key)) return false;
+            if (!canEncodeAsJson($val)) return false;
+        }
+        return true;
+    }
+    else if (is_null($v)) {
+        return true;
+    }
+    else if (is_bool($v)) {
+        return true;
+    }
+    else if (is_numeric($v)) {
+        return true;
+    }
+    else if (is_string($v)) {
+        return true;
+    }
+    else {
+        return false;
     }
 }
 
