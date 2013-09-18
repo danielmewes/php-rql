@@ -136,7 +136,7 @@ abstract class Query
 }
 
 // This is just any query except for Table and Db at the moment.
-// We simply define all remaining operations on this.
+// We define all remaining operations on this.
 abstract class ValuedQuery extends Query
 {
     public function update($delta, $opts = null) {
@@ -336,9 +336,53 @@ abstract class ValuedQuery extends Query
     public function typeOf() {
         return new TypeOf($this);
     }
-    public function rDo($inExpr)
-    {
+    public function rDo($inExpr) {
         return new RDo($this, $inExpr);
+    }
+    public function toEpochTime() {
+        return new ToEpochTime($this);
+    }
+    public function toIso8601() {
+        return new ToIso8601($this);
+    }
+    public function inTimezone($timezone) {
+        return new InTimezone($this, $timezone);
+    }
+    public function timezone() {
+        return new Timezone($this);
+    }
+    public function during($startTime, $endTime, $opts = null) {
+        return new During($this, $startTime, $endTime, $opts);
+    }
+    public function date() {
+        return new Date($this);
+    }
+    public function timeOfDay() {
+        return new TimeOfDay($this);
+    }
+    public function year() {
+        return new Year($this);
+    }
+    public function month() {
+        return new Month($this);
+    }
+    public function day() {
+        return new Day($this);
+    }
+    public function dayOfWeek() {
+        return new DayOfWeek($this);
+    }
+    public function dayOfYear() {
+        return new DayOfYear($this);
+    }
+    public function hours() {
+        return new Hours($this);
+    }
+    public function minutes() {
+        return new Minutes($this);
+    }
+    public function seconds() {
+        return new Seconds($this);
     }
 }
 
