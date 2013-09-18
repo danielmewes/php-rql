@@ -7,7 +7,7 @@ require_once("function.php");
 function nativeToDatum($v) {
     if (is_array($v)) {
         $datumArray = array();
-        $fullyAssociative = true;
+        $hasNonNumericKey = false;
         $mustUseMakeTerm = false;
         foreach($v as $key => $val) {
             if (!is_numeric($key) && !is_string($key)) throw new RqlDriverError("Key must be a string.");
@@ -20,19 +20,22 @@ function nativeToDatum($v) {
                     $mustUseMakeTerm = true;
             }
             if (is_string($key)) {   
+                $hasNonNumericKey = true;
                 $datumArray[$key] = $subDatum;
             } else {
-                $fullyAssociative = false;
-                $datumArray[] = $subDatum;
+                $datumArray[$key] = $subDatum;
             }
         }
     
-        // TODO: In the case of $fullyAssociative === true, we cannot
+        // Note: In the case of $hasNonNumericKey === false, we cannot
         //   know if we should convert to an array or an object. We
-        //   currently assume object, but this is not overly clean.
+        //   currently assume array, but this is not overly clean.
         //   Of course the user always has the option to wrap data
         //   into a Datum manually.
-        if ($fullyAssociative) {
+        //   We use this behavior because it is consistent to json_encode,
+        //   which we sometimes use as a transparent replacement for
+        //   nativeToDatum().
+        if ($hasNonNumericKey) {
             if ($mustUseMakeTerm) {
                 return new MakeObject($datumArray);
             } else {
@@ -63,6 +66,16 @@ function nativeToDatum($v) {
     }
 }
 
+function tryEncodeAsJson($v) {
+    if (canEncodeAsJson($v)) {
+        $json = json_encode($v);
+        if ($json === false) throw new RqlDriverError("Failed to encode document as JSON: " . json_last_error());
+        return $json;
+    } else {
+        return false;
+    }
+}
+
 // ------------- Helpers -------------
 function protobufToDatum(pb\Datum $datum) {
     switch ($datum->getType()) {
@@ -73,6 +86,31 @@ function protobufToDatum(pb\Datum $datum) {
         case pb\Datum_DatumType::PB_R_ARRAY: return ArrayDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_OBJECT: return ObjectDatum::_fromProtobuffer($datum);
         default: throw new RqlDriverError("Unhandled datum type " . $datum->getType());
+    }
+}
+
+function canEncodeAsJson($v) {
+    if (is_array($v)) {
+        foreach($v as $key => $val) {
+            if (!is_numeric($key) && !is_string($key)) return false;
+            if (!canEncodeAsJson($val)) return false;
+        }
+        return true;
+    }
+    else if (is_null($v)) {
+        return true;
+    }
+    else if (is_bool($v)) {
+        return true;
+    }
+    else if (is_numeric($v)) {
+        return true;
+    }
+    else if (is_string($v)) {
+        return true;
+    }
+    else {
+        return false;
     }
 }
 

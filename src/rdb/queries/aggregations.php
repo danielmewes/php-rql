@@ -92,19 +92,13 @@ class GroupedMapReduce extends ValuedQuery
 class GroupBy extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $keys, MakeObject $reductionObject) {
-        if (!is_array($keys))
+        if (is_string($keys))
             $keys = array($keys);
-        // Check keys and convert strings
-        foreach ($keys as &$val) {
-            if (!is_string($val) && !(is_object($val) && is_subclass_of($val, "\\r\\Query"))) throw new RqlDriverError("Not a string or Query: " . $val);
-            if (is_string($val)) {
-                $val = new StringDatum($val);
-            }
-            unset($val);
-        }
+        if (!(is_object($keys) && is_subclass_of($keys, "\\r\\Query")))
+            $keys = nativeToDatum($keys);
         
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, new ArrayDatum($keys));
+        $this->setPositionalArg(1, $keys);
         $this->setPositionalArg(2, $reductionObject);
     }
     
@@ -116,8 +110,19 @@ class GroupBy extends ValuedQuery
 class Contains extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
+            try {
+                $value = nativeToDatum($value);
+                if (!is_subclass_of($value, "\\r\\Datum")) {
+                    // $value is not a simple datum. Wrap it into a function:                
+                    $value = new RFunction(array(new RVar('_')), $value);
+                }
+            } catch (RqlDriverError $e) {
+                $value = nativeToFunction($value);
+            }
+        } else if (!(is_object($value) && is_subclass_of($value, "\\r\\FunctionQuery"))) {
+            $value = new RFunction(array(new RVar('_')), $value);
+        }
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);

@@ -20,16 +20,19 @@ class Get extends ValuedQuery
 
 class GetAll extends ValuedQuery
 {
-    public function __construct(Table $table, $key, $index = null) {
-        if (isset($index))
-            $index = new StringDatum($index);
+    public function __construct(Table $table, $key, $opts = null) {
         if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
             $key = nativeToDatum($key);
         }
         $this->setPositionalArg(0, $table);
         $this->setPositionalArg(1, $key);
-        if (isset($index))
-            $this->setOptionalArg('index', $index);
+        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {
@@ -39,9 +42,7 @@ class GetAll extends ValuedQuery
 
 class GetMultiple extends ValuedQuery
 {
-    public function __construct(Table $table, $keys, $index = null) {
-        if (isset($index))
-            $index = new StringDatum($index);
+    public function __construct(Table $table, $keys, $opts = null) {
         if (!is_array($keys)) throw new RqlDriverError("Keys in GetMultiple must be an array.");
         foreach ($keys as &$key) {
             if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
@@ -54,8 +55,13 @@ class GetMultiple extends ValuedQuery
         foreach ($keys as $key) {
             $this->setPositionalArg($i++, $key);
         }
-        if (isset($index))
-            $this->setOptionalArg('index', $index);
+        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {
@@ -65,17 +71,20 @@ class GetMultiple extends ValuedQuery
 
 class Between extends ValuedQuery
 {
-    public function __construct(ValuedQuery $selection, $leftBound, $rightBound, $index = null) {
-        if (isset($index))
-            $index = new StringDatum($index);
+    public function __construct(ValuedQuery $selection, $leftBound, $rightBound, $opts = null) {
         if (!(is_object($leftBound) && is_subclass_of($leftBound, "\\r\\Query"))) $leftBound = nativeToDatum($leftBound);
         if (!(is_object($rightBound) && is_subclass_of($rightBound, "\\r\\Query"))) $rightBound = nativeToDatum($rightBound);
         
         $this->setPositionalArg(0, $selection);
         $this->setPositionalArg(1, $leftBound);
         $this->setPositionalArg(2, $rightBound);
-        if (isset($index))
-            $this->setOptionalArg('index', $index);
+        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {

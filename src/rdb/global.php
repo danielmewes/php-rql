@@ -111,4 +111,85 @@ function json($json) {
     return new Json($json);
 }
 
+function literal($value) {
+    return new Literal($value);
+}
+
+function now() {
+    return new Now();
+}
+
+function time($year, $month, $day, $hourOrTimezone = null, $minute = null, $second = null, $timezone = null) {
+    return new Time($year, $month, $day, $hourOrTimezone, $minute, $second, $timezone);
+}
+
+function epochTime($epochTime) {
+    return new EpochTime($epochTime);
+}
+
+function iso8601($iso8601Date, $opts = null) {
+    return new Iso8601($iso8601Date, $opts);
+}
+
+function monday() {
+    return new Monday();
+}
+function tuesday() {
+    return new Tuesday();
+}
+function wednesday() {
+    return new Wednesday();
+}
+function thursday() {
+    return new Thursday();
+}
+function friday() {
+    return new Friday();
+}
+function saturday() {
+    return new Saturday();
+}
+function sunday() {
+    return new Sunday();
+}
+
+function january() {
+    return new January();
+}
+function february() {
+    return new February();
+}
+function march() {
+    return new March();
+}
+function april() {
+    return new April();
+}
+function may() {
+    return new May();
+}
+function june() {
+    return new June();
+}
+function july() {
+    return new July();
+}
+function august() {
+    return new August();
+}
+function september() {
+    return new September();
+}
+function october() {
+    return new October();
+}
+function november() {
+    return new November();
+}
+function december() {
+    return new December();
+}
+
+
+
 ?>

@@ -3,20 +3,14 @@
 class WithFields extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
+        // The same comment as in pluck applies.
         if (is_string($attributes))
             $attributes = array($attributes);
-        if (!is_array($attributes)) throw new RqlDriverError("Attributes must be an array or a single attribute.");        
-        // Check keys and convert strings
-        foreach ($attributes as &$val) {
-            $val = new StringDatum($val);
-            unset($val);
-        }
+        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
+            $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
-        $i = 1;
-        foreach ($attributes as $val) {
-            $this->setPositionalArg($i++, $val);
-        }
+        $this->setPositionalArg(1, $attributes);
     }
     
     protected function getTermType() {
@@ -67,9 +61,20 @@ class OrderBy extends ValuedQuery
             $keys = array($keys);
         // Check keys and convert strings
         foreach ($keys as &$val) {
-            if (!is_string($val) && !(is_object($val) && is_subclass_of($val, "\\r\\Ordering"))) throw new RqlDriverError("Not a string or Ordering: " . $val);
-            if (is_string($val)) {
-                $val = new StringDatum($val);
+            if (!(is_object($val) && is_subclass_of($val, "\\r\\Ordering"))) {
+                if (!(is_object($val) && is_subclass_of($val, "\\r\\Query"))) {
+                    try {
+                        $val = nativeToDatum($val);
+                        if (!is_subclass_of($val, "\\r\\Datum")) {
+                            // $val is not a simple datum. Wrap it into a function:                
+                            $val = new RFunction(array(new RVar('_')), $val);
+                        }
+                    } catch (RqlDriverError $e) {
+                        $val = nativeToFunction($val);
+                    }
+                } else if (!(is_object($val) && is_subclass_of($val, "\\r\\FunctionQuery"))) {
+                    $val = new RFunction(array(new RVar('_')), $val);
+                }
             }
             unset($val);
         }
@@ -118,7 +123,7 @@ class Limit extends ValuedQuery
 
 class Slice extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $startIndex, $endIndex = null) {
+    public function __construct(ValuedQuery $sequence, $startIndex, $endIndex = null, $opts = null) {
         if (!(is_object($startIndex) && is_subclass_of($startIndex, "\\r\\Query")))
             $startIndex = new NumberDatum($startIndex);
         if (isset($endIndex) && !(is_object($endIndex) && is_subclass_of($endIndex, "\\r\\Query")))
@@ -126,10 +131,18 @@ class Slice extends ValuedQuery
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $startIndex);
-        if (isset($endIndex))
+        if (isset($endIndex)) {
             $this->setPositionalArg(2, $endIndex);
-        else
+        } else {
             $this->setPositionalArg(2, new NumberDatum(-1));
+            $this->setOptionalArg('right_bound', new StringDatum('closed'));
+        }
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {

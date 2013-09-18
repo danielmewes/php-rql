@@ -28,20 +28,14 @@ class Pluck extends ValuedQuery
 class Without extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
+        // See comment above about pluck. The same applies here.
         if (is_string($attributes))
             $attributes = array($attributes);
-        if (!is_array($attributes)) throw new RqlDriverError("Attributes must be an array or a single attribute.");        
-        // Check keys and convert strings
-        foreach ($attributes as &$val) {
-            $val = new StringDatum($val);
-            unset($val);
-        }
+        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
+            $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
-        $i = 1;
-        foreach ($attributes as $val) {
-            $this->setPositionalArg($i++, $val);
-        }
+        $this->setPositionalArg(1, $attributes);
     }
     
     protected function getTermType() {
@@ -187,20 +181,14 @@ class GetField extends ValuedQuery
 class HasFields extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
+        // See comment above about pluck. The same applies here.
         if (is_string($attributes))
             $attributes = array($attributes);
-        if (!is_array($attributes)) throw new RqlDriverError("Attributes must be an array or a single attribute.");        
-        // Check keys and convert strings
-        foreach ($attributes as &$val) {
-            $val = new StringDatum($val);
-            unset($val);
-        }
+        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
+            $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
-        $i = 1;
-        foreach ($attributes as $val) {
-            $this->setPositionalArg($i++, $val);
-        }
+        $this->setPositionalArg(1, $attributes);
     }
     
     protected function getTermType() {
@@ -255,8 +243,9 @@ class DeleteAt extends ValuedQuery
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $index);
-        if (isset($endIndex))
+        if (isset($endIndex)) {
             $this->setPositionalArg(2, $endIndex);
+        } 
     }
     
     protected function getTermType() {

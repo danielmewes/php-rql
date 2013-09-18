@@ -32,19 +32,18 @@ class OuterJoin extends ValuedQuery
 
 class EqJoin extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $attribute, ValuedQuery $otherSequence, $index = null) {
-        if (isset($index))
-            $index = new StringDatum($index);
+    public function __construct(ValuedQuery $sequence, $attribute, ValuedQuery $otherSequence, $opts = null) {
         $attribute = new StringDatum($attribute);
-        $this->sequence = $sequence;
-        $this->attribute = $attribute;
-        $this->otherSequence = $otherSequence;
-        $this->index = $index;
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attribute);
         $this->setPositionalArg(2, $otherSequence);
-        if (isset($index))
-            $this->setOptionalArg('index', $index);
+        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {

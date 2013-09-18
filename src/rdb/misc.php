@@ -136,7 +136,7 @@ abstract class Query
 }
 
 // This is just any query except for Table and Db at the moment.
-// We simply define all remaining operations on this.
+// We define all remaining operations on this.
 abstract class ValuedQuery extends Query
 {
     public function update($delta, $opts = null) {
@@ -148,8 +148,8 @@ abstract class ValuedQuery extends Query
     public function replace($delta, $opts = null) {
         return new Replace($this, $delta, $opts);
     }
-    public function between($leftBound, $rightBound, $index = null) {
-        return new Between($this, $leftBound, $rightBound, $index);
+    public function between($leftBound, $rightBound, $opts = null) {
+        return new Between($this, $leftBound, $rightBound, $opts);
     }
     public function filter($predicate, $default = null) {
         return new Filter($this, $predicate, $default);
@@ -160,8 +160,8 @@ abstract class ValuedQuery extends Query
     public function outerJoin(ValuedQuery $otherSequence, $predicate) {
         return new OuterJoin($this, $otherSequence, $predicate);
     }
-    public function eqJoin($attribute, ValuedQuery $otherSequence, $index = null) {
-        return new EqJoin($this, $attribute, $otherSequence, $index);
+    public function eqJoin($attribute, ValuedQuery $otherSequence, $opts = null) {
+        return new EqJoin($this, $attribute, $otherSequence, $opts);
     }
     public function zip() {
         return new Zip($this);
@@ -184,8 +184,8 @@ abstract class ValuedQuery extends Query
     public function limit($n) {
         return new Limit($this, $n);
     }
-    public function slice($startIndex, $endIndex = null) {
-        return new Slice($this, $startIndex, $endIndex);
+    public function slice($startIndex, $endIndex = null, $opts = null) {
+        return new Slice($this, $startIndex, $endIndex, $opts);
     }
     public function nth($index) {
         return new Nth($this, $index);
@@ -336,9 +336,53 @@ abstract class ValuedQuery extends Query
     public function typeOf() {
         return new TypeOf($this);
     }
-    public function rDo($inExpr)
-    {
+    public function rDo($inExpr) {
         return new RDo($this, $inExpr);
+    }
+    public function toEpochTime() {
+        return new ToEpochTime($this);
+    }
+    public function toIso8601() {
+        return new ToIso8601($this);
+    }
+    public function inTimezone($timezone) {
+        return new InTimezone($this, $timezone);
+    }
+    public function timezone() {
+        return new Timezone($this);
+    }
+    public function during($startTime, $endTime, $opts = null) {
+        return new During($this, $startTime, $endTime, $opts);
+    }
+    public function date() {
+        return new Date($this);
+    }
+    public function timeOfDay() {
+        return new TimeOfDay($this);
+    }
+    public function year() {
+        return new Year($this);
+    }
+    public function month() {
+        return new Month($this);
+    }
+    public function day() {
+        return new Day($this);
+    }
+    public function dayOfWeek() {
+        return new DayOfWeek($this);
+    }
+    public function dayOfYear() {
+        return new DayOfYear($this);
+    }
+    public function hours() {
+        return new Hours($this);
+    }
+    public function minutes() {
+        return new Minutes($this);
+    }
+    public function seconds() {
+        return new Seconds($this);
     }
 }
 
@@ -347,7 +391,19 @@ abstract class Ordering extends Query {
 
 class Asc extends Ordering {
     public function __construct($attribute) {
-        $attribute = new StringDatum($attribute);
+        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query"))) {
+            try {
+                $attribute = nativeToDatum($attribute);
+                if (!is_subclass_of($attribute, "\\r\\Datum")) {
+                    // $attribute is not a simple datum. Wrap it into a function:                
+                    $attribute = new RFunction(array(new RVar('_')), $attribute);
+                }
+            } catch (RqlDriverError $e) {
+                $attribute = nativeToFunction($attribute);
+            }
+        } else if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\FunctionQuery"))) {
+            $attribute = new RFunction(array(new RVar('_')), $attribute);
+        }
         $this->setPositionalArg(0, $attribute);
     }
     
@@ -358,7 +414,19 @@ class Asc extends Ordering {
 
 class Desc extends Ordering {
     public function __construct($attribute) {
-        $attribute = new StringDatum($attribute);
+        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query"))) {
+            try {
+                $attribute = nativeToDatum($attribute);
+                if (!is_subclass_of($attribute, "\\r\\Datum")) {
+                    // $attribute is not a simple datum. Wrap it into a function:                
+                    $attribute = new RFunction(array(new RVar('_')), $attribute);
+                }
+            } catch (RqlDriverError $e) {
+                $attribute = nativeToFunction($attribute);
+            }
+        } else if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\FunctionQuery"))) {
+            $attribute = new RFunction(array(new RVar('_')), $attribute);
+        }
         $this->setPositionalArg(0, $attribute);
     }
     
@@ -395,6 +463,19 @@ class Json extends ValuedQuery {
     
     protected function getTermType() {
         return pb\Term_TermType::PB_JSON;
+    }
+}
+
+class Literal extends ValuedQuery {
+    public function __construct($value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
+            $value = nativeToDatum($value);
+        }
+        $this->setPositionalArg(0, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_LITERAL;
     }
 }
 

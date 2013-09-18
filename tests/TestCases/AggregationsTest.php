@@ -27,16 +27,22 @@ class AggregationsTest extends TestCase
             array(array('reduction' => 1, 'group' => 1), array('reduction' => 4, 'group' => 2), array('reduction' => 4, 'group' => 4)));
             
          $this->checkQueryResult(r\expr(array(array('v' => 1), array('v' => 2), array('v' => 2), array('v' => 4)))->groupBy('v', r\count()),
-            array(array('reduction' => 1, 'group' => array(1)), array('reduction' => 2, 'group' => array(2)), array('reduction' => 1, 'group' => array(4))));
+            array(array('reduction' => 1, 'group' => array('v' => 1)), array('reduction' => 2, 'group' => array('v' => 2)), array('reduction' => 1, 'group' => array('v' => 4))));
          $this->checkQueryResult(r\expr(array(array('v' => 1), array('v' => 2), array('v' => 2), array('v' => 4)))->groupBy('v', r\sum('v')),
-            array(array('reduction' => 1, 'group' => array(1)), array('reduction' => 4, 'group' => array(2)), array('reduction' => 4, 'group' => array(4))));
+            array(array('reduction' => 1, 'group' => array('v' => 1)), array('reduction' => 4, 'group' => array('v' => 2)), array('reduction' => 4, 'group' => array('v' => 4))));
          $this->checkQueryResult(r\expr(array(array('v' => 1), array('v' => 2), array('v' => 2), array('v' => 4)))->groupBy('v', r\avg('v')),
-            array(array('reduction' => 1, 'group' => array(1)), array('reduction' => 2, 'group' => array(2)), array('reduction' => 4, 'group' => array(4))));
+            array(array('reduction' => 1, 'group' => array('v' => 1)), array('reduction' => 2, 'group' => array('v' => 2)), array('reduction' => 4, 'group' => array('v' => 4))));
          $this->checkQueryResult(r\expr(array(array('v' => 1, 'x' => 1), array('v' => 2, 'x' => 2), array('v' => 2, 'x' => 3), array('v' => 4, 'x' => 4)))->groupBy(array('v', 'x'), r\count()),
-            array(array('reduction' => 1, 'group' => array(1, 1)), array('reduction' => 1, 'group' => array(2, 2)), array('reduction' => 1, 'group' => array(2, 3)), array('reduction' => 1, 'group' => array(4, 4))));
+            array(array('reduction' => 1, 'group' => array('v' => 1, 'x' => 1)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 2)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 3)), array('reduction' => 1, 'group' => array('v' => 4, 'x' => 4))));
+         $this->checkQueryResult(r\expr(array(array('v' => 1, 'x' => 1), array('v' => 2, 'x' => 2), array('v' => 2, 'x' => 3), array('v' => 4, 'x' => 4)))->groupBy(array('v' => true, 'x' => true), r\count()),
+            array(array('reduction' => 1, 'group' => array('v' => 1, 'x' => 1)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 2)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 3)), array('reduction' => 1, 'group' => array('v' => 4, 'x' => 4))));
             
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('a'), true);
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('z'), false);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(r\row()->eq('a')), true);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(r\row()->eq('z')), false);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(function ($x) {return $x->eq('a');}), true);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(function ($x) {return $x->eq('z');}), false);
     }
 }
 
