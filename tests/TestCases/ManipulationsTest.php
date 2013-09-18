@@ -29,6 +29,10 @@ class ManipulationsTest extends TestCase
             array('x' => 1, 'y' => 2));
         $this->checkQueryResult(r\expr(array('x' => 1))->merge(r\expr(array('y' => 2))),
             array('x' => 1, 'y' => 2));
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => array('a' => 1, 'b' => 2)))->merge(array('y' => array('c' => 3))),
+            array('x' => 1, 'y' => array('a' => 1, 'b' => 2, 'c' => 3)));
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => array('a' => 1, 'b' => 2)))->merge(array('y' => r\literal(array('c' => 3)))),
+            array('x' => 1, 'y' => array('c' => 3)));
             
         $this->checkQueryResult(r\expr(array(1, 2, 3))->append(4),
             array(1, 2, 3, 4));

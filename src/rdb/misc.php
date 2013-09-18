@@ -466,6 +466,19 @@ class Json extends ValuedQuery {
     }
 }
 
+class Literal extends ValuedQuery {
+    public function __construct($value) {
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
+            $value = nativeToDatum($value);
+        }
+        $this->setPositionalArg(0, $value);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_LITERAL;
+    }
+}
+
 class Cursor implements \Iterator
 {
     // PHP iterator interface

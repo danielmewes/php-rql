@@ -111,6 +111,10 @@ function json($json) {
     return new Json($json);
 }
 
+function literal($value) {
+    return new Literal($value);
+}
+
 function now() {
     return new Now();
 }
