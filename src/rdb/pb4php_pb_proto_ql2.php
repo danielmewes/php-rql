@@ -274,6 +274,45 @@ class Term_TermType extends \PBEnum
   const PB_SAMPLE  = 81;
   const PB_DEFAULT  = 92;
   const PB_JSON  = 98;
+  const PB_ISO8601  = 99;
+  const PB_TO_ISO8601  = 100;
+  const PB_EPOCH_TIME  = 101;
+  const PB_TO_EPOCH_TIME  = 102;
+  const PB_NOW  = 103;
+  const PB_IN_TIMEZONE  = 104;
+  const PB_DURING  = 105;
+  const PB_DATE  = 106;
+  const PB_TIME_OF_DAY  = 126;
+  const PB_TIMEZONE  = 127;
+  const PB_YEAR  = 128;
+  const PB_MONTH  = 129;
+  const PB_DAY  = 130;
+  const PB_DAY_OF_WEEK  = 131;
+  const PB_DAY_OF_YEAR  = 132;
+  const PB_HOURS  = 133;
+  const PB_MINUTES  = 134;
+  const PB_SECONDS  = 135;
+  const PB_TIME  = 136;
+  const PB_MONDAY  = 107;
+  const PB_TUESDAY  = 108;
+  const PB_WEDNESDAY  = 109;
+  const PB_THURSDAY  = 110;
+  const PB_FRIDAY  = 111;
+  const PB_SATURDAY  = 112;
+  const PB_SUNDAY  = 113;
+  const PB_JANUARY  = 114;
+  const PB_FEBRUARY  = 115;
+  const PB_MARCH  = 116;
+  const PB_APRIL  = 117;
+  const PB_MAY  = 118;
+  const PB_JUNE  = 119;
+  const PB_JULY  = 120;
+  const PB_AUGUST  = 121;
+  const PB_SEPTEMBER  = 122;
+  const PB_OCTOBER  = 123;
+  const PB_NOVEMBER  = 124;
+  const PB_DECEMBER  = 125;
+  const PB_LITERAL  = 137;
 }
 class Term_AssocPair extends \PBMessage
 {

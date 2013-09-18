@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-07-07 12:58:05
+ * Auto generated from ql2.proto at 2013-09-18 10:56:55
  */
 
 /**
@@ -590,6 +590,45 @@ final class Term_TermType
     const PB_SAMPLE = 81;
     const PB_DEFAULT = 92;
     const PB_JSON = 98;
+    const PB_ISO8601 = 99;
+    const PB_TO_ISO8601 = 100;
+    const PB_EPOCH_TIME = 101;
+    const PB_TO_EPOCH_TIME = 102;
+    const PB_NOW = 103;
+    const PB_IN_TIMEZONE = 104;
+    const PB_DURING = 105;
+    const PB_DATE = 106;
+    const PB_TIME_OF_DAY = 126;
+    const PB_TIMEZONE = 127;
+    const PB_YEAR = 128;
+    const PB_MONTH = 129;
+    const PB_DAY = 130;
+    const PB_DAY_OF_WEEK = 131;
+    const PB_DAY_OF_YEAR = 132;
+    const PB_HOURS = 133;
+    const PB_MINUTES = 134;
+    const PB_SECONDS = 135;
+    const PB_TIME = 136;
+    const PB_MONDAY = 107;
+    const PB_TUESDAY = 108;
+    const PB_WEDNESDAY = 109;
+    const PB_THURSDAY = 110;
+    const PB_FRIDAY = 111;
+    const PB_SATURDAY = 112;
+    const PB_SUNDAY = 113;
+    const PB_JANUARY = 114;
+    const PB_FEBRUARY = 115;
+    const PB_MARCH = 116;
+    const PB_APRIL = 117;
+    const PB_MAY = 118;
+    const PB_JUNE = 119;
+    const PB_JULY = 120;
+    const PB_AUGUST = 121;
+    const PB_SEPTEMBER = 122;
+    const PB_OCTOBER = 123;
+    const PB_NOVEMBER = 124;
+    const PB_DECEMBER = 125;
+    const PB_LITERAL = 137;
 
     /**
      * Returns defined enum values
@@ -690,6 +729,45 @@ final class Term_TermType
             'SAMPLE' => self::PB_SAMPLE,
             'DEFAULT' => self::PB_DEFAULT,
             'JSON' => self::PB_JSON,
+            'ISO8601' => self::PB_ISO8601,
+            'TO_ISO8601' => self::PB_TO_ISO8601,
+            'EPOCH_TIME' => self::PB_EPOCH_TIME,
+            'TO_EPOCH_TIME' => self::PB_TO_EPOCH_TIME,
+            'NOW' => self::PB_NOW,
+            'IN_TIMEZONE' => self::PB_IN_TIMEZONE,
+            'DURING' => self::PB_DURING,
+            'DATE' => self::PB_DATE,
+            'TIME_OF_DAY' => self::PB_TIME_OF_DAY,
+            'TIMEZONE' => self::PB_TIMEZONE,
+            'YEAR' => self::PB_YEAR,
+            'MONTH' => self::PB_MONTH,
+            'DAY' => self::PB_DAY,
+            'DAY_OF_WEEK' => self::PB_DAY_OF_WEEK,
+            'DAY_OF_YEAR' => self::PB_DAY_OF_YEAR,
+            'HOURS' => self::PB_HOURS,
+            'MINUTES' => self::PB_MINUTES,
+            'SECONDS' => self::PB_SECONDS,
+            'TIME' => self::PB_TIME,
+            'MONDAY' => self::PB_MONDAY,
+            'TUESDAY' => self::PB_TUESDAY,
+            'WEDNESDAY' => self::PB_WEDNESDAY,
+            'THURSDAY' => self::PB_THURSDAY,
+            'FRIDAY' => self::PB_FRIDAY,
+            'SATURDAY' => self::PB_SATURDAY,
+            'SUNDAY' => self::PB_SUNDAY,
+            'JANUARY' => self::PB_JANUARY,
+            'FEBRUARY' => self::PB_FEBRUARY,
+            'MARCH' => self::PB_MARCH,
+            'APRIL' => self::PB_APRIL,
+            'MAY' => self::PB_MAY,
+            'JUNE' => self::PB_JUNE,
+            'JULY' => self::PB_JULY,
+            'AUGUST' => self::PB_AUGUST,
+            'SEPTEMBER' => self::PB_SEPTEMBER,
+            'OCTOBER' => self::PB_OCTOBER,
+            'NOVEMBER' => self::PB_NOVEMBER,
+            'DECEMBER' => self::PB_DECEMBER,
+            'LITERAL' => self::PB_LITERAL,
         );
     }
 }
