@@ -24,6 +24,12 @@ class ManipulationsTest extends TestCase
             array(array('y' => 2)));
         $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => 2)))->without(array('x', 'y')),
             array(array()));
+        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => array('a' => 2.1, 'b' => 2.2))))->without(array('x' => true)),
+            array(array('y' => array('a' => 2.1, 'b' => 2.2))));
+        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => array('a' => 2.1, 'b' => 2.2))))->without(array('y' => array('a', 'b'))),
+            array(array('x' => 1, 'y' => array())));
+        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => array('a' => 2.1, 'b' => 2.2))))->without(array('y' => array('b' => true))),
+            array(array('x' => 1, 'y' => array('a' => 2.1))));
         
         $this->checkQueryResult(r\expr(array('x' => 1))->merge(array('y' => 2)),
             array('x' => 1, 'y' => 2));
@@ -52,6 +58,14 @@ class ManipulationsTest extends TestCase
         $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('x'),
             true);
         $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields('foo'),
+            false);
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields(array('x', 'y')),
+            true);
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields(array('x', 'foo')),
+            false);
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields(array('x' => true)),
+            true);
+        $this->checkQueryResult(r\expr(array('x' => 1, 'y' => 2))->hasFields(array('foo' => true)),
             false);
             
         $this->checkQueryResult(r\expr(array(1, 2, 3))->setInsert(4),

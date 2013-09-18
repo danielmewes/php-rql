@@ -92,19 +92,13 @@ class GroupedMapReduce extends ValuedQuery
 class GroupBy extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $keys, MakeObject $reductionObject) {
-        if (!is_array($keys))
+        if (is_string($keys))
             $keys = array($keys);
-        // Check keys and convert strings
-        foreach ($keys as &$val) {
-            if (!is_string($val) && !(is_object($val) && is_subclass_of($val, "\\r\\Query"))) throw new RqlDriverError("Not a string or Query: " . $val);
-            if (is_string($val)) {
-                $val = new StringDatum($val);
-            }
-            unset($val);
-        }
+        if (!(is_object($keys) && is_subclass_of($keys, "\\r\\Query")))
+            $keys = nativeToDatum($keys);
         
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, new ArrayDatum($keys));
+        $this->setPositionalArg(1, $keys);
         $this->setPositionalArg(2, $reductionObject);
     }
     

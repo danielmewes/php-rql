@@ -34,6 +34,8 @@ class AggregationsTest extends TestCase
             array(array('reduction' => 1, 'group' => array('v' => 1)), array('reduction' => 2, 'group' => array('v' => 2)), array('reduction' => 4, 'group' => array('v' => 4))));
          $this->checkQueryResult(r\expr(array(array('v' => 1, 'x' => 1), array('v' => 2, 'x' => 2), array('v' => 2, 'x' => 3), array('v' => 4, 'x' => 4)))->groupBy(array('v', 'x'), r\count()),
             array(array('reduction' => 1, 'group' => array('v' => 1, 'x' => 1)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 2)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 3)), array('reduction' => 1, 'group' => array('v' => 4, 'x' => 4))));
+         $this->checkQueryResult(r\expr(array(array('v' => 1, 'x' => 1), array('v' => 2, 'x' => 2), array('v' => 2, 'x' => 3), array('v' => 4, 'x' => 4)))->groupBy(array('v' => true, 'x' => true), r\count()),
+            array(array('reduction' => 1, 'group' => array('v' => 1, 'x' => 1)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 2)), array('reduction' => 1, 'group' => array('v' => 2, 'x' => 3)), array('reduction' => 1, 'group' => array('v' => 4, 'x' => 4))));
             
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('a'), true);
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('z'), false);

@@ -3,20 +3,14 @@
 class WithFields extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
+        // The same comment as in pluck applies.
         if (is_string($attributes))
             $attributes = array($attributes);
-        if (!is_array($attributes)) throw new RqlDriverError("Attributes must be an array or a single attribute.");        
-        // Check keys and convert strings
-        foreach ($attributes as &$val) {
-            $val = new StringDatum($val);
-            unset($val);
-        }
+        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
+            $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
-        $i = 1;
-        foreach ($attributes as $val) {
-            $this->setPositionalArg($i++, $val);
-        }
+        $this->setPositionalArg(1, $attributes);
     }
     
     protected function getTermType() {
