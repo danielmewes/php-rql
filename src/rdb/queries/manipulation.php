@@ -246,7 +246,7 @@ class SpliceAt extends ValuedQuery
 
 class DeleteAt extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $index, $endIndex = null, $opts = null) {
+    public function __construct(ValuedQuery $sequence, $index, $endIndex = null) {
         if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
             $index = new NumberDatum($index);
         if (isset($endIndex) && !(is_object($endIndex) && is_subclass_of($endIndex, "\\r\\Query")))
@@ -258,17 +258,6 @@ class DeleteAt extends ValuedQuery
         if (isset($endIndex)) {
             $this->setPositionalArg(2, $endIndex);
         } 
-        // TODO: This is disabled due to a bug in the server as of RethinkDB 1.9.0: https://github.com/rethinkdb/rethinkdb/issues/1456
-        /*else {
-            $this->setPositionalArg(2, new NumberDatum(-1));
-            $this->setOptionalArg('right_bound', new StringDatum('closed'));
-        }*/
-        if (isset($opts)) {
-            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
-            foreach ($opts as $k => $v) {
-                $this->setOptionalArg($k, nativeToDatum($v));
-            }
-        }
     }
     
     protected function getTermType() {

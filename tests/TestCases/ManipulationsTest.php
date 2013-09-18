@@ -77,7 +77,7 @@ class ManipulationsTest extends TestCase
             array("Iron Man", "Spider-Man"));
         $this->checkQueryResult(r\expr(array("Iron Man", "Hulk", "Thor", "Spider-Man"))->deleteAt(1,2),
             array("Iron Man", "Thor", "Spider-Man"));
-        // TODO: This is disabled due to a bug in the server as of RethinkDB 1.9.0: https://github.com/rethinkdb/rethinkdb/issues/1456
+        // TODO: This is disabled due to a potential bug in the server as of RethinkDB 1.9.0: https://github.com/rethinkdb/rethinkdb/issues/1456
         /*$this->checkQueryResult(r\expr(array("Iron Man", "Hulk", "Thor", "Spider-Man"))->deleteAt(1,2, array('right_bound' => 'closed')),
             array("Iron Man", "Spider-Man"));*/
             

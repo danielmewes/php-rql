@@ -273,8 +273,8 @@ abstract class ValuedQuery extends Query
     public function spliceAt($index, $value) {
         return new SpliceAt($this, $index, $value);
     }
-    public function deleteAt($index, $endIndex = null, $opts = null) {
-        return new DeleteAt($this, $index, $endIndex, $opts);
+    public function deleteAt($index, $endIndex = null) {
+        return new DeleteAt($this, $index, $endIndex);
     }
     public function changeAt($index, $value) {
         return new changeAt($this, $index, $value);
