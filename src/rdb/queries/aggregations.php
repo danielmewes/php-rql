@@ -116,8 +116,19 @@ class GroupBy extends ValuedQuery
 class Contains extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
+            try {
+                $value = nativeToDatum($value);
+                if (!is_subclass_of($value, "\\r\\Datum")) {
+                    // $value is not a simple datum. Wrap it into a function:                
+                    $value = new RFunction(array(new RVar('_')), $value);
+                }
+            } catch (RqlDriverError $e) {
+                $value = nativeToFunction($value);
+            }
+        } else if (!(is_object($value) && is_subclass_of($value, "\\r\\FunctionQuery"))) {
+            $value = new RFunction(array(new RVar('_')), $value);
+        }
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);

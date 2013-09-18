@@ -37,6 +37,10 @@ class AggregationsTest extends TestCase
             
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('a'), true);
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains('z'), false);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(r\row()->eq('a')), true);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(r\row()->eq('z')), false);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(function ($x) {return $x->eq('a');}), true);
+         $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(function ($x) {return $x->eq('z');}), false);
     }
 }
 
