@@ -118,7 +118,7 @@ class Limit extends ValuedQuery
 
 class Slice extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $startIndex, $endIndex = null) {
+    public function __construct(ValuedQuery $sequence, $startIndex, $endIndex = null, $opts = null) {
         if (!(is_object($startIndex) && is_subclass_of($startIndex, "\\r\\Query")))
             $startIndex = new NumberDatum($startIndex);
         if (isset($endIndex) && !(is_object($endIndex) && is_subclass_of($endIndex, "\\r\\Query")))
@@ -126,10 +126,18 @@ class Slice extends ValuedQuery
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $startIndex);
-        if (isset($endIndex))
+        if (isset($endIndex)) {
             $this->setPositionalArg(2, $endIndex);
-        else
+        } else {
             $this->setPositionalArg(2, new NumberDatum(-1));
+            $this->setOptionalArg('right_bound', new StringDatum('closed'));
+        }
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {

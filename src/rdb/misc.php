@@ -148,8 +148,8 @@ abstract class ValuedQuery extends Query
     public function replace($delta, $opts = null) {
         return new Replace($this, $delta, $opts);
     }
-    public function between($leftBound, $rightBound, $index = null) {
-        return new Between($this, $leftBound, $rightBound, $index);
+    public function between($leftBound, $rightBound, $opts = null) {
+        return new Between($this, $leftBound, $rightBound, $opts);
     }
     public function filter($predicate, $default = null) {
         return new Filter($this, $predicate, $default);
@@ -160,8 +160,8 @@ abstract class ValuedQuery extends Query
     public function outerJoin(ValuedQuery $otherSequence, $predicate) {
         return new OuterJoin($this, $otherSequence, $predicate);
     }
-    public function eqJoin($attribute, ValuedQuery $otherSequence, $index = null) {
-        return new EqJoin($this, $attribute, $otherSequence, $index);
+    public function eqJoin($attribute, ValuedQuery $otherSequence, $opts = null) {
+        return new EqJoin($this, $attribute, $otherSequence, $opts);
     }
     public function zip() {
         return new Zip($this);
@@ -184,8 +184,8 @@ abstract class ValuedQuery extends Query
     public function limit($n) {
         return new Limit($this, $n);
     }
-    public function slice($startIndex, $endIndex = null) {
-        return new Slice($this, $startIndex, $endIndex);
+    public function slice($startIndex, $endIndex = null, $opts = null) {
+        return new Slice($this, $startIndex, $endIndex, $opts);
     }
     public function nth($index) {
         return new Nth($this, $index);
@@ -273,8 +273,8 @@ abstract class ValuedQuery extends Query
     public function spliceAt($index, $value) {
         return new SpliceAt($this, $index, $value);
     }
-    public function deleteAt($index, $endIndex = null) {
-        return new DeleteAt($this, $index, $endIndex);
+    public function deleteAt($index, $endIndex = null, $opts = null) {
+        return new DeleteAt($this, $index, $endIndex, $opts);
     }
     public function changeAt($index, $value) {
         return new changeAt($this, $index, $value);

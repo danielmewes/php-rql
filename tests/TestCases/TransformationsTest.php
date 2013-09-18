@@ -25,6 +25,10 @@ class TransformationsTest extends TestCase
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->slice(1)->map(r\row('superhero')),
             array('Spiderman', 'Wolverine'));
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->slice(1, 1)->map(r\row('superhero')),
+            array());
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->slice(1, 2)->map(r\row('superhero')),
+            array('Spiderman'));
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->slice(1, 1, array('right_bound' => 'closed'))->map(r\row('superhero')),
             array('Spiderman'));
             
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->pluck('superhero')->union(r\expr(array(array('superhero' => 'foo'))))->map(r\row('superhero')),
