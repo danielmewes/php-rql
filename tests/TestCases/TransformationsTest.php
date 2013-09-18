@@ -13,6 +13,14 @@ class TransformationsTest extends TestCase
             array('Iron Man', 'Wolverine', 'Spiderman'));
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy(array(r\Asc('combatPower'), r\Asc('compassionPower')))->map(r\row('superhero')),
             array('Iron Man', 'Wolverine', 'Spiderman'));
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy(array(r\row('combatPower'), r\row('compassionPower')))->map(r\row('superhero')),
+            array('Iron Man', 'Wolverine', 'Spiderman'));
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy(array(r\Asc(r\row('combatPower')), r\Desc(r\row('compassionPower'))))->map(r\row('superhero')),
+            array('Iron Man', 'Wolverine', 'Spiderman'));
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy(array(function($x) {return $x('combatPower');}, function($x) {return $x('compassionPower');}))->map(r\row('superhero')),
+            array('Iron Man', 'Wolverine', 'Spiderman'));
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy(array(r\Asc(function($x) {return $x('combatPower');}), r\Desc(function($x) {return $x('compassionPower');})))->map(r\row('superhero')),
+            array('Iron Man', 'Wolverine', 'Spiderman'));
             
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->skip(1)->map(r\row('superhero')),
             array('Spiderman', 'Wolverine'));

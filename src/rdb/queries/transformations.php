@@ -67,9 +67,20 @@ class OrderBy extends ValuedQuery
             $keys = array($keys);
         // Check keys and convert strings
         foreach ($keys as &$val) {
-            if (!is_string($val) && !(is_object($val) && is_subclass_of($val, "\\r\\Ordering"))) throw new RqlDriverError("Not a string or Ordering: " . $val);
-            if (is_string($val)) {
-                $val = new StringDatum($val);
+            if (!(is_object($val) && is_subclass_of($val, "\\r\\Ordering"))) {
+                if (!(is_object($val) && is_subclass_of($val, "\\r\\Query"))) {
+                    try {
+                        $val = nativeToDatum($val);
+                        if (!is_subclass_of($val, "\\r\\Datum")) {
+                            // $val is not a simple datum. Wrap it into a function:                
+                            $val = new RFunction(array(new RVar('_')), $val);
+                        }
+                    } catch (RqlDriverError $e) {
+                        $val = nativeToFunction($val);
+                    }
+                } else if (!(is_object($val) && is_subclass_of($val, "\\r\\FunctionQuery"))) {
+                    $val = new RFunction(array(new RVar('_')), $val);
+                }
             }
             unset($val);
         }
