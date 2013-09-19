@@ -4,9 +4,15 @@ commands:
     order: 5
     description: Create a javascript expression.
 
-    body: jsstring
-    parent: r
-    returns: json
+    body:
+      js: "$PARENT.js(jsString)"
+      py: "$PARENT.js(js_string)"
+      rb: "$PARENT.js(js_string)"
+      ph: "$PARENT->js(jsString[, timeout])"
+
+    io:
+      - - r
+        - value
 
     examples:
       - description: Concatenate two strings using Javascript'

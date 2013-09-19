@@ -1,54 +1,37 @@
 sections:
   - tag: operators
-    name: Math, logic, and string manipulation
-    description: These commands provide basic math, logic, and string operators.
+    name: Math and logic
+    description: These commands provide basic math and logic.
     order: 10
 
 commands:
-  - tag: match
-    section: operators
-    description: Match against a regular expression.  Returns a match object containing the matched string, that string's start/end position, and the capture groups.  Accepts RE2 syntax (https://code.google.com/p/re2/wiki/Syntax).  You can enable case-insensitive matching by prefixing the regular expression with `(?i)`.  (See linked RE2 documentation for more flags.)
-    name: match
-    is_operator: true
-    body: regexp
-    parent: string
-    returns: json
-
-    examples:
-      - description: Get all users whose name starts with A.
-        code:
-          rb: r.table('users').filter{|row| row[:name].match("^A")}.run(conn)
-          py: r.table('users').filter(lambda row:row['name'].match("^A")).run(conn)
-          js: r.table('users').filter(function(row){return row('name').match("^A")}).run(conn, callback)
-          ph: r\table('users')->filter(function($row) { return $row('name')->match("^A"); })->run($conn);
-      - description: Parse out a name (returns "mlucy").
-        code:
-          rb: r('id:0,name:mlucy,foo:bar').match('name:(\w+)')[:groups][0][:str].run(conn)
-          py: r.expr('id:0,name:mlucy,foo:bar').match('name:(\w+)')['groups'][0]['str'].run(conn)
-          js: r.expr('id:0,name:mlucy,foo:bar').match('name:(\w+)')('groups').nth(0)('str').run(conn, callback)
-          ph: |
-            r\expr('id:0,name:mlucy,foo:bar')->match('name:(\w+)')
-              ->attr('groups')->nth(0)
-              ->attr('str')->run($conn);
-      - description: Fail to parse out a name (returns null).
-        code:
-          rb: r('id:0,foo:bar').match('name:(\w+)')[:groups][0][:str].run(conn)
-          py: r.expr('id:0,foo:bar').match('name:(\w+)')['groups'][0]['str'].run(conn)
-          js: r.expr('id:0,foo:bar').match('name:(\w+)')('groups').nth(0)('str').run(conn, callback)
-          ph: |
-            r\expr('id:0,foo:bar')->match('name:(\w+)')
-              ->attr('groups')->nth(0)
-              ->attr('str')->run($conn);
-
   - tag: add
     section: operators
     description: Sum two numbers, concatenate two strings, or concatenate 2 arrays.
 
-    name: +
-    is_operator: true
-    body: number | string | array
-    parent: number | string | array
-    returns: number | string | array
+    name:
+      js: add
+      py: +
+      rb: +
+      ph: add
+
+    body:
+      py: "$PARENT + $ARG"
+      rb: "$PARENT + $ARG"
+      js: "$PARENT.add($ARG)"
+      ph: "$PARENT->add($ARG)"
+
+    io:
+      - - number
+        - number
+      - - string
+        - string
+      - - array
+        - array
+      - - time 
+        - time
+        - number
+
 
     examples:
       - description: It's as easy as 2 + 2 = 4.
@@ -65,24 +48,44 @@ commands:
           ph: r\expr('foo')->add('bar')->run($conn);
       - description: Arrays can be concatenated too.
         code:
-          js: r.expr(["foo", "bar"]).add("buzz").run(conn, callback)
+          js: r.expr(["foo", "bar"]).add(["buzz"]).run(conn, callback)
           py: (r.expr(["foo", "bar"]) + ["buzz"]).run(conn)
           rb: (r(["foo", "bar"]) + ["buzz"]).run(conn)
           ph: r\expr(array('foo', 'bar'))->add(array('buzz'))->run($conn);
-          
-    ph:
-      name: add
-      is_operator: false
+      - description: Create a date one year from now.
+        code:
+          js: r.now().add(365*24*60*60)
+          py: r.now() + 365*24*60*60
+          rb: r.now() + 365*24*60*60
+          ph: r\now()->add(365*24*60*60)->run($conn);
+
 
   - tag: sub
     section: operators
     description: Subtract two numbers.
 
-    name: '-'
-    body: number
-    is_operator: true
-    parent: number
-    returns: number
+    name:
+      js: sub
+      py: '-'
+      rb: '-'
+      ph: sub
+
+    body:
+      py: "$PARENT - $ARG"
+      rb: "$PARENT - $ARG"
+      js: "$PARENT.sub($ARG)"
+      ph: "$PARENT->sub($ARG)"
+
+    io:
+      - - number
+        - number
+      - - time
+        - number
+        - time
+      - - time
+        - time
+        - number
+
 
     examples:
       - description: It's as easy as 2 - 2 = 0.
@@ -91,20 +94,43 @@ commands:
           py: (r.expr(2) - 2).run(conn)
           rb: (r(2) - 2).run(conn)
           ph: r\expr(2)->sub(2)->run($conn);
+      - description: Create a date one year ago today.
+        code:
+          js: r.now().sub(365*24*60*60)
+          py: r.now() - 365*24*60*60
+          rb: r.now() - 365*24*60*60
+          ph: r\now()->sub(365*24*60*60)->run($conn);
+      - description: Retrieve how many seconds elapsed between today and date
+        validate: false
+        code:
+          js: r.now().sub(date)
+          py: r.now() - date
+          rb: r.now() - date
+          ph: r\now()->sub($date)->run($conn);
 
-    ph:
-      name: sub
-      is_operator: false
+
 
   - tag: mul
     section: operators
     description: Multiply two numbers, or make a periodic array.
 
-    name: '*'
-    body: number | array
-    is_operator: true
-    parent: number | array
-    returns: number | array
+    name:
+      js: mul
+      py: '*'
+      rb: '*'
+      ph: mul
+
+    body:
+      py: "$PARENT * number"
+      rb: "$PARENT * number"
+      js: "$PARENT.mul(number)"
+      ph: "$PARENT->mul(number)"
+
+    io:
+      - - number
+        - number
+      - - array
+        - array
 
     examples:
       - description: It's as easy as 2 * 2 = 4.
@@ -120,19 +146,25 @@ commands:
           rb: (r(["This", "is", "the", "song", "that", "never", "ends."]) * 100).run(conn)
           ph: r\expr(array("This", "is", "the", "song", "that", "never", "ends."))->mul(100)->run($conn);
 
-    ph:
-      name: mul
-      is_operator: false
-
   - tag: div
     section: operators
     description: Divide two numbers.
 
-    name: '/'
-    body: number
-    is_operator: true
-    parent: number
-    returns: number
+    name:
+      js: div
+      py: '/'
+      rb: '/'
+      ph: div
+
+    body:
+      py: "$PARENT / $ARG"
+      rb: "$PARENT / $ARG"
+      js: "$PARENT.div($ARG)"
+      ph: "$PARENT->div($ARG)"
+
+    io:
+      - - number
+        - number
 
     examples:
       - description: It's as easy as 2 / 2 = 1.
@@ -142,19 +174,25 @@ commands:
           rb: (r(2) / 2).run(conn)
           ph: r\expr(2)->div(2)->run($conn);
 
-    ph:
-      name: div
-      is_operator: false
-
   - tag: mod
     section: operators
     description: Find the remainder when dividing two numbers.
 
-    name: '%'
-    body: number
-    is_operator: true
-    parent: number
-    returns: number
+    name:
+      js: mod
+      py: '%'
+      rb: '%'
+      ph: "mod"
+
+    body:
+      py: "$PARENT % $ARG"
+      rb: "$PARENT % $ARG"
+      js: "$PARENT.mod($ARG)"
+      ph: "$PARENT->mod($ARG)"
+
+    io:
+      - - number
+        - number
 
     examples:
       - description: It's as easy as 2 % 2 = 0.
@@ -163,20 +201,26 @@ commands:
           py: (r.expr(2) % 2).run(conn)
           rb: (r(2) % 2).run(conn)
           ph: r\expr(2)->mod(2)->run($conn);
-             
-    ph:
-      name: mod
-      is_operator: false
 
   - tag: and
     section: operators
     description: Compute the logical and of two values.
 
-    name: '&'
-    body: bool
-    is_operator: true
-    parent: bool
-    returns: bool
+    name:
+      js: and
+      py: '&'
+      rb: '&'
+      ph: rAnd
+
+    body:
+      py: "$PARENT & $ARG"
+      rb: "$PARENT & $ARG"
+      js: "$PARENT.and($ARG)"
+      ph: "$PARENT->rAnd($ARG)"
+
+    io:
+      - - bool
+        - bool
 
     examples:
       - description: True and false anded is false?
@@ -186,109 +230,137 @@ commands:
           rb: (r(true) & false).run(conn)
           ph: r\expr(true)->rAnd(false)->run($conn);
 
-    ph:
-      name: rAnd
-      is_operator: false
-
   - tag: or
     section: operators
     description: Compute the logical or of two values.
 
-    name: '|'
-    body: bool
-    is_operator: true
-    parent: bool
-    returns: bool
+    name:
+      js: or
+      py: '|'
+      rb: '|'
+      ph: rOr
+
+    body:
+      py: "$PARENT | $ARG"
+      rb: "$PARENT | $ARG"
+      js: "$PARENT.or($ARG)"
+      ph: "$PARENT->rOr($ARG)"
+
+    io:
+      - - bool
+        - bool
 
     examples:
       - description: True or false ored is true?
         code:
           js: r.expr(true).or(false).run(conn, callback)
           py: (r.expr(True) | False).run(conn)
-          rb: (r(true) | false).run(conn)
+          rb: (r.expr(true) | false).run(conn)
           ph: r\expr(true)->rOr(false)->run($conn);
-
-    ph:
-      name: rOr
-      is_operator: false
 
   - tag: eq
     section: operators
     description: Test if two values are equal.
 
-    body: other
-    is_operator: true
-    parent: json
-    returns: bool
+    name:
+      js: eq
+      py: '=='
+      rb: eq
+      ph: eq
+
+    body:
+      py: "$PARENT == $ARG"
+      rb: "$PARENT.eq($ARG)"
+      js: "$PARENT.eq($ARG)"
+      ph: "$PARENT->eq($ARG)"
+
+    io:
+      - - value 
+        - bool
 
     examples:
       - description: Does 2 equal 2?
         code:
           js: r.expr(2).eq(2).run(conn, callback)
           py: (r.expr(2) == 2).run(conn)
-          rb: (r(2).eq 2).run(conn)
+          rb: (r.expr(2).eq 2).run(conn)
           ph: r\expr(2)->eq(2)->run($conn);
-
-    py:
-      name: '=='
-      
-    ph:
-      is_operator: false
 
   - tag: ne
     section: operators
     description: Test if two values are not equal.
 
-    body: other
-    is_operator: true
-    parent: json
-    returns: bool
+    name:
+      js: ne
+      py: '!='
+      rb: ne
+      ph: ne
+
+    body:
+      py: "$PARENT != $ARG"
+      rb: "$PARENT.ne($ARG)"
+      js: "$PARENT.ne($ARG)"
+      ph: "$PARENT->ne($ARG)"
+
+    io:
+      - - value 
+        - bool
 
     examples:
       - description: Does 2 not equal 2?
         code:
           js: r.expr(2).ne(2).run(conn, callback)
           py: (r.expr(2) != 2).run(conn)
-          rb: (r(2).ne 2).run(conn)
+          rb: (r.expr(2).ne 2).run(conn)
           ph: r\expr(2)->ne(2)->run($conn);
-
-    py:
-      name: '!='
-      
-    ph:
-      is_operator: false
 
   - tag: gt
     section: operators
     description: Test if the first value is greater than other.
 
-    name: '>'
-    body: other
-    is_operator: true
-    parent: json
-    returns: bool
+    name:
+      js: gt
+      py: '>'
+      rb: '>'
+      ph: gt
+
+    body:
+      py: "$PARENT > $ARG"
+      rb: "$PARENT > $ARG"
+      js: "$PARENT.gt($ARG)"
+      ph: "$PARENT->gt($ARG)"
+
+    io:
+      - - value 
+        - bool
 
     examples:
       - description: Is 2 greater than 2?
         code:
           js: r.expr(2).gt(2).run(conn, callback)
           py: (r.expr(2) > 2).run(conn)
-          rb: (r(2) > 2).run(conn)
+          rb: (r.expr(2) > 2).run(conn)
           ph: r\expr(2)->gt(2)->run($conn);
-
-    ph:
-      name: gt
-      is_operator: false
 
   - tag: ge
     section: operators
     description: Test if the first value is greater than or equal to other.
 
-    name: '>='
-    body: other
-    is_operator: true
-    parent: json
-    returns: bool
+    name:
+      js: ge
+      py: '>='
+      rb: '>='
+      ph: ge
+
+    body:
+      py: "$PARENT >= $ARG"
+      rb: "$PARENT >= $ARG"
+      js: "$PARENT.ge($ARG)"
+      ph: "$PARENT->ge($ARG)"
+
+    io:
+      - - value 
+        - bool
 
     examples:
       - description: Is 2 greater than or equal to 2?
@@ -298,61 +370,81 @@ commands:
           rb: (r(2) >= 2).run(conn)
           ph: r\expr(2)->ge(2)->run($conn);
 
-    ph:
-      name: ge
-      is_operator: false
-
   - tag: lt
     section: operators
     description: Test if the first value is less than other.
 
-    name: '<'
-    body: other
-    is_operator: true
-    parent: json
-    returns: bool
+    name:
+      js: lt
+      py: '<'
+      rb: '<'
+      ph: lt
+
+    body:
+      py: "$PARENT < $ARG"
+      rb: "$PARENT < $ARG"
+      js: "$PARENT.lt($ARG)"
+      ph: "$PARENT->lt($ARG)"
+
+    io:
+      - - value 
+        - bool
 
     examples:
       - description: Is 2 less than 2?
         code:
           js: r.expr(2).lt(2).run(conn, callback)
           py: (r.expr(2) < 2).run(conn)
-          rb: (r(2) < 2).run(conn)
+          rb: (r.expr(2) < 2).run(conn)
           ph: r\expr(2)->lt(2)->run($conn);
-
-    ph:
-      name: lt
-      is_operator: false
 
   - tag: le
     section: operators
     description: Test if the first value is less than or equal to other.
 
-    name: '<='
-    body: other
-    is_operator: true
-    parent: json
-    returns: bool
+    name:
+      js: le
+      py: '<='
+      rb: '<='
+      ph: le
+
+    body:
+      py: "$PARENT <= $ARG"
+      rb: "$PARENT <= $ARG"
+      js: "$PARENT.le($ARG)"
+      ph: "$PARENT->le($ARG)"
+
+    io:
+      - - value 
+        - bool
 
     examples:
       - description: Is 2 less than or equal to 2?
         code:
           js: r.expr(2).le(2).run(conn, callback)
           py: (r.expr(2) <= 2).run(conn)
-          rb: (r(2) <= 2).run(conn)
+          rb: (r.expr(2) <= 2).run(conn)
           ph: r\expr(2)->le(2)->run($conn);
-
-    ph:
-      name: le
-      is_operator: false
 
   - tag: not
     section: operators
     description: Compute the logical inverse (not).
 
-    is_operator: true
-    parent: bool
-    returns: bool
+    name:
+      js: not
+      py: '~'
+      rb: not
+      ph: not
+
+    body:
+      py: "~$PARENT"
+      rb: "$PARENT.not()"
+      js: "$PARENT.not()"
+      ph: "$PARENT->not()"
+
+    io:
+      - - bool
+        - bool
 
     examples:
       - description: Not true is false.
@@ -360,16 +452,5 @@ commands:
           js: r.expr(true).not().run(conn, callback)
           py: (~r.expr(True)).run(conn)
           rb: r(true).not.run(conn)
-          ph: r\expr(true)->not()->run($conn);
-
-    ph:
-      is_operator: false
-
-    rb:
-      dont_need_parenthesis: true
-      is_operator: false
-
-    py:
-      name: '~'
-      operator_first: true
+          ph: r\expr(true)->not->run($conn);
 

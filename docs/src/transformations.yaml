@@ -10,9 +10,17 @@ commands:
     description: Transform each element of the sequence by applying the given mapping
       function.
 
-    body: mapping_function
-    parent: sequence
-    returns: sequence
+    body:
+      js: "$PARENT.map(mappingFunction)"
+      py: "$PARENT.map(mapping_function)"
+      rb: "$PARENT.map(mapping_function)"
+      ph: "$PARENT->map(mappingFunction)"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
       - description: Construct a sequence of hero power ratings.
@@ -33,45 +41,70 @@ commands:
                 return $hero('combatPower')->add($hero('compassionPower')->mul(2));
               })->run($conn);
 
-    ph:
-      body: mappingFunction
-
-    js:
-      body: mappingFunction
-      examples:
-        0:
-          can_try: true
-          dataset: marvel
-
   - tag: with_fields
     section: transformations
     description: Takes a sequence of objects and a list of fields.  If any objects in the sequence don't have all of the specified fields, they're dropped from the sequence.  The remaining objects have the specified fields plucked out.  (This is identical to `has_fields` followed by `pluck` on a sequence.)
 
-    body: field1[, field2...]
-    parent: sequence
-    returns: sequence
+    name:
+      js: withFields
+      py: with_fields
+      rb: with_fields
+      ph: withFields
+
+    body:
+      js: "$PARENT.withFields([selector1, selector2...])"
+      py: "$PARENT.with_selectors([selector1, selector2...])"
+      rb: "$PARENT.with_selectors([selector1, selector2...])"
+      ph: "$PARENT->withFields(selector) | $PARENT->withFields(array(selector1, selector2, ...))"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
-      - description: Get a list of heroes and their arch-nemeses, excluding any heroes that lack one.
+      - description: Get a list of heroes and their nemeses, excluding any heroes that lack one.
         code:
           rb: r.table('marvel').with_fields('id', 'nemesis')
           py: r.table('marvel').with_fields('id', 'nemesis')
           js: r.table('marvel').withFields('id', 'nemesis')
-          ph: r\table('marvel')->withFields(array('id', 'nemesis'))->run($conn);
-          
-    ph:
-      name: withFields
-      body: field | array(field1, field2, ...)
-
+          ph: r\table('marvel')->withFields(array('id', 'nemesis'))
+      - description: Get a list of heroes and their nemeses, excluding any heroes whose nemesis isn't in an evil organization.
+        code:
+          rb: "r.table('marvel').with_fields(:id, {:nemesis => {:evil_organization => true}})"
+          py: "r.table('marvel').with_fields('id', {'nemesis' : {'evil_organization' : True}})"
+          js: "r.table('marvel').withFields('id', {'nemesis' : {'evil_organization' : true}})"
+          ph: "r\table('marvel')->withFields(array('id', 'nemesis' => array('evil_organization' => true)))"
+      - description: The nested syntax can quickly become overly verbose so there's a shorthand.
+        code:
+          rb: "r.table('marvel').with_fields(:id, {:nemesis => :evil_organization})"
+          py: "r.table('marvel').with_fields('id', {'nemesis' : 'evil_organization'})"
+          js: "r.table('marvel').withFields('id', {'nemesis' : 'evil_organization'})"
+          ph: "r\table('marvel')->withFields(array('id', 'nemesis' => 'evil_organization'))"
 
   - tag: concat_map
     section: transformations
     description: Flattens a sequence of arrays returned by the <code>mappingFunction</code>
       into a single sequence.
 
-    body: mapping_function
-    parent: sequence
-    returns: sequence
+    name:
+      js: concatMap
+      py: concat_map
+      rb: concat_map
+      ph: concatMap
+
+    body:
+      js: "$PARENT.concatMap(mappingFunction)"
+      py: "$PARENT.concat_map(mapping_function)"
+      rb: "$PARENT.concat_map(mapping_function)"
+      ph: "$PARENT->concatMap(mappingFunction)"
+
+    io:
+      - - sequence
+        - stream 
+      - - array
+        - array
 
     examples:
       - description: Construct a sequence of all monsters defeated by Marvel heroes.
@@ -92,19 +125,29 @@ commands:
                 return $hero('defeatedMonsters');
               })->run($conn);
 
-    ph:
-      name: concatMap
-      body: mappingFunction
-
   - tag: order_by
     section: transformations
     description: Sort the sequence by document values of the given key(s).<br /><br />
       <code>order by</code> defaults to ascending ordering. To explicitly specify
       the ordering, wrap the attribute with either <code>r.asc</code> or <code>r.desc</code>.
 
-    body: key1, [key2...]
-    parent: sequence
-    returns: sequence
+    name:
+      js: orderBy
+      py: order_by
+      rb: order_by
+      ph: orderBy
+
+    body:
+      js: "$PARENT.orderBy(key1, [key2...])"
+      py: "$PARENT.order_by(key1, [key2...])"
+      rb: "$PARENT.order_by(key1, [key2...])"
+      ph: "$PARENT->orderBy(key) | $PARENT->orderBy(array(key1, key2, ...))"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
       - description: Order our heroes by a series of performance metrics.
@@ -113,6 +156,19 @@ commands:
           py: r.table('marvel').order_by('enemies_vanquished', 'damsels_saved').run(conn)
           rb: r.table('marvel').order_by(:enemies_vanquished, :damsels_saved).run(conn)
           ph: r\table('marvel')->orderBy(array('enemiesVanquished', 'damselsSaved'))->run($conn);
+      - description: Indexes can be used to perform more efficient orderings.
+          Notice that the index ordering always has highes precedence. Thus the
+          following example is equivalent to the one above.
+        code:
+          js: "r.table('marvel').orderBy('damselsSaved', {index: 'enemiesVanquished'}).run(conn, callback)"
+          py: r.table('marvel').order_by('damsels_saved', index='enemies_vanquished').run(conn)
+          rb: r.table('marvel').order_by(:damsels_saved, :index => :enemies_vanquished).run(conn)
+          ph: r\table('marvel')->orderBy(array('damselsSaved', 'index' => 'enemiesVanquished'))->run($conn);
+      - description: You can also specify a descending order when using an index.
+        code:
+          js: "r.table('marvel').orderBy({index: r.desc('enemiesVanquished')}).run(conn, callback)"
+          py: r.table('marvel').order_by(index=r.desc('enemies_vanquished')).run(conn)
+          rb: r.table('marvel').order_by(:index => r.desc(:enemies_vanquished)).run(conn)
       - description: Let's lead with our best vanquishers by specify descending ordering.
         code:
           js: |-
@@ -127,18 +183,33 @@ commands:
           ph: |
             r\table('marvel')->orderBy(array(r\desc('enemiesVanquished'), r\asc('damselsSaved'))
               )->run($conn);
-
-    ph:
-      name: orderBy
-      body: key | array(key1, key2, ...)
+      - description: You can use a function for ordering instead of just selecting an attribute.
+        code:
+          js: r.table('marvel').orderBy(function (doc) { return doc('enemiesVanquished') + doc('damselsSaved'); }).run(conn, callback)
+          py: "r.table('marvel').order_by(lambda doc: doc['enemiesVanquished'] + doc['ramselsSaved']).run(conn)"
+          rb: r.table('marvel').order_by(lambda {|doc| doc[:enemiesVanquished] + doc[:damselsSaved]}).run(conn)
+          ph: r\table('marvel')->orderBy(function ($doc) { return $doc('enemiesVanquished')->add($doc('damselsSaved')); })->run($conn);
+      - description: Functions can also be used descendingly.
+        code:
+          js: r.table('marvel').orderBy(r.desc(function (doc) { return doc('enemiesVanquished') + doc('damselsSaved'); })).run(conn, callback)
+          py: "r.table('marvel').order_by(r.desc(lambda doc: doc['enemiesVanquished'] + doc['ramselsSaved'])).run(conn)"
+          rb: r.table('marvel').order_by(r.desc(lambda {|doc| doc[:enemiesVanquished] + doc[:damselsSaved]})).run(conn)
+          ph: r\table('marvel')->orderBy(r\desc(function ($doc) { return $doc('enemiesVanquished')->add($doc('damselsSaved')); }))->run($conn);
 
   - tag: skip
     section: transformations
     description: Skip a number of elements from the head of the sequence.
 
-    body: n
-    parent: sequence
-    returns: sequence
+    body: "$PARENT.skip(n)"
+    
+    ph:
+      body: "$PARENT->skip(n)"
+
+    io:
+      - - sequence
+        - stream 
+      - - array
+        - array
 
     examples:
       - description: Here in conjunction with `order_by` we choose to ignore the most
@@ -153,9 +224,16 @@ commands:
     section: transformations
     description: End the sequence after the given number of elements.
 
-    body: n
-    parent: sequence
-    returns: sequence
+    body: "$PARENT.limit(n)"
+    
+    ph:
+      body: "$PARENT->limit(n)"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
       - description: Only so many can fit in our Pantheon of heroes.
@@ -169,9 +247,23 @@ commands:
     section: transformations
     description: Trim the sequence to within the bounds provided.
 
-    body: startIndex[, endIndex]
-    parent: sequence
-    returns: sequence
+    name:
+      py: "[]"
+      rb: "[]"
+      js: slice
+      ph: slice
+
+    body:
+      js: "$PARENT.slice(startIndex[, endIndex])"
+      py: "$PARENT[start_index[, end_index]]"
+      rb: "$PARENT[start_index[, end_index]]"
+      ph: "$PARENT->slice(startIndex[, endIndex])"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
       - description: For this fight, we need heroes with a good mix of strength and agility.
@@ -181,25 +273,25 @@ commands:
           rb: r.table('marvel').order_by(:strength)[5..10].run(conn)
           ph: r\table('marvel')->orderBy('strength')->slice(5, 10)->run($conn);
 
-    py:
-      name: '[]'
-      is_selector: true
-      name1: '['
-      name2: ']'
-
-    rb:
-      name: '[]'
-      is_selector: true
-      name1: '['
-      name2: ']'
-
   - tag: nth
     section: transformations
     description: Get the nth element of a sequence.
 
-    body: index
-    parent: sequence
-    returns: json
+    name:
+      py: "[]"
+      rb: "[]"
+      js: nth
+      ph: nth
+
+    body:
+      py: "$PARENT[index]"
+      rb: "$PARENT[index]"
+      js: "$PARENT.nth(index)"
+      ph: "$PARENT->nth(index)"
+
+    io:
+      - - sequence
+        - object
 
     examples:
       - description: Select the second element in the array.
@@ -209,26 +301,26 @@ commands:
           rb: r([1,2,3])[1].run(conn)
           ph: r\expr(array(1,2,3))->nth(1)->run($conn);
 
-    py:
-      name: '[]'
-      is_selector: true
-      name1: '['
-      name2: ']'
-
-    rb:
-      name: '[]'
-      is_selector: true
-      name1: '['
-      name2: ']'
-
   - tag: indexes_of
     section: transformations
     description: Get the indexes of an element in a sequence. If the argument is a predicate,
       get the indexes of all elements matching it.
 
-    body: datum | predicate
-    parent: sequence
-    returns: sequence
+    name:
+      js: indexesOf
+      py: indexes_of
+      rb: indexes_of
+      ph: indexesOf
+
+    body:
+      js: "$PARENT.indexesOf(datum | predicate)"
+      py: "$PARENT.indexes_of(datum | predicate)"
+      rb: "$PARENT.indexes_of(datum | predicate)"
+      ph: "$PARENT->indexesOf(datum | predicate)"
+
+    io:
+      - - sequence
+        - array
 
     examples:
       - description: Find the position of the letter 'c'.
@@ -253,19 +345,28 @@ commands:
             }.run(conn)
           ph: |-
             r\table('marvel')->union(r\table('dc'))->orderBy('popularity')->indexesOf(
-              r\row('superpowers')->contains('invisibility')
-            )->run($conn);
-            
-    ph:
-      name: indexesOf
+                r\row('superpowers')->contains('invisibility')
+              )->run($conn);
 
   - tag: is_empty
     section: transformations
     description: Test if a sequence is empty.
 
-    body: index
-    parent: sequence
-    returns: json
+    name:
+      js: isEmpty
+      py: is_empty
+      rb: is_empty
+      ph: isEmpty
+
+    body:
+      js: "$PARENT.isEmpty()"
+      py: "$PARENT.is_empty()"
+      rb: "$PARENT.is_empty"
+      ph: "$PARENT->isEmpty()"
+
+    io:
+      - - sequence
+        - bool
 
     examples:
       - description: Are there any documents in the marvel table?
@@ -274,17 +375,19 @@ commands:
           py: r.table('marvel').is_empty().run(conn)
           rb: r.table('marvel').is_empty().run(conn)
           ph: r\table('marvel')->isEmpty()->run($conn);
-          
-    ph:
-      name: isEmpty
 
   - tag: union
     section: transformations
     description: Concatenate two sequences.
 
-    body: other
-    parent: sequence
-    returns: sequence
+    body: "$PARENT.union(sequence)"
+    
+    ph:
+      body: "$PARENT->union(sequence)"
+
+    io:
+      - - sequence
+        - array
 
     examples:
       - description: Construct a stream of all heroes.
@@ -300,9 +403,18 @@ commands:
       Select a given number of elements from a sequence with uniform random
       distribution. Selection is done without replacement.
 
-    body: number
-    parent: sequence
-    returns: sequence
+    body: "$PARENT.sample(number)"
+    
+    ph:
+      body: "$PARENT->sample(number)"
+
+    io:
+      - - sequence
+        - selection
+      - - stream
+        - array 
+      - - array
+        - array
 
     examples:
       - description: Select 3 random heroes.

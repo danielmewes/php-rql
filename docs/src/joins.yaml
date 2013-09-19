@@ -19,9 +19,18 @@ commands:
       py: inner_join
       rb: inner_join
       ph: innerJoin
-    body: othersequence, predicate
-    parent: sequence
-    returns: sequence
+
+    body:
+      js: "$PARENT.innerJoin(otherSequence, predicate)"
+      py: "$PARENT.inner_join(other_sequence, predicate)"
+      rb: "$PARENT.inner_join(other_sequence, predicate)"
+      ph: "$PARENT->innerJoin(otherSequence, predicate)"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
       - description: Construct a sequence of documents containing all cross-universe
@@ -52,9 +61,18 @@ commands:
       py: outer_join
       rb: outer_join
       ph: outerJoin
-    body: othersequence, predicate
-    parent: sequence
-    returns: sequence
+
+    body:
+      js: "$PARENT.outerJoin(otherSequence, predicate)"
+      py: "$PARENT.outer_join(other_sequence, predicate)"
+      rb: "$PARENT.outer_join(other_sequence, predicate)"
+      ph: "$PARENT->outerJoin(otherSequence, predicate)"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
       - description: Construct a sequence of documents containing all cross-universe
@@ -82,14 +100,23 @@ commands:
     description: An efficient join that looks up elements in the right table by primary
       key.
 
-    name: eq_join
+    name:
+      py: eq_join
+      rb: eq_join
+      js: eqJoin
+      ph: eqJoin
+
     body:
-      py: left_attr, other[, index='id']
-      rb: left_attr, other[, :index => 'id']
-      js: leftAttr, other[, {index:'id'}]
-      ph: leftAttr, other[, index]
-    parent: sequence
-    returns: sequence
+      py: "$PARENT.eq_join(left_attr, other_table[, index='id'])"
+      rb: "$PARENT.eq_join(left_attr, other_table[, :index => 'id'])"
+      js: "$PARENT.eqJoin(leftAttr, otherTable[, {index:'id'}])"
+      ph: "$PARENT->eqJoin(leftAttr, otherTable[, {index:'id'}])"
+
+    io:
+      - - sequence
+        - stream
+      - - array
+        - array
 
     examples:
       - description: Let our heroes join forces to battle evil!
@@ -131,18 +158,39 @@ commands:
                 r.table('mythical_weapons'), {index:'origin'}).run(conn, callback)
           ph: |
             r\table('marvel')->eqJoin('main_weapon_origin',
-                r\table('mythical_weapons'), 'origin')->run($conn);
-
-    ph:
-      name: eqJoin
+                r\table('mythical_weapons'), array('index' => 'origin'))->run($conn);
+      - description: You can pass a function instead of an attribute to join on more complicated expressions.
+          Here we join to the DC universe collaborator with whom the hero has the most appearances.
+        code:
+          py: |
+            r.table('marvel').eq_join(lambda doc: doc['dc_collaborators'].order_by('appearances')[0]['name'],
+                r.table('dc')).run(conn)
+          rb: |
+            r.table('marvel').eq_join(lambda {|doc| doc[:dc_collaborators].order_by(:appearances)[0][:name]},
+                r.table('dc')).run(conn)
+          js: |
+            r.table('marvel').eqJoin(function (doc) { return doc('dcCollaborators').orderBy('appearances').nth(0)('name'); },
+                r.table('dc')).run(conn, callback)
+          ph: |
+            r\table('marvel')->eqJoin(function ($doc) { return $doc('dcCollaborators')->orderBy('appearances')->nth(0)->getField('name'); },
+                r\table('dc'))->run($conn);
 
   - tag: zip
     section: joins
     description: Used to 'zip' up the result of a join by merging the 'right' fields into 
       'left' fields of each member of the sequence.
 
-    parent: sequence
-    returns: sequence
+    body:
+      py: "$PARENT.zip()"
+      rb: "$PARENT.zip"
+      js: "$PARENT.zip()"
+      ph: "$PARENT->zip()"
+
+    io:
+      - - stream 
+        - stream
+      - - array
+        - array
 
     examples:
       - description: "'zips up' the sequence by merging the left and right fields
@@ -154,7 +202,4 @@ commands:
           py: r.table('marvel').eq_join('main_dc_collaborator', r.table('dc')).zip().run(conn)
           rb: r.table('marvel').eq_join(:main_dc_collaborator, r.table('dc')).zip.run(conn)
           ph: r\table('marvel')->eqJoin('main_dc_collaborator', r\table('dc'))->zip()->run($conn);
-
-    rb:
-      dont_need_parenthesis: true
 

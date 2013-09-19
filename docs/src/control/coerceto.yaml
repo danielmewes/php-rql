@@ -7,9 +7,27 @@ commands:
       You can convert: a selection, sequence, or object into an ARRAY, 
       an array of pairs into an OBJECT, and any DATUM into a STRING.
 
-    body: typename
-    parent: json
-    returns: json
+    body:
+      js: "$PARENT.coerceTo(typeName)"
+      py: "$PARENT.coerce_to(type_name)"
+      rb: "$PARENT.coerce_to(type_name)"
+      ph: "$PARENT->coerceTo(typeName)"
+
+    name:
+      py: coerce_to 
+      rb: coerce_to 
+      js: coerceTo
+      ph: coerceTo
+
+    io:
+      - - sequence
+        - array
+      - - value
+        - string
+      - - array
+        - object
+      - - object
+        - array
 
     examples:
       - description: Convert a table to an array.
