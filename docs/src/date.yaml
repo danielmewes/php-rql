@@ -17,6 +17,10 @@ commands:
 
     name: now
     body: "$PARENT.now()"
+    
+    ph:
+      body: "$PARENT\\now()"
+    
     io:
       - - r
         - time
@@ -39,6 +43,11 @@ commands:
               name: "John",
               subscription_date: r.now()
             }).run(conn, callback)
+          ph: |
+            r\table("users")->insert(array(
+              'name' => "John",
+              'subscription_date' => r\now()
+            ))->run($conn);
 
   - tag: time
     section: date
@@ -46,6 +55,10 @@ commands:
       Create a time object for a specific time.
     name: time
     body: "$PARENT.time(year, month, day[, hour, minute, second], timezone)"
+    
+    ph:
+     body: "$PARENT\\time(year, month, day[, hour, minute, second], timezone)"
+     
     io:
       - - r
         - time
@@ -59,6 +72,8 @@ commands:
             r.table("user").get("John").update({"birthdate": r.time(1986, 11, 3, 'Z')}).run(conn)
           js: |
             r.table("user").get("John").update({birthdate: r.time(1986, 11, 3, 'Z')}).run(conn, callback)
+          ph: |
+            r\table("user")->get("John")->update(array('birthdate' => r\time(1986, 11, 3, 'Z')))->run($conn);
 
   - tag: epoch_time
     section: date
@@ -68,10 +83,12 @@ commands:
       js: epochTime
       py: epoch_time
       rb: epoch_time
+      ph: epochTime
     body:
       js: "$PARENT.epochTime(epochTime)"
       py: "$PARENT.epoch_time(epoch_time)"
       rb: "$PARENT.epoch_time(epoch_time)"
+      ph: "$PARENT\\epochTime(epochTime)"
     io:
       - - r
         - time
@@ -85,6 +102,8 @@ commands:
             r.table("user").get("John").update({"birthdate": r.epoch_time(531360000)}).run(conn)
           js: |
             r.table("user").get("John").update({birthdate: r.epochTime(531360000)}).run(conn, callback)
+          js: |
+            r\table("user")->get("John")->update(array('birthdate' => r\epochTime(531360000)))->run($conn);
 
 
   - tag: iso8601
@@ -103,6 +122,7 @@ commands:
       py: "$PARENT.iso8601(iso8601Date[, default_timezone=''])"
       rb: "$PARENT.iso8601(iso8601Date[, :default_timezone => ''])"
       js: "$PARENT.ISO8601(iso8601Date[, {default_timezone:''}])"
+      ph: "$PARENT\\iso8601(iso8601Date[, array('default_timezone' => '')])"
     io:
       - - r
         - time
@@ -116,6 +136,8 @@ commands:
             r.table("user").get("John").update({"birth": r.iso8601('1986-11-03T08:30:00-07:00')}).run(conn)
           js: |
             r.table("user").get("John").update({birth: r.ISO8601('1986-11-03T08:30:00-07:00')}).run(conn, callback)
+          ph: |
+            r\table("user")->get("John")->update(array('birth' => r\iso8601('1986-11-03T08:30:00-07:00')))->run($conn);
 
   - tag: in_timezone
     section: date
@@ -129,11 +151,13 @@ commands:
       js: inTimezone
       rb: in_timezone
       py: in_timezone
+      ph: inTimezone
 
     body:
       js:  "$PARENT.inTimezone(timezone)"
       py:  "$PARENT.in_timezone(timezone)"
       rb:  "$PARENT.in_timezone(timezone)"
+      ph:  "$PARENT->inTimezone(timezone)"
     io:
       - - time
         - time
@@ -147,6 +171,8 @@ commands:
             r.now().in_timezone('-08:00').hours().run(conn)
           js: |
             r.now().inTimezone('-08:00').hours().run(conn, callback)
+          ph: |
+            r\now()->inTimezone('-08:00')->hours()->run($conn);
 
   - tag: timezone
     section: date
@@ -156,6 +182,10 @@ commands:
     name: timezone
 
     body: "$PARENT.timezone()"
+    
+    ph:
+      body: "$PARENT->timezone()"
+    
     io:
       - - time
         - string
@@ -171,11 +201,14 @@ commands:
             r.table("users").filter( lambda user:
               user["subscriptionDate"].timezone() == "-07:00"
             )
-
           js: |
             r.table("users").filter( function(user) {
               return user("subscriptionDate").timezone().eq("-07:00")
             })
+          ph: |
+            r\table("users")->filter( function($user) {
+              return $user("subscriptionDate")->timezone()->eq("-07:00");
+            })->run($conn);
 
 
 
@@ -189,6 +222,7 @@ commands:
       js:  "$PARENT.during(startTime, endTime[, options])"
       py:  "$PARENT.during(start_time, end_time[, left_bound=\"open/closed\", right_bound=\"open/closed\"])"
       rb:  "$PARENT.during(start_time, end_time[, options])"
+      ph:  "$PARENT->during(startTime, endTime[, options])"
     io:
       - - time
         - bool
@@ -208,6 +242,10 @@ commands:
             r.table("posts").filter(
                 r.row('date').during(r.time(2013, 12, 1), r.time(2013, 12, 10))
             ).run(conn, callback)
+          ph: |
+            r\table("posts")->filter(
+                r\row('date')->during(r\time(2013, 12, 1), r\time(2013, 12, 10))
+            )->run($conn);
       - description: Retrieve all the posts that were posted between December 1st, 2013 (exclusive) and December 10th, 2013 (inclusive).
         code:
           rb: |
@@ -222,6 +260,10 @@ commands:
             r.table("posts").filter(
               r.row('date').during(r.time(2013, 12, 1), r.time(2013, 12, 10), {leftBound: "open", rightBound: "closed"})
             ).run(conn, callback)
+          ph: |
+            r\table("posts")->filter(
+                r\row('date')->during(r\time(2013, 12, 1), r\time(2013, 12, 10), array('left_bound' => 'open', 'right_bound' => 'closed'))
+            )->run($conn);
 
 
   - tag: date
@@ -232,6 +274,10 @@ commands:
     name: date
 
     body: "$PARENT.date()"
+    
+    ph:
+      body: "$PARENT->date()"
+    
     io:
       - - time
         - time
@@ -252,6 +298,10 @@ commands:
             r.table("users").filter(function(user) {
               return user("birthdate").date().eq(r.now().date())
             }).run(conn, callback)
+          ph: |
+            r\table("users")->filter(function($user) {
+              return $user("birthdate")->date()->eq(r\now()->date());
+            })->run($conn);
 
   - tag: time_of_day
     section: date
@@ -262,11 +312,14 @@ commands:
       js: timeOfDay
       py: time_of_day
       rb: time_of_day
+      ph: timeOfDay
 
     body:
       js: "$PARENT.timeOfDay()"
       py: "$PARENT.time_of_day()"
       rb: "$PARENT.time_of_day()"
+      ph: "$PARENT->timeOfDay()"
+      
     io:
       - - time
         - number
@@ -288,6 +341,10 @@ commands:
             r.table("posts").filter(
                 r.row("date").timeOfDay().le(12*60*60)
             ).run(conn, callback)
+          ph: |
+            r\table("posts")->filter(
+                r\row("date")->timeOfDay()->le(12*60*60)
+            )->run($conn);
 
   - tag: year
     section: date
@@ -297,6 +354,10 @@ commands:
     name: year
 
     body: "$PARENT.year()"
+    
+    ph:
+      body: "$PARENT->year()"
+    
     io:
       - - time
         - number
@@ -317,6 +378,10 @@ commands:
             r.table("users").filter(function(user) {
               return user("birthdate").year().eq(1986)
             }).run(conn, callback)
+          ph: |
+            r\table("users")->filter(function($user) {
+              return $user("birthdate")->year()->eq(1986);
+            })->run($conn);
 
 
 
@@ -331,6 +396,10 @@ commands:
     name: month
 
     body: "$PARENT.month()"
+    
+    ph:
+      body: "$PARENT->month()"
+    
     io:
       - - time
         - number
@@ -351,6 +420,10 @@ commands:
             r.table("users").filter(
               r.row("birthdate").month().eq(11)
             )
+          ph: |
+            r\table("users")->filter(
+              r\row("birthdate")->month()->eq(11)
+            )->run($conn);
       - description: Retrieve all the users who were born in November.
         code:
           rb: |
@@ -366,6 +439,10 @@ commands:
             r.table("users").filter(
               r.row("birthdate").month().eq(r.november)
             )
+          ph: |
+            r\table("users")->filter(
+              r\row("birthdate")->month()->eq(r\november())
+            )->run($conn);
 
 
   - tag: day
@@ -376,6 +453,10 @@ commands:
     name: day
 
     body: "$PARENT.day()"
+    
+    ph:
+      body: "$PARENT->day()"
+    
     io:
       - - time
         - number
@@ -396,6 +477,10 @@ commands:
             r.table("users").filter(
               r.row("birthdate").day().eq(24)
             )
+          ph: |
+            r\table("users")->filter(
+              r\row("birthdate")->day()->eq(24)
+            )->run($conn);
 
 
   - tag: day_of_week
@@ -409,11 +494,13 @@ commands:
       js: dayOfWeek
       py: day_of_week
       rb: day_of_week
+      ph: dayOfWeek
 
     body:
       js: "$PARENT.dayOfWeek()"
       rb: "$PARENT.day_of_week()"
       py: "$PARENT.day_of_week()"
+      ph: "$PARENT->dayOfWeek()"
     io:
       - - time
         - number
@@ -427,6 +514,8 @@ commands:
             r.now().day_of_week().run(conn)
           js: |
             r.now().dayOfWeek().run(conn, callback)
+          ph: |
+            r\now()->dayOfWeek()->run($conn);
       - description: Retrieve all the users who were born on a Tuesday.
         code:
           rb: |
@@ -442,6 +531,10 @@ commands:
             r.table("users").filter(
               r.row("birthdate").dayOfWeek().eq(r.tuesday)
             )
+          ph: |
+            r\table("users")->filter(
+              r\row("birthdate")->dayOfWeek()->eq(r\tuesday())
+            )->run($conn);
 
   - tag: day_of_year
     section: date
@@ -452,11 +545,14 @@ commands:
       js: dayOfYear
       py: day_of_year
       rb: day_of_year
+      ph: dayOfYear
 
     body:
       js: "$PARENT.dayOfYear()"
       rb: "$PARENT.day_of_year()"
       py: "$PARENT.day_of_year()"
+      ph: "$PARENT->dayOfYear()"
+      
     io:
       - - time
         - number
@@ -477,6 +573,10 @@ commands:
             r.table("users").filter(
               r.row("birthdate").dayOfYear().eq(1)
             )
+          ph: |
+            r\table("users")->filter(
+              r\row("birthdate")->dayOfYear()->eq(1)
+            )->run($conn);
 
 
 
@@ -488,6 +588,10 @@ commands:
     name: hours
 
     body: "$PARENT.hours()"
+    
+    ph:
+      body: "$PARENT->hours()"
+    
     io:
       - - time
         - number
@@ -507,6 +611,10 @@ commands:
             r.table("posts").filter(function(post) {
                 return post("date").hours().lt(4)
             })
+          ph: |
+            r\table("posts")->filter(function($post) {
+                return $post("date")->hours()->lt(4);
+            })->run($conn);
 
   - tag: minutes
     section: date
@@ -516,6 +624,10 @@ commands:
     name: minutes
 
     body: "$PARENT.minutes()"
+    
+    ph:
+      body: "$PARENT->minutes()"
+    
     io:
       - - time
         - number
@@ -535,6 +647,10 @@ commands:
             r.table("posts").filter(function(post) {
                 return post("date").minutes().lt(10)
             })
+          ph: |
+            r\table("posts")->filter(function($post) {
+                return $post("date")->minutes()->lt(10);
+            })->run($conn);
 
 
   - tag: seconds
@@ -545,6 +661,10 @@ commands:
     name: seconds
 
     body: "$PARENT.seconds()"
+    
+    ph:
+      body: "$PARENT->seconds()"
+    
     io:
       - - time
         - number
@@ -564,6 +684,10 @@ commands:
             r.table("posts").filter(function(post) {
                 return post("date").seconds().lt(30)
             })
+          ph: |
+            r\table("posts")->filter(function($post) {
+                return $post("date")->seconds()->lt(30);
+            })->run($conn);
 
 
   - tag: to_iso8601
@@ -575,8 +699,13 @@ commands:
       js: toISO8601
       py: to_iso8601
       rb: to_iso8601
+      ph: toIso8601
 
     body: "$PARENT.seconds()"
+    
+    ph:
+      body: "$PARENT->toIso8601()"
+    
     io:
       - - time
         - number
@@ -590,6 +719,8 @@ commands:
             r.now().to_iso8601()
           js: |
             r.now().toISO8601()
+          ph: |
+            r\now()->toIso8601()->run($conn);
 
 
   - tag: to_epoch_time
@@ -601,11 +732,13 @@ commands:
       js: toEpochTime
       py: to_epoch_time
       rb: to_epoch_time
+      ph: toEpochTime
 
     body:
       js: "$PARENT.toEpochTime()"
       py: "$PARENT.to_epoch_time()"
       rb: "$PARENT.to_epoch_time()"
+      ph: "$PARENT->toEpochTime()"
 
     io:
       - - time
@@ -620,5 +753,7 @@ commands:
             r.now().to_epoch_time()
           js: |
             r.now().toEpochTime()
+          ph: |
+            r\now()->toEpochTime()->run($conn);
 
 
