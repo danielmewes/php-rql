@@ -452,5 +452,5 @@ commands:
           js: r.expr(true).not().run(conn, callback)
           py: (~r.expr(True)).run(conn)
           rb: r(true).not.run(conn)
-          ph: r\expr(true)->not->run($conn);
+          ph: r\expr(true)->not()->run($conn);
 

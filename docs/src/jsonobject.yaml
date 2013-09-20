@@ -202,7 +202,7 @@ commands:
             r.expr({weapons : {spectacular_graviton_beam : {dmg : 10, cooldown : 20}}}).merge(
               {weapons : {spectacular_graviton_beam : {dmg : 10}}}).run(conn, callback)
           ph: |
-            r\expr(array('weapons' => array('spectacular_graviton_beam' => array('dmg' => 10, 'cooldown' => 20)))).merge(
+            r\expr(array('weapons' => array('spectacular_graviton_beam' => array('dmg' => 10, 'cooldown' => 20))))->merge(
               array('weapons' => array('spectacular_graviton_beam' => array('dmg' => 10))))->run($conn);
 
       - description: To replace a nested object with another object you can use the <code>literal</code> keyword.
@@ -217,7 +217,7 @@ commands:
             r.expr({weapons : {spectacular_graviton_beam : {dmg : 10, cooldown : 20}}}).merge(
               {weapons : r.literal({repulsor_rays : {dmg : 3, cooldown : 0}})}).run(conn, callback)
           ph: |
-            r\expr(array('weapons' => array('spectacular_graviton_beam' => array('dmg' => 10, 'cooldown' => 20)))).merge(
+            r\expr(array('weapons' => array('spectacular_graviton_beam' => array('dmg' => 10, 'cooldown' => 20))))->merge(
               array('weapons' => r\literal(array('spectacular_graviton_beam' => array('dmg' => 10)))))->run($conn);
 
       - description: <code>Literal</code> can be used to remove keys from an object as well.
@@ -232,7 +232,7 @@ commands:
             r.expr({weapons : {spectacular_graviton_beam : {dmg : 10, cooldown : 20}}}).merge(
               {weapons : {spectacular_graviton_beam : r.literal()}}).run(conn, callback)
           ph: |
-            r\expr(array('weapons' => array('spectacular_graviton_beam' => array('dmg' => 10, 'cooldown' => 20)))).merge(
+            r\expr(array('weapons' => array('spectacular_graviton_beam' => array('dmg' => 10, 'cooldown' => 20))))->merge(
               array('weapons' => array('spectacular_graviton_beam' => r\literal(array()))))->run($conn);
 
   - tag: append
@@ -501,13 +501,13 @@ commands:
           js: "r.table('marvel').hasFields({'spouse' : {'powers' : true}})"
           py: "r.table('marvel').has_fields({'spouse' : {'powers' : True}}).run(conn)"
           rb: "r.table('marvel').has_fields({:spouse => {:powers => true}}).run(conn)"
-          ph: "r\table('marvel')->hasFields(array('spouse' => array('powers' => true)))->run($conn);"
+          ph: "r\\table('marvel')->hasFields(array('spouse' => array('powers' => true)))->run($conn);"
       - description: The nested syntax can quickly get verbose so there's a shorthand.
         code:
           js: "r.table('marvel').hasFields({'spouse' : 'powers'})"
           py: "r.table('marvel').has_fields({'spouse' : 'powers'}).run(conn)"
           rb: "r.table('marvel').has_fields({:spouse => :powers}).run(conn)"
-          ph: "r\table('marvel')->hasFields(array('spouse' => 'powers'))->run($conn);"
+          ph: "r\\table('marvel')->hasFields(array('spouse' => 'powers'))->run($conn);"
 
   - tag: insert_at
     section: jsonobject
