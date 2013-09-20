@@ -13,7 +13,7 @@ commands:
       py: "$PARENT.count"
       rb: "$PARENT.count"
       js: "$PARENT.count"
-      ph: "$PARENT->count()"
+      ph: "$PARENT\\count()"
 
     io:
       - - r
@@ -37,7 +37,7 @@ commands:
     body: "$PARENT.sum(attr)"
     
     ph:
-      body: "$PARENT->sum(attr)"
+      body: "$PARENT\\sum(attr)"
 
     io:
       - - r
@@ -58,7 +58,7 @@ commands:
     body: "$PARENT.avg(attr)"
     
     ph:
-      body: "$PARENT->avg(attr)"
+      body: "$PARENT\\avg(attr)"
 
     io:
       - - r

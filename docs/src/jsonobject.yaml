@@ -10,6 +10,9 @@ commands:
     description: Returns the currently visited document.
 
     body: "$PARENT.row"
+    
+    ph:
+      body: "$PARENT\\row"
 
     io:
       - - r
@@ -59,7 +62,7 @@ commands:
     body: "$PARENT.pluck([selector1, selector2...])"
     
     ph:
-      "$PARENT->pluck(selector1 | array(selector1, selector2, ...))"
+      body: "$PARENT->pluck(selector1 | array(selector1, selector2, ...))"
 
     io:
       - - sequence
@@ -117,7 +120,7 @@ commands:
     body: "$PARENT.without([selector1, selector2...])"
     
     ph:
-      "$PARENT->without(selector1 | array(selector1, selector2, ...))"
+      body: "$PARENT->without(selector1 | array(selector1, selector2, ...))"
 
     io:
       - - sequence
@@ -137,22 +140,26 @@ commands:
           py: r.table('marvel').get('IronMan').without('personalVictoriesList').run(conn)
           rb: r.table('marvel').get('IronMan').without('personalVictoriesList').run(conn)
           js: r.table('marvel').get('IronMan').without('personalVictoriesList').run(conn, callback)
+          ph: r\table('marvel')->get('IronMan')->without('personalVictoriesList')->run($conn);
       - description: Without their prized weapons, our enemies will quickly be vanquished.
         code:
           py: r.table('enemies').without('weapons').run(conn)
           rb: r.table('enemies').without('weapons').run(conn)
           js: r.table('enemies').without('weapons').run(conn, callback)
+          ph: r\table('enemies')->without('weapons')->run($conn);
       - description: Nested objects can be used to remove the damage subfield from
           the weapons and abilities fields.
         code:
           py: "r.table('marvel').without({'weapons' : {'damage' : True}, 'abilities' : {'damage' : True}}).run(conn)"
           rb: "r.table('marvel').without({:weapons => {:damage => true}, :abilities => {:damage => true}}).run(conn)"
           js: "r.table('marvel').without({'weapons' : {'damage' : true}, 'abilities' : {'damage' : true}}).run(conn, callback)"
+          ph: "r\\table('marvel')->without(array('weapons' => array('damage' => true), 'abilities' => array('damage' => true)))->run($conn);"
       - description: The nested syntax can quickly become overly verbose so there's a shorthand for it.
         code:
           py: "r.table('marvel').without({'weapons' : 'damage', 'abilities' : 'damage'}).run(conn)"
           rb: "r.table('marvel').without({:weapons => :damage, :abilities => :damage}).run(conn)"
           js: "r.table('marvel').without({'weapons':'damage', 'abilities':'damage'}).run(conn, callback)"
+          ph: "r\\table('marvel')->without(array('weapons' => 'damage', 'abilities' => 'damage'))->run($conn);"
 
   - tag: merge
     section: jsonobject
@@ -456,6 +463,9 @@ commands:
           py: r.table('marvel').get('IronMan')['firstAppearance'].run(conn)
           js: r.table('marvel').get('IronMan')('firstAppearance').run(conn, callback)
           rb: r.table('marvel').get('IronMan')[:first_appearance].run(conn)
+          ph: |
+            $ironMan = r\table('marvel')->get('IronMan');
+            $ironMan('firstAppearance')->run($conn);
 
   - tag: has_fields
     section: jsonobject

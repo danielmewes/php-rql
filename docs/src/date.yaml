@@ -102,7 +102,7 @@ commands:
             r.table("user").get("John").update({"birthdate": r.epoch_time(531360000)}).run(conn)
           js: |
             r.table("user").get("John").update({birthdate: r.epochTime(531360000)}).run(conn, callback)
-          js: |
+          ph: |
             r\table("user")->get("John")->update(array('birthdate' => r\epochTime(531360000)))->run($conn);
 
 

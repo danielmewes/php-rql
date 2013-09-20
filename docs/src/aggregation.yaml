@@ -19,7 +19,7 @@ commands:
       js: "$PARENT.reduce(reductionFunction[, base])"
       py: "$PARENT.reduce(reduction_function[, base])"
       rb: "$PARENT.reduce [(base)] { reduction_function }"
-      ph: "$PARENT->reduce [reductionFunction[, base])"
+      ph: "$PARENT->reduce(reductionFunction[, base])"
     io:
       - - sequence
         - value
@@ -51,6 +51,7 @@ commands:
       js: "$PARENT.count([filter])"
       py: "$PARENT.count([filter])"
       rb: "$PARENT.count {filter}"
+      ph: "$PARENT->count([filter])"
 
     io:
       - - sequence
@@ -84,6 +85,7 @@ commands:
       js: "$PARENT.distinct()"
       py: "$PARENT.distinct()"
       rb: "$PARENT.distinct"
+      ph: "$PARENT->distinct()"
 
     io:
       - - sequence
@@ -160,10 +162,6 @@ commands:
               array('name' => 'none', 'strength' => 0)
             )->run($conn);
 
-    ph:
-      name: groupedMapReduce
-
-
   - tag: group_by
     section: aggregation
     description: Groups elements by the values of the given attributes and then applies
@@ -181,7 +179,7 @@ commands:
       py: "$PARENT.group_by(selector1[, selector2...], reduction_object)"
       rb: "$PARENT.group_by(selector1[, selector2...], reduction_object)"
       js: "$PARENT.groupBy(selector1[, selector2...], reductionObject)"
-      js: "$PARENT->groupBy(selector1, reductionObject) | $PARENT->groupBy(array(selector1, selector2...), reductionObject)"
+      ph: "$PARENT->groupBy(selector1, reductionObject) | $PARENT->groupBy(array(selector1, selector2...), reductionObject)"
 
     io:
       - - sequence

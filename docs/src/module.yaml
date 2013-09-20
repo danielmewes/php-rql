@@ -292,6 +292,10 @@ commands:
             r.now().run(conn, :time_format=>"raw")
           js: |
             r\now()->run($conn, array('timeFormat' => 'raw'));
+            
+    ph:
+      examples:
+        4: {}
 
 
   - tag: next
