@@ -9,7 +9,7 @@ VALIDATE_SCRIPT=$(SRCIPTS)/validate_examples.py
 HEADER=header.json
 
 $(JSON_OUT): $(JSON_CONVERT) $(YAML_FILES) $(HEADER)
-	python $(JSON_CONVERT) $(YAML_DIR) $(JSON_OUT)
+	python $(JSON_CONVERT) $(YAML_DIR) $(JSON_OUT) $(HEADER)
 
 build:
 	@mkdir build

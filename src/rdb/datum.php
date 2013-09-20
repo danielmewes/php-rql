@@ -288,7 +288,7 @@ class StringDatum extends Datum
     }
     
     public function setValue($val) {
-        if (!is_string($val)) throw new RqlDriverError("Not a string: " . $val);
+        if (!is_string($val)) throw new RqlDriverError("Not a string");
         parent::setValue($val);
     }
     

@@ -1,0 +1,21 @@
+commands:
+  - tag: json
+    section: control
+    description: Parse a JSON string on the server.
+
+    body: "$PARENT.json(json_string)"
+    
+    ph:
+      body: "$PARENT->json(jsonString)"
+
+    io:
+      - - r
+        - value
+
+    examples:
+      - description: Send an array to the server'
+        code:
+          py: r.json("[1,2,3]").run(conn)
+          rb: r.json("[1,2,3]").run(conn)
+          js: r.json("[1,2,3]").run(conn, callback)
+          ph: r\json("[1,2,3]")->run($conn);
