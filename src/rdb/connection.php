@@ -275,7 +275,7 @@ class Connection
         $bytesWritten = 0;
         while ($bytesWritten < strlen($s)) {
             $result = fwrite($this->socket, substr($s, $bytesWritten));
-            if ($result === false) {
+            if ($result === false || $result === 0) {
                 $metaData = stream_get_meta_data($this->socket);
                 $this->close();
                 if ($metaData['timed_out']) {
