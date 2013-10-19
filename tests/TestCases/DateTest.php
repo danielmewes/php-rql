@@ -4,6 +4,8 @@ class DateTest extends TestCase
 {
     public function run()
     {
+        date_default_timezone_set('America/Los_Angeles');
+
         $this->checkQueryResult(r\now()->sub(r\time(date("Y"), date("m"), date("d"), date("P")))->lt(24*60*60 + 10), true);
         $this->checkQueryResult(r\now()->sub(r\time(date("Y"), date("m"), date("d"), date("H"), date("i"), date("s"), date("P")))->lt(10), true);
         $this->checkQueryResult(r\now()->sub(r\epochTime(time()))->lt(10), true);
@@ -32,7 +34,7 @@ class DateTest extends TestCase
         $this->checkQueryResult(r\epochTime(111111)->hours(), 6.0);
         $this->checkQueryResult(r\epochTime(111111)->minutes(), 51.0);
         $this->checkQueryResult(r\epochTime(111110)->seconds(), 50.0);
-        
+
         $this->checkQueryResult(r\monday(), 1.0);
         $this->checkQueryResult(r\tuesday(), 2.0);
         $this->checkQueryResult(r\wednesday(), 3.0);
@@ -40,7 +42,7 @@ class DateTest extends TestCase
         $this->checkQueryResult(r\friday(), 5.0);
         $this->checkQueryResult(r\saturday(), 6.0);
         $this->checkQueryResult(r\sunday(), 7.0);
-        
+
         $this->checkQueryResult(r\january(), 1.0);
         $this->checkQueryResult(r\february(), 2.0);
         $this->checkQueryResult(r\march(), 3.0);
