@@ -7,15 +7,15 @@ class BinaryOp extends ValuedQuery
         if (!(is_object($other) && is_subclass_of($other, "\\r\\Query")))
             $other = nativeToDatum($other);
         $this->termType = $termType;
-        
+
         $this->setPositionalArg(0, $value);
         $this->setPositionalArg(1, $other);
     }
-    
+
     protected function getTermType() {
         return $this->termType;
     }
-    
+
     private $termType;
 }
 
@@ -90,7 +90,7 @@ class Not extends ValuedQuery
     public function __construct(ValuedQuery $value) {
         $this->setPositionalArg(0, $value);
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_NOT;
     }
@@ -101,11 +101,11 @@ class Match extends ValuedQuery
     public function __construct(ValuedQuery $value, $expression) {
         if (!(is_object($expression) && is_subclass_of($expression, "\\r\\Query")))
             $expression = nativeToDatum($expression);
-            
+
         $this->setPositionalArg(0, $value);
         $this->setPositionalArg(1, $expression);
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_MATCH;
     }

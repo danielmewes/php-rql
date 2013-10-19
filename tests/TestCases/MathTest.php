@@ -78,15 +78,15 @@ class MathTest extends TestCase
             true);
 
         $this->checkQueryResult(r\add(r\expr(3), r\expr(2)),
-            5);
+            5.0);
         $this->checkQueryResult(r\sub(r\expr(3), r\expr(2)),
-            1);
+            1.0);
         $this->checkQueryResult(r\mul(r\expr(3), r\expr(2)),
-            6);
+            6.0);
         $this->checkQueryResult(r\div(r\expr(7), r\expr(2)),
             3.5);
         $this->checkQueryResult(r\mod(r\expr(7), r\expr(2)),
-            1);
+            1.0);
 
         $this->checkQueryResult(r\rAnd(r\expr(true), r\expr(true)),
             true);
