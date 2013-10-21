@@ -115,6 +115,52 @@ function literal($value) {
     return new Literal($value);
 }
 
+function add($expr1, $expr2) {
+    return new Add($expr1, $expr2);
+}
+function sub($expr1, $expr2) {
+    return new Sub($expr1, $expr2);
+}
+function mul($expr1, $expr2) {
+    return new Mul($expr1, $expr2);
+}
+function div($expr1, $expr2) {
+    return new Div($expr1, $expr2);
+}
+function mod($expr1, $expr2) {
+    return new Mod($expr1, $expr2);
+}
+
+function rAnd($expr1, $expr2) {
+    return new RAnd($expr1, $expr2);
+}
+function rOr($expr1, $expr2) {
+    return new ROr($expr1, $expr2);
+}
+
+function eq($expr1, $expr2) {
+    return new Eq($expr1, $expr2);
+}
+function ne($expr1, $expr2) {
+    return new Ne($expr1, $expr2);
+}
+function gt($expr1, $expr2) {
+    return new Gt($expr1, $expr2);
+}
+function ge($expr1, $expr2) {
+    return new Ge($expr1, $expr2);
+}
+function lt($expr1, $expr2) {
+    return new Lt($expr1, $expr2);
+}
+function le($expr1, $expr2) {
+    return new Le($expr1, $expr2);
+}
+
+function not($expr) {
+    return new Not($expr);
+}
+
 function now() {
     return new Now();
 }
