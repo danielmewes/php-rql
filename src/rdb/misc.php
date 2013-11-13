@@ -525,6 +525,17 @@ class Cursor implements \Iterator
         return $vals;
     }
 
+    public function close() {
+        if (!$this->isComplete) {
+            // Cancel the request
+            $this->connection->_stopQuery($this->token);
+            $this->isComplete = true;
+            $this->currentIndex = 0;
+            $this->currentSize = 0;
+            $this->currentData = array();
+        }
+    }
+
     public function __toString() {
         return "Cursor";
     }
@@ -538,9 +549,9 @@ class Cursor implements \Iterator
     }
 
     public function __destruct() {
-        if (!$this->isComplete && $this->connection->isOpen()) {
+        if ($this->connection->isOpen()) {
             // Cancel the request
-            $this->connection->_stopQuery($this->token);
+            $this->close();
         }
     }
 
