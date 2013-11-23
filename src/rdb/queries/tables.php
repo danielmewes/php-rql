@@ -79,6 +79,9 @@ class Table extends ValuedQuery
     public function indexCreate($indexName, $keyFunction = null) {
         return new IndexCreate($this, $indexName, $keyFunction);
     }
+    public function indexCreateMulti($indexName, $keyFunction = null) {
+        return new IndexCreate($this, $indexName, $keyFunction, array('multi' => true));
+    }
     public function indexDrop($indexName) {
         return new IndexDrop($this, $indexName);
     }
