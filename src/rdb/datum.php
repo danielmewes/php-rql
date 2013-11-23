@@ -55,7 +55,7 @@ function nativeToDatum($v) {
     else if (is_bool($v)) {
         return new BoolDatum($v);
     }
-    else if (is_numeric($v)) {
+    else if (is_int($v) || is_float($v)) {
         return new NumberDatum($v);
     }
     else if (is_string($v)) {
@@ -103,7 +103,7 @@ function canEncodeAsJson($v) {
     else if (is_bool($v)) {
         return true;
     }
-    else if (is_numeric($v)) {
+    else if (is_int($v) || is_float($v)) {
         return true;
     }
     else if (is_string($v)) {

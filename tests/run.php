@@ -2,7 +2,7 @@
 
 $phpRqlIncludePath = "../src";
 $serverHost = 'localhost';
-$serverPort = 28038;
+$serverPort = 28015;
 $serverKey = null;
 
 // TODO: Implement proper command line argument parsing using getopt(), so we

@@ -6,8 +6,8 @@ class DateTest extends TestCase
     {
         date_default_timezone_set('America/Los_Angeles');
 
-        $this->checkQueryResult(r\now()->sub(r\time(date("Y"), date("m"), date("d"), date("P")))->lt(24*60*60 + 10), true);
-        $this->checkQueryResult(r\now()->sub(r\time(date("Y"), date("m"), date("d"), date("H"), date("i"), date("s"), date("P")))->lt(10), true);
+        $this->checkQueryResult(r\now()->sub(r\time(floatval(date("Y")), floatval(date("m")), floatval(date("d")), date("P")))->lt(24*60*60 + 10), true);
+        $this->checkQueryResult(r\now()->sub(r\time(floatval(date("Y")), floatval(date("m")), floatval(date("d")), floatval(date("H")), floatval(date("i")), floatval(date("s")), date("P")))->lt(10), true);
         $this->checkQueryResult(r\now()->sub(r\epochTime(time()))->lt(10), true);
         $this->checkQueryResult(r\now()->toEpochTime()->sub(time())->lt(10), true);
         $this->checkQueryResult(r\now()->sub(r\iso8601(date("c")))->lt(10), true);
