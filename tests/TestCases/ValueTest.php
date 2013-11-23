@@ -12,6 +12,7 @@ class ValueTest extends TestCase
         $this->checkQueryResult(r\expr(-1), -1.0);
         $this->checkQueryResult(r\expr(1), 1.0);
         $this->checkQueryResult(r\expr(PHP_INT_MAX), (float)PHP_INT_MAX); // Depending on your platform, this might or might not pass
+        $this->checkQueryResult(r\expr('0.5'), '0.5');
         $this->checkQueryResult(r\expr('foo'), 'foo');
         $this->checkQueryResult(r\expr(array('foo' => 'val')), array('foo' => 'val'));
         $this->checkQueryResult(r\expr(array('foo' => 7)), array('foo' => 7.0));
