@@ -32,7 +32,14 @@ abstract class Query
     }
 
     public function run(Connection $connection, $options = null) {
-        return $connection->_run($this, $options);
+        return $connection->_run($this, $options, $profile);
+    }
+    
+    public function profile(Connection $connection, $options = null, &$result = null) {
+        if (!isset($options)) $options = array();
+        $options['profile'] = true;
+        $result = $connection->_run($this, $options, $profile);
+        return $profile;
     }
 
     public function info() {

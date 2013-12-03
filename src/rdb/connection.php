@@ -56,20 +56,12 @@ class Connection
         $this->timeout = $timeout;
     }
 
-    public function _run(Query $query, $options) {
+    public function _run(Query $query, $options, &$profile) {
         if (isset($options) && !is_array($options)) throw new RqlDriverError("Options must be an array.");
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
 
         // Generate a token for the request
-        $tries = 0;
-        $maxToken = 1 << 30;
-        do {
-            $token = \rand(0, $maxToken);
-            $haveCollision = isset($this->activeTokens[$token]);
-        } while ($haveCollision && $tries++ < 1024);
-        if ($haveCollision) {
-            throw new RqlDriverError("Unable to generate a unique token for the query.");
-        }
+        $token = $this->generateToken();
 
         // Send the request
         $pbTerm = $query->_getPBTerm();
@@ -109,6 +101,10 @@ class Connection
 
             if ($response->getType() == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
                 $this->activeTokens[$token] = true;
+            }
+
+            if ($response->getProfile() !== null) {
+                $profile = protobufToDatum($response->getProfile());
             }
 
             if ($response->getType() == pb\Response_ResponseType::PB_SUCCESS_ATOM)
@@ -154,6 +150,19 @@ class Connection
         unset($this->activeTokens[$token]);
 
         return $response;
+    }
+    
+    private function generateToken() {
+        $tries = 0;
+        $maxToken = 1 << 30;
+        do {
+            $token = \rand(0, $maxToken);
+            $haveCollision = isset($this->activeTokens[$token]);
+        } while ($haveCollision && $tries++ < 1024);
+        if ($haveCollision) {
+            throw new RqlDriverError("Unable to generate a unique token for the query.");
+        }
+        return $token;
     }
 
     private function receiveResponse($token, $query = null, $noChecks = false) {
