@@ -196,6 +196,29 @@ commands:
             r\table('dc')->indexCreate('parental_planets', function($hero) {
                 return r\expr(array($hero('mothers_home_planet'), $hero('fathers_home_planet')));
               })->run($conn);
+              
+  - tag: index_create_multi
+    section: table_admin
+    description: |
+      Like `indexCreate`. However this creates a multi index.
+      Multi index functions should return arrays and allow you to query based on whether a value is present in the returned array.
+
+    name:
+      ph: indexCreateMulti
+
+    body:
+      ph: "$PARENT->indexCreateMulti(indexName[, indexFunction])"
+
+    io:
+      - - table
+        - object 
+
+    examples:
+      - description: |
+          This example allows us to get heroes who possess a specific ability (the field 'abilities' is an array).
+        code:
+          ph: |
+            r\table('dc')->indexCreateMulti('abilities')->run($conn);
 
   - tag: index_drop
     section: table_admin
