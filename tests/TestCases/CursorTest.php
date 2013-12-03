@@ -6,7 +6,7 @@ class CursorTest extends TestCase
     {
         $this->requireDataset('Huge');
 
-        $doc = array('key' => 'val');
+        $doc = array('key' => str_repeat("var", 1000));
         $docs = array_fill(0, 5000, $doc);
 
         // Test 1: Retrieve only the first 100 results. Then delete the cursor. This should trigger a stop message.
