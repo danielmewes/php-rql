@@ -83,6 +83,13 @@ class Connection
             $pair->setVal($this->defaultDb->_getPBTerm());
             $pbQuery->appendGlobalOptargs($pair);
         }
+        // This noJsonResponse option is just there for testing purposes and as a fallback
+        // should there be any problems with our implementation of JSON responses
+        if (isset($options['noJsonResponse']) && $options['noJsonResponse'] === true) {
+            $pbQuery->setAcceptsRJson(false);
+        } else {
+            $pbQuery->setAcceptsRJson(true);
+        }
         if (isset($options)) {
             foreach ($options as $key => $value) {
                 $pair = new pb\Query_AssocPair();

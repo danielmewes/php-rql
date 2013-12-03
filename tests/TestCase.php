@@ -46,18 +46,18 @@ abstract class TestCase
         return $equal;
     }
     
-    protected function checkQueryResult($query, $expectedResult)
+    protected function checkQueryResult($query, $expectedResult, $runOptions = array())
     {
-        $result = $query->run($this->conn);
+        $result = $query->run($this->conn, $runOptions);
         $nativeResult = $result->toNative();
-            
+
         $equal = false;
-            
+
         if (is_array($nativeResult) && is_array($expectedResult))
             $equal = $this->compareArrays($nativeResult, $expectedResult);
         else
             $equal = $expectedResult === $nativeResult;
-            
+
         if (!$equal)
         {
             echo "Query result does not match.\n";
