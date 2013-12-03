@@ -117,4 +117,15 @@ class Replace extends ValuedQuery
     }
 }
 
+class Sync extends ValuedQuery
+{
+    public function __construct(Table $table) {
+        $this->setPositionalArg(0, $table);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SYNC;
+    }
+}
+
 ?>
