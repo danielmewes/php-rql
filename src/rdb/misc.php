@@ -537,10 +537,10 @@ class Cursor implements \Iterator
             // Cancel the request
             $this->connection->_stopQuery($this->token);
             $this->isComplete = true;
-            $this->currentIndex = 0;
-            $this->currentSize = 0;
-            $this->currentData = array();
         }
+        $this->currentIndex = 0;
+        $this->currentSize = 0;
+        $this->currentData = array();
     }
 
     public function __toString() {
