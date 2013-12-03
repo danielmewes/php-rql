@@ -296,7 +296,7 @@ commands:
       - description: Get the status of all the indexes on the table.
         code:
           ph: r\table('dc')->indexStatus()->run($conn);
-      - description: Get the status of the `code_name` index.
+      - description: Get the status of the <code>code_name</code> index.
         code:
           ph: r\table('dc')->indexStatus('code_name')->run($conn);
           
@@ -320,7 +320,7 @@ commands:
       - description: Wait for all indexes on the table to be ready.
         code:
           ph: r\table('dc')->indexWait()->run($conn);
-      - description: Wait for the index `code_name` to be ready.
+      - description: Wait for the index <code>code_name</code> to be ready.
         code:
           ph: r\table('dc')->indexWait('code_name')->run($conn);
 
