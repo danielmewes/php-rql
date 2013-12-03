@@ -91,11 +91,11 @@ class Table extends ValuedQuery
     public function indexList() {
         return new IndexList($this);
     }
-    public function indexStatus($indexName = null) {
-        return new IndexStatus($this, $indexName);
+    public function indexStatus($indexNames = null) {
+        return new IndexStatus($this, $indexNames);
     }
-    public function indexWait($indexName = null) {
-        return new IndexWait($this, $indexName);
+    public function indexWait($indexNames = null) {
+        return new IndexWait($this, $indexNames);
     }
     
 
