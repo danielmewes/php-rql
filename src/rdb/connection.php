@@ -26,20 +26,24 @@ class Connection
 
     public function __destruct() {
         if ($this->isOpen())
-            $this->close();
+            $this->close(false);
     }
 
-    public function close() {
+    public function close($noreplyWait = true) {
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
+        
+        if ($noreplyWait) {
+            $this->noreplyWait();
+        }
 
         fclose($this->socket);
         $this->socket = null;
         $this->activeTokens = null;
     }
 
-    public function reconnect() {
+    public function reconnect($noreplyWait = true) {
         if ($this->isOpen())
-            $this->close();
+            $this->close($noreplyWait);
         $this->connect();
     }
 
@@ -54,6 +58,26 @@ class Connection
     public function setTimeout($timeout) {
         $this->applyTimeout($timeout);
         $this->timeout = $timeout;
+    }
+    
+    public function noreplyWait() {
+        if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
+
+        // Generate a token for the request
+        $token = $this->generateToken();
+
+        // Send the request
+        $pbQuery = $this->makeQuery();
+        $pbQuery->setToken($token);
+        $pbQuery->setType(pb\Query_QueryType::PB_NOREPLY_WAIT);
+        $this->sendProtobuf($pbQuery);
+
+        // Await the response
+        $response = $this->receiveResponse($token);
+
+        if ($response->getType() != pb\Response_ResponseType::PB_WAIT_COMPLETE) {
+            throw new RqlDriverError("Unexpected response type to noreplyWait query.");
+        }
     }
 
     public function _run(Query $query, $options, &$profile) {
@@ -272,7 +296,7 @@ class Connection
         while (true) {
             $ch = stream_get_contents($this->socket, 1);
             if ($ch === false || strlen($ch) < 1) {
-                $this->close();
+                $this->close(false);
                 throw new RqlDriverError("Unable to read from socket during handshake. Disconnected.");
             }
             if ($ch === chr(0))
@@ -282,7 +306,7 @@ class Connection
         }
 
         if ($response != "SUCCESS") {
-            $this->close();
+            $this->close(false);
             throw new RqlDriverError("Handshake failed: $response Disconnected.");
         }
     }
@@ -293,7 +317,7 @@ class Connection
             $result = fwrite($this->socket, substr($s, $bytesWritten));
             if ($result === false || $result === 0) {
                 $metaData = stream_get_meta_data($this->socket);
-                $this->close();
+                $this->close(false);
                 if ($metaData['timed_out']) {
                     throw new RqlDriverError("Timed out while writing to socket. Disconnected. Call setTimeout(seconds) on the connection to change the timeout.");
                 }
@@ -307,7 +331,7 @@ class Connection
         $s = stream_get_contents($this->socket, $length);
         if ($s === false || strlen($s) < $length) {
             $metaData = stream_get_meta_data($this->socket);
-            $this->close();
+            $this->close(false);
             if ($metaData['timed_out']) {
                 throw new RqlDriverError("Timed out while reading from socket. Disconnected. Call setTimeout(seconds) on the connection to change the timeout.");
             }
