@@ -541,12 +541,12 @@ message Query {
     // This flag is ignored on the server. `noreply` should be added
     // to `global_optargs` instead (the key "noreply" should map to
     // either true or false).
-    optional bool OBSOLETE_noreply = 4 [default = false];
+    optional bool OBSOLETE_noreply = 4;
 
     // If this is set to [true], then [Datum] values will sometimes be
     // of [DatumType] [R_JSON] (see below). This can provide enormous
     // speedups in languages with poor protobuf libraries.
-    optional bool accepts_r_json = 5 [default = false];
+    optional bool accepts_r_json = 5;
 
     message AssocPair {
         optional string key = 1;

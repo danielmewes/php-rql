@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-12-03 12:49:26
+ * Auto generated from ql2.proto at 2013-12-03 15:24:24
  */
 
 /**
@@ -1276,13 +1276,11 @@ class Query extends \ProtobufMessage
             'type' => 5,
         ),
         self::OBSOLETE_NOREPLY => array(
-            'default' => false, 
             'name' => 'OBSOLETE_noreply',
             'required' => false,
             'type' => 8,
         ),
         self::ACCEPTS_R_JSON => array(
-            'default' => false, 
             'name' => 'accepts_r_json',
             'required' => false,
             'type' => 8,
@@ -1314,8 +1312,8 @@ class Query extends \ProtobufMessage
         $this->values[self::TYPE] = null;
         $this->values[self::QUERY] = null;
         $this->values[self::TOKEN] = null;
-        $this->values[self::OBSOLETE_NOREPLY] = false;
-        $this->values[self::ACCEPTS_R_JSON] = false;
+        $this->values[self::OBSOLETE_NOREPLY] = null;
+        $this->values[self::ACCEPTS_R_JSON] = null;
         $this->values[self::GLOBAL_OPTARGS] = array();
     }
 

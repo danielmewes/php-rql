@@ -360,12 +360,8 @@ class Query extends \PBMessage
     $this->values[3] = null;
     $this->fields[4] = "\\I_PBBool";
     $this->values[4] = null;
-    $this->values["4"] = new \\I_PBBool();
-    $this->values["4"]->value = false;
     $this->fields[5] = "\\I_PBBool";
     $this->values[5] = null;
-    $this->values["5"] = new \\I_PBBool();
-    $this->values["5"]->value = false;
     $this->fields[6] = "\\r\\pb\\Query_AssocPair";
     $this->values[6] = array();
   }
