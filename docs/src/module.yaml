@@ -126,7 +126,7 @@ commands:
       all outstanding requests are canceled immediately.
 
     body:
-      ph:"$PARENT->close([noreplyWait])"
+      ph: "$PARENT->close([noreplyWait])"
 
     io:
       - - connection

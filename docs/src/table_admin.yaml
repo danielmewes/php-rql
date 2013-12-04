@@ -200,7 +200,7 @@ commands:
   - tag: index_create_multi
     section: table_admin
     description: |
-      Like `indexCreate`. However this creates a multi index.
+      Like <code>indexCreate</code>. However this creates a multi index.
       Multi index functions should return arrays and allow you to query based on whether a value is present in the returned array.
 
     name:
