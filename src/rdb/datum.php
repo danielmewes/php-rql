@@ -85,7 +85,52 @@ function protobufToDatum(pb\Datum $datum) {
         case pb\Datum_DatumType::PB_R_STR: return StringDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_ARRAY: return ArrayDatum::_fromProtobuffer($datum);
         case pb\Datum_DatumType::PB_R_OBJECT: return ObjectDatum::_fromProtobuffer($datum);
+        case pb\Datum_DatumType::PB_R_JSON: return jsonToDatum($datum->getRStr());
         default: throw new RqlDriverError("Unhandled datum type " . $datum->getType());
+    }
+}
+
+function jsonToDatum($json) {
+    $jsonObject = json_decode($json);
+    if (json_last_error() != JSON_ERROR_NONE) {
+        throw new RqlDriverError("Unable to convert JSON to datum: " . json_last_error_msg());
+    }
+    return jsonObjectToDatum($jsonObject);
+}
+
+function jsonObjectToDatum($v) {
+    // This is very similar to nativeToDatum(), except that it doesn't handle non-datum
+    // terms and handles arrays vs. objects differently, and converts ints to floats.
+    // It is internally used by jsonToDatum().
+
+    if (is_array($v) || is_object($v)) {
+        $datumArray = array();
+        foreach($v as $key => $val) {
+            if (!is_numeric($key) && !is_string($key)) throw new RqlDriverError("Key must be a string.");
+            $subDatum = jsonObjectToDatum($val);
+            $datumArray[$key] = $subDatum;
+        }
+
+        if (is_object($v)) {
+            return new ObjectDatum($datumArray);
+        } else {
+            return new ArrayDatum($datumArray);
+        }
+    }
+    else if (is_null($v)) {
+        return new NullDatum();
+    }
+    else if (is_bool($v)) {
+        return new BoolDatum($v);
+    }
+    else if (is_int($v) || is_float($v)) {
+        return new NumberDatum((float)$v);
+    }
+    else if (is_string($v)) {
+        return new StringDatum($v);
+    }
+    else {
+        throw new RqlDriverError("Unhandled type " . get_class($v));
     }
 }
 

@@ -196,6 +196,29 @@ commands:
             r\table('dc')->indexCreate('parental_planets', function($hero) {
                 return r\expr(array($hero('mothers_home_planet'), $hero('fathers_home_planet')));
               })->run($conn);
+              
+  - tag: index_create_multi
+    section: table_admin
+    description: |
+      Like <code>indexCreate</code>. However this creates a multi index.
+      Multi index functions should return arrays and allow you to query based on whether a value is present in the returned array.
+
+    name:
+      ph: indexCreateMulti
+
+    body:
+      ph: "$PARENT->indexCreateMulti(indexName[, indexFunction])"
+
+    io:
+      - - table
+        - object 
+
+    examples:
+      - description: |
+          This example allows us to get heroes who possess a specific ability (the field 'abilities' is an array).
+        code:
+          ph: |
+            r\table('dc')->indexCreateMulti('abilities')->run($conn);
 
   - tag: index_drop
     section: table_admin
@@ -252,4 +275,53 @@ commands:
           py: r.table('marvel').index_list().run(conn)
           rb: r.table('marvel').index_list().run(conn)
           ph: r\table('dc')->indexList()->run($conn);
+
+  - tag: index_status
+    section: table_admin
+    description: |
+      Get the status of the specified indexes on this table,
+      or the status of all indexes on this table if no indexes are specified.
+
+    name:
+      ph: indexStatus
+
+    body:
+      ph: "$PARENT->indexStatus([indexName | array(indexName1, indexName2, ...)])"
+
+    io:
+      - - table
+        - array
+
+    examples:
+      - description: Get the status of all the indexes on the table.
+        code:
+          ph: r\table('dc')->indexStatus()->run($conn);
+      - description: Get the status of the <code>code_name</code> index.
+        code:
+          ph: r\table('dc')->indexStatus('code_name')->run($conn);
+          
+  - tag: index_wait
+    section: table_admin
+    description: |
+      Wait for the specified indexes on this table to be ready,
+      or for all indexes on this table to be ready if no indexes are specified.
+
+    name:
+      ph: indexWait
+
+    body:
+      ph: "$PARENT->indexWait([indexName | array(indexName1, indexName2, ...)])"
+
+    io:
+      - - table
+        - array
+
+    examples:
+      - description: Wait for all indexes on the table to be ready.
+        code:
+          ph: r\table('dc')->indexWait()->run($conn);
+      - description: Wait for the index <code>code_name</code> to be ready.
+        code:
+          ph: r\table('dc')->indexWait('code_name')->run($conn);
+
 

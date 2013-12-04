@@ -44,16 +44,20 @@ message VersionDummy { // We need to wrap it like this for some
 }
 
 // A [Datum] is a chunk of data that can be serialized to disk or returned to
-// the user in a Response.  Currently we only support JSON types, but we may
+// the user in a Response. Currently we only support JSON types, but we may
 // support other types in the future (e.g., a date type or an integer type).
 message Datum {
     enum DatumType {
-        R_NULL   = 1;
-        R_BOOL   = 2;
-        R_NUM    = 3; // a double
-        R_STR    = 4;
-        R_ARRAY  = 5;
+        R_NULL = 1;
+        R_BOOL = 2;
+        R_NUM = 3; // a double
+        R_STR = 4;
+        R_ARRAY = 5;
         R_OBJECT = 6;
+        // This [DatumType] will only be used if [accepts_r_json] is
+        // set to [true] in [Query]. [r_str] will be filled with a
+        // JSON encoding of the [Datum].
+        R_JSON = 7; // uses r_str
     }
     optional DatumType type = 1;
     optional bool r_bool = 2;
@@ -111,6 +115,7 @@ message Datum {
 // Database
 // Function
 // Ordering - used only by ORDER_BY
+// Pathspec -- an object, string, or array that specifies a path
 // Error
 message Term {
     enum TermType {
@@ -122,12 +127,14 @@ message Term {
         MAKE_OBJ = 3; // {...} -> OBJECT
 
         // * Compound types
+
         // Takes an integer representing a variable and returns the value stored
         // in that variable. It's the responsibility of the client to translate
-        // from their local representation of a variable to a unique integer for
-        // that variable. (We do it this way instead of letting clients provide
-        // variable names as strings to discourage variable-capturing client
-        // libraries, and because it's more efficient on the wire.)
+        // from their local representation of a variable to a unique _non-negative_
+        // integer for that variable. (We do it this way instead of letting
+        // clients provide variable names as strings to discourage
+        // variable-capturing client libraries, and because it's more efficient
+        // on the wire.)
         VAR = 10; // !NUMBER -> DATUM
         // Takes some javascript code and executes it.
         JAVASCRIPT = 11; // STRING {timeout: !NUMBER} -> DATUM |
@@ -188,7 +195,7 @@ message Term {
         SKIP = 70; // Sequence, NUMBER -> Sequence
         LIMIT = 71; // Sequence, NUMBER -> Sequence
         INDEXES_OF = 87; // Sequence, DATUM -> Sequence | Sequence, Function(1) -> Sequence
-        CONTAINS = 93; // Sequence, DATUM -> BOOL
+        CONTAINS = 93; // Sequence, DATUM -> BOOL | Sequence, Function(1) -> BOOL
 
         // Stream/Object Ops
         // Get a particular field from an object, or map that over a
@@ -200,21 +207,24 @@ message Term {
         // Check whether an object contains all the specified fields,
         // or filters a sequence so that all objects inside of it
         // contain all the specified fields.
-        HAS_FIELDS = 32; // OBJECT, STRING... -> BOOL
+        HAS_FIELDS = 32; // OBJECT, Pathspec... -> BOOL
         // x.with_fields(...) <=> x.has_fields(...).pluck(...)
-        WITH_FIELDS = 96; // Sequence, STRING... -> Sequence
+        WITH_FIELDS = 96; // Sequence, Pathspec... -> Sequence
         // Get a subset of an object by selecting some attributes to preserve,
         // or map that over a sequence. (Both pick and pluck, polymorphic.)
-        PLUCK = 33; // Sequence, STRING... -> Sequence | OBJECT, STRING... -> OBJECT
+        PLUCK = 33; // Sequence, Pathspec... -> Sequence | OBJECT, Pathspec... -> OBJECT
         // Get a subset of an object by selecting some attributes to discard, or
         // map that over a sequence. (Both unpick and without, polymorphic.)
-        WITHOUT = 34; // Sequence, STRING... -> Sequence | OBJECT, STRING... -> OBJECT
+        WITHOUT = 34; // Sequence, Pathspec... -> Sequence | OBJECT, Pathspec... -> OBJECT
         // Merge objects (right-preferential)
         MERGE = 35; // OBJECT... -> OBJECT | Sequence -> Sequence
 
         // Sequence Ops
         // Get all elements of a sequence between two values.
-        BETWEEN = 36; // StreamSelection, DATUM, DATUM, {:index:!STRING} -> StreamSelection
+        // Half-open by default, but the openness of either side can be
+        // changed by passing 'closed' or 'open for `right_bound` or
+        // `left_bound`.
+        BETWEEN = 36; // StreamSelection, DATUM, DATUM, {index:!STRING, right_bound:STRING, left_bound:STRING} -> StreamSelection
         REDUCE = 37; // Sequence, Function(2), {base:DATUM} -> DATUM
         MAP = 38; // Sequence, Function(1) -> Sequence
 
@@ -282,19 +292,19 @@ message Term {
         // * Write Ops (the OBJECTs contain data about number of errors etc.)
         // Updates all the rows in a selection. Calls its Function with the row
         // to be updated, and then merges the result of that call.
-        UPDATE = 53; // StreamSelection, Function(1), {non_atomic:BOOL, durability:STRING} -> OBJECT |
-                       // SingleSelection, Function(1), {non_atomic:BOOL, durability:STRING} -> OBJECT |
-                       // StreamSelection, OBJECT, {non_atomic:BOOL, durability:STRING} -> OBJECT |
-                       // SingleSelection, OBJECT, {non_atomic:BOOL, durability:STRING} -> OBJECT
+        UPDATE = 53; // StreamSelection, Function(1), {non_atomic:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT |
+                       // SingleSelection, Function(1), {non_atomic:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT |
+                       // StreamSelection, OBJECT, {non_atomic:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT |
+                       // SingleSelection, OBJECT, {non_atomic:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT
         // Deletes all the rows in a selection.
-        DELETE = 54; // StreamSelection, {durability:STRING} -> OBJECT | SingleSelection -> OBJECT
+        DELETE = 54; // StreamSelection, {durability:STRING, return_vals:BOOL} -> OBJECT | SingleSelection -> OBJECT
         // Replaces all the rows in a selection. Calls its Function with the row
         // to be replaced, and then discards it and stores the result of that
         // call.
-        REPLACE = 55; // StreamSelection, Function(1), {non_atomic:BOOL} -> OBJECT | SingleSelection, Function(1), {non_atomic:BOOL, durability:STRING} -> OBJECT
+        REPLACE = 55; // StreamSelection, Function(1), {non_atomic:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT | SingleSelection, Function(1), {non_atomic:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT
         // Inserts into a table. If `upsert` is true, overwrites entries with
         // the same primary key (otherwise errors).
-        INSERT = 56; // Table, OBJECT, {upsert:BOOL} -> OBJECT | Table, Sequence, {upsert:BOOL, durability:STRING} -> OBJECT
+        INSERT = 56; // Table, OBJECT, {upsert:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT | Table, Sequence, {upsert:BOOL, durability:STRING, return_vals:BOOL} -> OBJECT
 
         // * Administrative OPs
         // Creates a database with a particular name.
@@ -317,14 +327,24 @@ message Term {
         // omit the first argument to use the default database.)
         TABLE_LIST = 62; // Database -> ARRAY
                            // -> ARRAY
+        // Ensures that previously issued soft-durability writes are complete and
+        // written to disk.
+        SYNC = 138; // Table -> OBJECT
 
         // * Secondary indexes OPs
         // Creates a new secondary index with a particular name and definition.
-        INDEX_CREATE = 75; // Table, STRING, Function(1) -> OBJECT
+        INDEX_CREATE = 75; // Table, STRING, Function(1), {multi:BOOL} -> OBJECT
         // Drops a secondary index with a particular name from the specified table.
         INDEX_DROP = 76; // Table, STRING -> OBJECT
         // Lists all secondary indexes on a particular table.
         INDEX_LIST = 77; // Table -> ARRAY
+        // Gets information about whether or not a set of indexes are ready to
+        // be accessed. Returns a list of objects that look like this:
+        // {index:STRING, ready:BOOL[, blocks_processed:NUMBER, blocks_total:NUMBER]}
+        INDEX_STATUS = 139; // Table, STRING... -> ARRAY
+        // Blocks until a set of indexes are ready to be accessed. Returns the
+        // same values INDEX_STATUS.
+        INDEX_WAIT = 140; // Table, STRING... -> ARRAY
 
         // * Control Operators
         // Calls a function on data
@@ -413,7 +433,7 @@ message Term {
         // Parses its first argument as a json string and returns it as a
         // datum.
         JSON = 98; // STRING -> DATUM
-        
+
         // Parses its first arguments as an ISO 8601 time and returns it as a
         // datum.
         ISO8601 = 99; // STRING -> PSEUDOTYPE(TIME)
@@ -456,27 +476,27 @@ message Term {
                     // NUMBER, NUMBER, NUMBER, NUMBER, NUMBER, NUMBER, STRING -> PSEUDOTYPE(TIME) |
 
         // Constants for ISO 8601 days of the week.
-        MONDAY = 107;    // -> 1
-        TUESDAY = 108;   // -> 2
+        MONDAY = 107; // -> 1
+        TUESDAY = 108; // -> 2
         WEDNESDAY = 109; // -> 3
-        THURSDAY = 110;  // -> 4
-        FRIDAY = 111;    // -> 5
-        SATURDAY = 112;  // -> 6
-        SUNDAY = 113;    // -> 7
+        THURSDAY = 110; // -> 4
+        FRIDAY = 111; // -> 5
+        SATURDAY = 112; // -> 6
+        SUNDAY = 113; // -> 7
 
         // Constants for ISO 8601 months.
-        JANUARY = 114;   // -> 1
-        FEBRUARY = 115;  // -> 2
-        MARCH = 116;     // -> 3
-        APRIL = 117;     // -> 4
-        MAY = 118;       // -> 5
-        JUNE = 119;      // -> 6
-        JULY = 120;      // -> 7
-        AUGUST = 121;    // -> 8
+        JANUARY = 114; // -> 1
+        FEBRUARY = 115; // -> 2
+        MARCH = 116; // -> 3
+        APRIL = 117; // -> 4
+        MAY = 118; // -> 5
+        JUNE = 119; // -> 6
+        JULY = 120; // -> 7
+        AUGUST = 121; // -> 8
         SEPTEMBER = 122; // -> 9
-        OCTOBER = 123;   // -> 10
-        NOVEMBER = 124;  // -> 11
-        DECEMBER = 125;  // -> 12
+        OCTOBER = 123; // -> 10
+        NOVEMBER = 124; // -> 11
+        DECEMBER = 125; // -> 12
 
         // Indicates to MERGE to replace the other object rather than merge it.
         LITERAL = 137; // JSON -> Merging
@@ -501,19 +521,32 @@ message Term {
 // You send one of:
 // * A [START] query with a [Term] to evaluate and a unique-per-connection token.
 // * A [CONTINUE] query with the same token as a [START] query that returned
-//   [SUCCESS_PARTIAL] in its [Response].
+// [SUCCESS_PARTIAL] in its [Response].
 // * A [STOP] query with the same token as a [START] query that you want to stop.
+// * A [NOREPLY_WAIT] query with a unique per-connection token. The server answers
+// with a [WAIT_COMPLETE] [Response].
 message Query {
     enum QueryType {
-        START    = 1; // Start a new query.
+        START = 1; // Start a new query.
         CONTINUE = 2; // Continue a query that returned [SUCCESS_PARTIAL]
                       // (see [Response]).
-        STOP     = 3; // Stop a query partway through executing.
+        STOP = 3; // Stop a query partway through executing.
+        NOREPLY_WAIT = 4;
+                      // Wait for noreply operations to finish.
     }
     optional QueryType type = 1;
     // A [Term] is how we represent the operations we want a query to perform.
     optional Term query = 2; // only present when [type] = [START]
     optional int64 token = 3;
+    // This flag is ignored on the server. `noreply` should be added
+    // to `global_optargs` instead (the key "noreply" should map to
+    // either true or false).
+    optional bool OBSOLETE_noreply = 4;
+
+    // If this is set to [true], then [Datum] values will sometimes be
+    // of [DatumType] [R_JSON] (see below). This can provide enormous
+    // speedups in languages with poor protobuf libraries.
+    optional bool accepts_r_json = 5;
 
     message AssocPair {
         optional string key = 1;
@@ -540,22 +573,23 @@ message Backtrace {
 message Response {
     enum ResponseType {
         // These response types indicate success.
-        SUCCESS_ATOM     = 1; // Query returned a single RQL datatype.
+        SUCCESS_ATOM = 1; // Query returned a single RQL datatype.
         SUCCESS_SEQUENCE = 2; // Query returned a sequence of RQL datatypes.
-        SUCCESS_PARTIAL  = 3; // Query returned a partial sequence of RQL
-                              // datatypes.  If you send a [CONTINUE] query with
+        SUCCESS_PARTIAL = 3; // Query returned a partial sequence of RQL
+                              // datatypes. If you send a [CONTINUE] query with
                               // the same token as this response, you will get
-                              // more of the sequence.  Keep sending [CONTINUE]
+                              // more of the sequence. Keep sending [CONTINUE]
                               // queries until you get back [SUCCESS_SEQUENCE].
+        WAIT_COMPLETE = 4; // A [NOREPLY_WAIT] query completed.
 
         // These response types indicate failure.
-        CLIENT_ERROR  = 16; // Means the client is buggy.  An example is if the
+        CLIENT_ERROR = 16; // Means the client is buggy. An example is if the
                             // client sends a malformed protobuf, or tries to
                             // send [CONTINUE] for an unknown token.
         COMPILE_ERROR = 17; // Means the query failed during parsing or type
-                            // checking.  For example, if you pass too many
+                            // checking. For example, if you pass too many
                             // arguments to a function.
-        RUNTIME_ERROR = 18; // Means the query failed at runtime.  An example is
+        RUNTIME_ERROR = 18; // Means the query failed at runtime. An example is
                             // if you add together two values from a table, but
                             // they turn out at runtime to be booleans rather
                             // than numbers.
@@ -564,66 +598,27 @@ message Response {
     optional int64 token = 2; // Indicates what [Query] this response corresponds to.
 
     // [response] contains 1 RQL datum if [type] is [SUCCESS_ATOM], or many RQL
-    // data if [type] is [SUCCESS_SEQUENCE] or [SUCCESS_PARTIAL].  It contains 1
+    // data if [type] is [SUCCESS_SEQUENCE] or [SUCCESS_PARTIAL]. It contains 1
     // error message (of type [R_STR]) in all other cases.
     repeated Datum response = 3;
 
     // If [type] is [CLIENT_ERROR], [TYPE_ERROR], or [RUNTIME_ERROR], then a
-    // backtrace will be provided.  The backtrace says where in the query the
-    // error occured.  Ideally this information will be presented to the user as
+    // backtrace will be provided. The backtrace says where in the query the
+    // error occured. Ideally this information will be presented to the user as
     // a pretty-printed version of their query with the erroneous section
-    // underlined.  A backtrace is a series of 0 or more [Frame]s, each of which
+    // underlined. A backtrace is a series of 0 or more [Frame]s, each of which
     // specifies either the index of a positional argument or the name of an
-    // optional argument.  (Those words will make more sense if you look at the
+    // optional argument. (Those words will make more sense if you look at the
     // [Term] message below.)
-
     optional Backtrace backtrace = 4; // Contains n [Frame]s when you get back an error.
+
+    // If the [global_optargs] in the [Query] that this [Response] is a
+    // response to contains a key "profile" which maps to a static value of
+    // true then [profile] will contain a [Datum] which provides profiling
+    // information about the execution of the query. This field should be
+    // returned to the user along with the result that would normally be
+    // returned (a datum or a cursor). In official drivers this is accomplished
+    // by putting them inside of an object with "value" mapping to the return
+    // value and "profile" mapping to the profile object.
+    optional Datum profile = 5;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-//                                  EXAMPLE                                   //
-////////////////////////////////////////////////////////////////////////////////
-//   ```ruby
-//   r.table('tbl', {:use_outdated => true}).insert([{:id => 0}, {:id => 1}])
-//   ```
-// Would turn into:
-//   Term {
-//     type = INSERT;
-//     args = [Term {
-//               type = TABLE;
-//               args = [Term {
-//                         type = DATUM;
-//                         datum = Datum { type = R_STR; r_str = "tbl"; };
-//                       }];
-//               optargs = [["use_outdated",
-//                           Term {
-//                             type = DATUM;
-//                             datum = Datum { type = R_BOOL; r_bool = true; };
-//                           }]];
-//             },
-//             Term {
-//               type = R_ARRAY;
-//               args = [Term {
-//                         type = DATUM;
-//                         datum = Datum { type = R_OBJECT; r_object = [["id", 0]]; };
-//                       },
-//                       Term {
-//                         type = DATUM;
-//                         datum = Datum { type = R_OBJECT; r_object = [["id", 1]]; };
-//                       }];
-//             }]
-//   }
-// And the server would reply:
-//   Response {
-//     type = SUCCESS_ATOM;
-//     token = 1;
-//     response = [Datum { type = R_OBJECT; r_object = [["inserted", 2]]; }];
-//   }
-// Or, if there were an error:
-//   Response {
-//     type = RUNTIME_ERROR;
-//     token = 1;
-//     response = [Datum { type = R_STR; r_str = "The table `tbl` doesn't exist!"; }];
-//     backtrace = [Frame { type = POS; pos = 0; }, Frame { type = POS; pos = 0; }];
-//   }
-

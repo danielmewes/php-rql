@@ -119,44 +119,38 @@ commands:
   - tag: close
     section: module
     description: |
-      Close an open connection. Closing a connection cancels all outstanding
-      requests and frees the memory associated with the open requests.
+      Close an open connection.
+      Closing a connection waits until all outstanding requests
+      have finished and then frees any open resources associated with the connection.
+      If the optional <code>noreplyWait</code> argument is set to <code>false</code>,
+      all outstanding requests are canceled immediately.
 
     body:
-      py: "$PARENT.close()"
-      rb: "$PARENT.close"
-      js: "$PARENT.close()"
-      ph: "$PARENT->close()"
+      ph: "$PARENT->close([noreplyWait])"
 
     io:
       - - connection
         - null
 
     examples:
-      - description: Close an open connection.
+      - description: Close an open connection, waiting for noreply writes to finish.
         validate: false
-        code: conn.close()
-
-    ph:
-      examples:
-        0:
-          code: $conn->close();
-    rb:
-      examples:
-        0:
-          code: conn.close
+        code: $conn->close();
+      - description: Close an open connection immediately.
+        validate: false
+        code: $conn->close(false)
 
   - tag: reconnect
     section: module
     description: |
-      Close and attempt to reopen a connection. Has the effect of canceling
-      any outstanding request while keeping the connection open.
+      Close and attempt to reopen a connection.
+      Closing a connection waits until all outstanding requests
+      have finished and then frees any open resources associated with the connection.
+      If the optional <code>noreplyWait</code> argument is set to <code>false</code>,
+      all outstanding requests are canceled immediately.
 
     body:
-      py: "$PARENT.reconnect()"
-      rb: "$PARENT.reconnect"
-      js: "$PARENT.reconnect()"
-      ph: "$PARENT->reconnect()"
+      ph: "$PARENT->reconnect([noreplyWait])"
 
     io:
       - - connection
@@ -166,10 +160,7 @@ commands:
       - description: Cancel outstanding requests/queries that are no longer needed.
         validate: false
         code:
-          js: conn.reconnect(function(err, conn) { ... })
-          py: conn.reconnect()
-          rb: conn.reconnect
-          ph: $conn->reconnect();
+          ph: $conn->reconnect(false);
 
   - tag: use
     section: module
@@ -297,6 +288,28 @@ commands:
       examples:
         4: {}
 
+  - tag: noreply_wait
+    section: module
+    description: |
+      <code>noreplyWait</code> ensures that previous queries with the noreply flag have been processed
+      by the server. Note that this guarantee only applies to queries run on the given connection.
+    
+    name:
+      ph: noreplyWait
+
+    body:
+      ph: "$PARENT->noreplyWait()"
+
+    io:
+      - - connection
+        - null
+
+    examples:
+      - description: |
+          We have previously run queries with the <code>noreply</code> argument set to true.
+          Now wait until the server has processed them.
+        validate: false
+        code: $conn->noreplyWait();
 
   - tag: next
     section: module

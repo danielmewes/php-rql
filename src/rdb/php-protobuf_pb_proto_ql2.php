@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-09-18 10:56:55
+ * Auto generated from ql2.proto at 2013-12-03 15:24:24
  */
 
 /**
@@ -77,6 +77,7 @@ final class Datum_DatumType
     const PB_R_STR = 4;
     const PB_R_ARRAY = 5;
     const PB_R_OBJECT = 6;
+    const PB_R_JSON = 7;
 
     /**
      * Returns defined enum values
@@ -92,6 +93,7 @@ final class Datum_DatumType
             'R_STR' => self::PB_R_STR,
             'R_ARRAY' => self::PB_R_ARRAY,
             'R_OBJECT' => self::PB_R_OBJECT,
+            'R_JSON' => self::PB_R_JSON,
         );
     }
 }
@@ -574,9 +576,12 @@ final class Term_TermType
     const PB_TABLE_CREATE = 60;
     const PB_TABLE_DROP = 61;
     const PB_TABLE_LIST = 62;
+    const PB_SYNC = 138;
     const PB_INDEX_CREATE = 75;
     const PB_INDEX_DROP = 76;
     const PB_INDEX_LIST = 77;
+    const PB_INDEX_STATUS = 139;
+    const PB_INDEX_WAIT = 140;
     const PB_FUNCALL = 64;
     const PB_BRANCH = 65;
     const PB_ANY = 66;
@@ -713,9 +718,12 @@ final class Term_TermType
             'TABLE_CREATE' => self::PB_TABLE_CREATE,
             'TABLE_DROP' => self::PB_TABLE_DROP,
             'TABLE_LIST' => self::PB_TABLE_LIST,
+            'SYNC' => self::PB_SYNC,
             'INDEX_CREATE' => self::PB_INDEX_CREATE,
             'INDEX_DROP' => self::PB_INDEX_DROP,
             'INDEX_LIST' => self::PB_INDEX_LIST,
+            'INDEX_STATUS' => self::PB_INDEX_STATUS,
+            'INDEX_WAIT' => self::PB_INDEX_WAIT,
             'FUNCALL' => self::PB_FUNCALL,
             'BRANCH' => self::PB_BRANCH,
             'ANY' => self::PB_ANY,
@@ -1120,6 +1128,7 @@ final class Query_QueryType
     const PB_START = 1;
     const PB_CONTINUE = 2;
     const PB_STOP = 3;
+    const PB_NOREPLY_WAIT = 4;
 
     /**
      * Returns defined enum values
@@ -1132,6 +1141,7 @@ final class Query_QueryType
             'START' => self::PB_START,
             'CONTINUE' => self::PB_CONTINUE,
             'STOP' => self::PB_STOP,
+            'NOREPLY_WAIT' => self::PB_NOREPLY_WAIT,
         );
     }
 }
@@ -1244,6 +1254,8 @@ class Query extends \ProtobufMessage
     const TYPE = 1;
     const QUERY = 2;
     const TOKEN = 3;
+    const OBSOLETE_NOREPLY = 4;
+    const ACCEPTS_R_JSON = 5;
     const GLOBAL_OPTARGS = 6;
 
     /* @var array Field descriptors */
@@ -1262,6 +1274,16 @@ class Query extends \ProtobufMessage
             'name' => 'token',
             'required' => false,
             'type' => 5,
+        ),
+        self::OBSOLETE_NOREPLY => array(
+            'name' => 'OBSOLETE_noreply',
+            'required' => false,
+            'type' => 8,
+        ),
+        self::ACCEPTS_R_JSON => array(
+            'name' => 'accepts_r_json',
+            'required' => false,
+            'type' => 8,
         ),
         self::GLOBAL_OPTARGS => array(
             'name' => 'global_optargs',
@@ -1290,6 +1312,8 @@ class Query extends \ProtobufMessage
         $this->values[self::TYPE] = null;
         $this->values[self::QUERY] = null;
         $this->values[self::TOKEN] = null;
+        $this->values[self::OBSOLETE_NOREPLY] = null;
+        $this->values[self::ACCEPTS_R_JSON] = null;
         $this->values[self::GLOBAL_OPTARGS] = array();
     }
 
@@ -1367,6 +1391,50 @@ class Query extends \ProtobufMessage
     public function getToken()
     {
         return $this->getValue(self::TOKEN);
+    }
+
+    /**
+     * Sets value of 'OBSOLETE_noreply' property
+     *
+     * @param bool $value Property value
+     *
+     * @return null
+     */
+    public function setOBSOLETENoreply($value)
+    {
+        return $this->setValue(self::OBSOLETE_NOREPLY, $value);
+    }
+
+    /**
+     * Returns value of 'OBSOLETE_noreply' property
+     *
+     * @return bool
+     */
+    public function getOBSOLETENoreply()
+    {
+        return $this->getValue(self::OBSOLETE_NOREPLY);
+    }
+
+    /**
+     * Sets value of 'accepts_r_json' property
+     *
+     * @param bool $value Property value
+     *
+     * @return null
+     */
+    public function setAcceptsRJson($value)
+    {
+        return $this->setValue(self::ACCEPTS_R_JSON, $value);
+    }
+
+    /**
+     * Returns value of 'accepts_r_json' property
+     *
+     * @return bool
+     */
+    public function getAcceptsRJson()
+    {
+        return $this->getValue(self::ACCEPTS_R_JSON);
     }
 
     /**
@@ -1704,6 +1772,7 @@ final class Response_ResponseType
     const PB_SUCCESS_ATOM = 1;
     const PB_SUCCESS_SEQUENCE = 2;
     const PB_SUCCESS_PARTIAL = 3;
+    const PB_WAIT_COMPLETE = 4;
     const PB_CLIENT_ERROR = 16;
     const PB_COMPILE_ERROR = 17;
     const PB_RUNTIME_ERROR = 18;
@@ -1719,6 +1788,7 @@ final class Response_ResponseType
             'SUCCESS_ATOM' => self::PB_SUCCESS_ATOM,
             'SUCCESS_SEQUENCE' => self::PB_SUCCESS_SEQUENCE,
             'SUCCESS_PARTIAL' => self::PB_SUCCESS_PARTIAL,
+            'WAIT_COMPLETE' => self::PB_WAIT_COMPLETE,
             'CLIENT_ERROR' => self::PB_CLIENT_ERROR,
             'COMPILE_ERROR' => self::PB_COMPILE_ERROR,
             'RUNTIME_ERROR' => self::PB_RUNTIME_ERROR,
@@ -1736,6 +1806,7 @@ class Response extends \ProtobufMessage
     const TOKEN = 2;
     const RESPONSE = 3;
     const BACKTRACE = 4;
+    const PROFILE = 5;
 
     /* @var array Field descriptors */
     protected static $fields = array(
@@ -1758,6 +1829,11 @@ class Response extends \ProtobufMessage
             'name' => 'backtrace',
             'required' => false,
             'type' => 'r\pb\Backtrace'
+        ),
+        self::PROFILE => array(
+            'name' => 'profile',
+            'required' => false,
+            'type' => 'r\pb\Datum'
         ),
     );
 
@@ -1782,6 +1858,7 @@ class Response extends \ProtobufMessage
         $this->values[self::TOKEN] = null;
         $this->values[self::RESPONSE] = array();
         $this->values[self::BACKTRACE] = null;
+        $this->values[self::PROFILE] = null;
     }
 
     /**
@@ -1922,5 +1999,27 @@ class Response extends \ProtobufMessage
     public function getBacktrace()
     {
         return $this->getValue(self::BACKTRACE);
+    }
+
+    /**
+     * Sets value of 'profile' property
+     *
+     * @param Datum $value Property value
+     *
+     * @return null
+     */
+    public function setProfile(Datum $value)
+    {
+        return $this->setValue(self::PROFILE, $value);
+    }
+
+    /**
+     * Returns value of 'profile' property
+     *
+     * @return Datum
+     */
+    public function getProfile()
+    {
+        return $this->getValue(self::PROFILE);
     }
 }

@@ -1,0 +1,22 @@
+commands:
+  - tag: sync
+    section: writing_data
+    order: 5
+    description: |
+      <code>sync</code> ensures that writes on a given table are written to permanent storage.
+      Queries that specify soft durability (<code>array('durability' => 'soft')</code>) do not give such guarantees,
+      so <code>sync</code> can be used to ensure the state of these queries.
+      A call to <code>sync</code> does not return until all previous writes to the table are persisted.
+
+    body:
+      ph: "$PARENT->sync()"
+
+    io:
+      - - table
+        - object
+
+    examples:
+      - description: After having updated multiple heroes with soft durability, we now want to wait until these changes are persisted.
+        code:
+          ph: r\table('marvel')->sync()->run($conn);
+
