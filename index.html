@@ -42,9 +42,9 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>12/23/2013 New release: PHP-RQL 1.11.1. Fixes an <a href="https://github.com/danielmewes/php-rql/issues/47">issue</a> due to which floating point numbers were incorrectly rounded when inserting or updating documents.</li>
 <li>12/03/2013 New release: PHP-RQL 1.11.0. Support for new RethinkDB 1.11 features (noreplyWait, indexStatus, indexWait, sync, profiling). PHP-RQL 1.11 internally makes use of RethinkDB 1.11 JSON-based server replies. In our experiments, this improved the speed of retrieving complex documents by a factor of 3 if you are already using the <a href="http://php-rql.dnsalias.net/wiki/index.php/InstallExtension">optimized protobuf extension</a>, and by a factor of 15 or more without the extension.</li>
 <li>09/19/2013 New release: PHP-RQL 1.10.0. Math and logic terms now support <a href="https://github.com/danielmewes/php-rql/issues/38">prefix notation</a> (contributed by <a href="https://github.com/Phally">Phally</a>). Strings which can be interpreted as numbers (such as <code>"0.5"</code>) are now treated as strings by the driver. The new <code>table-&gt;createIndexMulti()</code> term can be used to create multi-indexes, as supported by RethinkDB 1.10.</li>
-<li>09/19/2013 New release: PHP-RQL 1.8.1. Adds support for function attributes with eqJoin.</li>
 </ul><h2>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
