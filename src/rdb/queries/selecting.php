@@ -4,10 +4,7 @@ class Get extends ValuedQuery
 {
     public function __construct(Table $table, $key) {
         if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
-            if (is_numeric($key))
-                $key = new NumberDatum($key);
-            else
-                $key = new StringDatum($key);
+            $key = nativeToDatum($key);
         }
         $this->setPositionalArg(0, $table);
         $this->setPositionalArg(1, $key);

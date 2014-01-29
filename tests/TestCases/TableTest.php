@@ -20,7 +20,9 @@ class TableTest extends TestCase
         $this->checkQueryResult(r\db('tableTest')->table('t1')->indexDrop('akey'), array('dropped' => 1.0));
         $this->checkQueryResult(r\db('tableTest')->table('t1')->indexDrop('bfun'), array('dropped' => 1.0));
         $this->checkQueryResult(r\db('tableTest')->table('t1')->indexDrop('cfun'), array('dropped' => 1.0));
-               
+       
+        $this->checkQueryResult(r\db('tableTest')->table('t1')->sync(), array('synced' => 1.0));
+
         $this->checkQueryResult(r\db('tableTest')->tableDrop('t1'), array('dropped' => 1.0));
         
         r\dbDrop('tableTest')->run($this->conn);

@@ -76,14 +76,26 @@ class Table extends ValuedQuery
     public function getMultiple($keys, $opts = null) {
         return new GetMultiple($this, $keys, $opts);
     }
+    public function sync() {
+        return new Sync($this);
+    }
     public function indexCreate($indexName, $keyFunction = null) {
         return new IndexCreate($this, $indexName, $keyFunction);
+    }
+    public function indexCreateMulti($indexName, $keyFunction = null) {
+        return new IndexCreate($this, $indexName, $keyFunction, array('multi' => true));
     }
     public function indexDrop($indexName) {
         return new IndexDrop($this, $indexName);
     }
     public function indexList() {
         return new IndexList($this);
+    }
+    public function indexStatus($indexNames = null) {
+        return new IndexStatus($this, $indexNames);
+    }
+    public function indexWait($indexNames = null) {
+        return new IndexWait($this, $indexNames);
     }
     
 

@@ -3,9 +3,9 @@
 require_once("util.php");
 
 abstract class Query
-{    
+{
     abstract protected function getTermType();
-    
+
     protected function setOptionalArg($key, Query $val) {
         if (!is_string($key)) throw new RqlDriverError("Internal driver error: Got a non-string key for an optional argument.");
         $this->optionalArgs[$key] = $val;
@@ -30,11 +30,18 @@ abstract class Query
         }
         return $term;
     }
-    
+
     public function run(Connection $connection, $options = null) {
-        return $connection->_run($this, $options);
+        return $connection->_run($this, $options, $profile);
     }
     
+    public function profile(Connection $connection, $options = null, &$result = null) {
+        if (!isset($options)) $options = array();
+        $options['profile'] = true;
+        $result = $connection->_run($this, $options, $profile);
+        return $profile;
+    }
+
     public function info() {
         return new Info($this);
     }
@@ -42,21 +49,21 @@ abstract class Query
     {
         return new RDefault($this, $defaultCase);
     }
-    
+
     public function __toString() {
         $backtrace = null;
         return $this->_toString($backtrace);
     }
-    
+
     public function _toString(&$backtrace) {
         // TODO (daniel): This kind of printing backtraces is pretty hacky. Overhaul this.
         //  Maybe we could generate a PHP backtrace structure...
-    
+
         $backtraceFrame = null;
         if (isset($backtrace) && $backtrace !== false) {
             $backtraceFrame = $backtrace->_consumeFrame();
         }
-    
+
         $types = (new \ReflectionObject(new pb\Term_TermType()));
         $types = $types->getConstants();
         $type = "UNKNOWN";
@@ -66,7 +73,7 @@ abstract class Query
                 $type = substr($key, 3);
             }
         }
-        
+
         $argList = "";
         foreach ($this->positionalArgs as $i => $arg) {
             if ($i > 0) {
@@ -75,14 +82,14 @@ abstract class Query
                 else
                     $argList .= ", ";
             }
-                
+
             $subTrace = is_null($backtrace) ? null : false;
             if (is_object($backtraceFrame) && $backtraceFrame->isPositionalArg() && $backtraceFrame->getPositionalArgPosition() == $i) {
                 $subTrace = $backtrace;
             }
             $argList .= $arg->_toString($subTrace);
         }
-        
+
         $optArgList = "";
         $firstOptArg = true;
         foreach ($this->optionalArgs as $key => $val) {
@@ -93,7 +100,7 @@ abstract class Query
                     $optArgList .= ", ";
             }
             $firstOptArg = false;
-                
+
             $subTrace = is_null($backtrace) ? null : false;
             if (is_object($backtraceFrame) && $backtraceFrame->isOptionalArg() && $backtraceFrame->getOptionalArgName() == $key) {
                 $subTrace = $backtrace;
@@ -103,7 +110,7 @@ abstract class Query
             else
                 $optArgList .= $key . " => " . $val->_toString($subTrace);
         }
-        
+
         if ($optArgList) {
             if (strlen($argList) > 0) {
                 if (isset($backtrace))
@@ -116,7 +123,7 @@ abstract class Query
             else
                 $argList .= "OptArgs(" . $optArgList . ")";
         }
-        
+
         $result = $type . "(" . $argList . ")";
         if (isset($backtrace)) {
             if ($backtraceFrame === false) {
@@ -130,7 +137,7 @@ abstract class Query
             return $result;
         }
     }
-    
+
     private $positionalArgs = array();
     private $optionalArgs = array();
 }
@@ -283,46 +290,46 @@ abstract class ValuedQuery extends Query
         return new Keys($this);
     }
     public function add($other) {
-        return new Add($this, $other);
+        return add($this, $other);
     }
     public function sub($other) {
-        return new Sub($this, $other);
+        return sub($this, $other);
     }
     public function mul($other) {
-        return new Mul($this, $other);
+        return mul($this, $other);
     }
     public function div($other) {
-        return new Div($this, $other);
+        return div($this, $other);
     }
     public function mod($other) {
-        return new Mod($this, $other);
+        return mod($this, $other);
     }
     public function rAnd($other) {
-        return new RAnd($this, $other);
+        return rAnd($this, $other);
     }
     public function rOr($other) {
-        return new ROr($this, $other);
+        return rOr($this, $other);
     }
     public function eq($other) {
-        return new Eq($this, $other);
+        return eq($this, $other);
     }
     public function ne($other) {
-        return new Ne($this, $other);
+        return ne($this, $other);
     }
     public function gt($other) {
-        return new Gt($this, $other);
+        return gt($this, $other);
     }
     public function ge($other) {
-        return new Ge($this, $other);
+        return ge($this, $other);
     }
     public function lt($other) {
-        return new Lt($this, $other);
+        return lt($this, $other);
     }
     public function le($other) {
-        return new Le($this, $other);
+        return le($this, $other);
     }
     public function not() {
-        return new Not($this);
+        return not($this);
     }
     public function match($expression) {
         return new Match($this, $expression);
@@ -395,7 +402,7 @@ class Asc extends Ordering {
             try {
                 $attribute = nativeToDatum($attribute);
                 if (!is_subclass_of($attribute, "\\r\\Datum")) {
-                    // $attribute is not a simple datum. Wrap it into a function:                
+                    // $attribute is not a simple datum. Wrap it into a function:
                     $attribute = new RFunction(array(new RVar('_')), $attribute);
                 }
             } catch (RqlDriverError $e) {
@@ -406,7 +413,7 @@ class Asc extends Ordering {
         }
         $this->setPositionalArg(0, $attribute);
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_ASC;
     }
@@ -418,7 +425,7 @@ class Desc extends Ordering {
             try {
                 $attribute = nativeToDatum($attribute);
                 if (!is_subclass_of($attribute, "\\r\\Datum")) {
-                    // $attribute is not a simple datum. Wrap it into a function:                
+                    // $attribute is not a simple datum. Wrap it into a function:
                     $attribute = new RFunction(array(new RVar('_')), $attribute);
                 }
             } catch (RqlDriverError $e) {
@@ -429,7 +436,7 @@ class Desc extends Ordering {
         }
         $this->setPositionalArg(0, $attribute);
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_DESC;
     }
@@ -446,7 +453,7 @@ class Info extends ValuedQuery {
     public function __construct(Query $onQuery) {
         $this->setPositionalArg(0, $onQuery);
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_INFO;
     }
@@ -460,7 +467,7 @@ class Json extends ValuedQuery {
         }
         $this->setPositionalArg(0, $json);
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_JSON;
     }
@@ -473,7 +480,7 @@ class Literal extends ValuedQuery {
         }
         $this->setPositionalArg(0, $value);
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_LITERAL;
     }
@@ -507,7 +514,7 @@ class Cursor implements \Iterator
         if (!$this->valid()) throw new RqlDriverError("No more data available.");
         return $this->currentData[$this->currentIndex];
     }
-    
+
     public function toArray() {
         $result = array();
         foreach ($this as $val) {
@@ -515,7 +522,7 @@ class Cursor implements \Iterator
         }
         return $result;
     }
-    
+
     public function toNative() {
         $vals = $this->toArray();
         foreach ($vals as &$val) {
@@ -524,7 +531,18 @@ class Cursor implements \Iterator
         }
         return $vals;
     }
-    
+
+    public function close() {
+        if (!$this->isComplete) {
+            // Cancel the request
+            $this->connection->_stopQuery($this->token);
+            $this->isComplete = true;
+        }
+        $this->currentIndex = 0;
+        $this->currentSize = 0;
+        $this->currentData = array();
+    }
+
     public function __toString() {
         return "Cursor";
     }
@@ -533,22 +551,22 @@ class Cursor implements \Iterator
         $this->connection = $connection;
         $this->token = $initialResponse->getToken();
         $this->wasIterated = false;
-        
+
         $this->setBatch($initialResponse);
     }
-    
+
     public function __destruct() {
-        if (!$this->isComplete && $this->connection->isOpen()) {
+        if ($this->connection->isOpen()) {
             // Cancel the request
-            $this->connection->_stopQuery($this->token);
+            $this->close();
         }
     }
-    
+
     private function requestNewBatch() {
         $response = $this->connection->_continueQuery($this->token);
         $this->setBatch($response);
     }
-    
+
     private function setBatch(pb\Response $response) {
         $this->isComplete = $response->getType() == pb\Response_ResponseType::PB_SUCCESS_SEQUENCE;
         $this->currentIndex = 0;

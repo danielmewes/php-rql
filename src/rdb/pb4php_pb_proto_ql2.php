@@ -96,6 +96,7 @@ class Datum_DatumType extends \PBEnum
   const PB_R_STR  = 4;
   const PB_R_ARRAY  = 5;
   const PB_R_OBJECT  = 6;
+  const PB_R_JSON  = 7;
 }
 class Datum_AssocPair extends \PBMessage
 {
@@ -258,9 +259,12 @@ class Term_TermType extends \PBEnum
   const PB_TABLE_CREATE  = 60;
   const PB_TABLE_DROP  = 61;
   const PB_TABLE_LIST  = 62;
+  const PB_SYNC  = 138;
   const PB_INDEX_CREATE  = 75;
   const PB_INDEX_DROP  = 76;
   const PB_INDEX_LIST  = 77;
+  const PB_INDEX_STATUS  = 139;
+  const PB_INDEX_WAIT  = 140;
   const PB_FUNCALL  = 64;
   const PB_BRANCH  = 65;
   const PB_ANY  = 66;
@@ -354,6 +358,10 @@ class Query extends \PBMessage
     $this->values[2] = null;
     $this->fields[3] = "\\I_PBInt";
     $this->values[3] = null;
+    $this->fields[4] = "\\I_PBBool";
+    $this->values[4] = null;
+    $this->fields[5] = "\\I_PBBool";
+    $this->values[5] = null;
     $this->fields[6] = "\\r\\pb\\Query_AssocPair";
     $this->values[6] = array();
   }
@@ -381,6 +389,22 @@ class Query extends \PBMessage
   {
     return $this->_set_value("3", $value);
   }
+  function getOBSOLETENoreply()
+  {
+    return $this->_get_value("4");
+  }
+  function setOBSOLETENoreply($value)
+  {
+    return $this->_set_value("4", $value);
+  }
+  function getAcceptsRJson()
+  {
+    return $this->_get_value("5");
+  }
+  function setAcceptsRJson($value)
+  {
+    return $this->_set_value("5", $value);
+  }
   function getGlobalOptargsAt($offset)
   {
     return $this->_get_arr_value("6", $offset);
@@ -399,6 +423,7 @@ class Query_QueryType extends \PBEnum
   const PB_START  = 1;
   const PB_CONTINUE  = 2;
   const PB_STOP  = 3;
+  const PB_NOREPLY_WAIT  = 4;
 }
 class Query_AssocPair extends \PBMessage
 {
@@ -507,6 +532,8 @@ class Response extends \PBMessage
     $this->values[3] = array();
     $this->fields[4] = "\\r\\pb\\Backtrace";
     $this->values[4] = null;
+    $this->fields[5] = "\\r\\pb\\Datum";
+    $this->values[5] = null;
   }
   function getType()
   {
@@ -544,12 +571,21 @@ class Response extends \PBMessage
   {
     return $this->_set_value("4", $value);
   }
+  function getProfile()
+  {
+    return $this->_get_value("5");
+  }
+  function setProfile($value)
+  {
+    return $this->_set_value("5", $value);
+  }
 }
 class Response_ResponseType extends \PBEnum
 {
   const PB_SUCCESS_ATOM  = 1;
   const PB_SUCCESS_SEQUENCE  = 2;
   const PB_SUCCESS_PARTIAL  = 3;
+  const PB_WAIT_COMPLETE  = 4;
   const PB_CLIENT_ERROR  = 16;
   const PB_COMPILE_ERROR  = 17;
   const PB_RUNTIME_ERROR  = 18;
