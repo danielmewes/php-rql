@@ -60,6 +60,10 @@ class OrderBy extends ValuedQuery
         if (!is_array($keys))
             $keys = array($keys);
         // Check keys and convert strings
+        if (isset($keys['index'])) {
+            $this->setOptionalArg('index', nativeToDatum($keys['index']));
+            unset($keys['index']);
+        }
         foreach ($keys as &$val) {
             if (!(is_object($val) && is_subclass_of($val, "\\r\\Ordering"))) {
                 if (!(is_object($val) && is_subclass_of($val, "\\r\\Query"))) {
