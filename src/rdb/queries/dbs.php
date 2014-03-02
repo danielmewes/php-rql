@@ -17,8 +17,14 @@ class Db extends Query
 
 
     public function __construct($dbName) {
-        if (!\is_string($dbName)) throw new RqlDriverError("Database name must be a string.");
-        $this->setPositionalArg(0, new StringDatum($dbName));
+        if (is_string($dbName)) {
+            $d = new StringDatum($dbName);
+        } else if (is_object($dbName)) {
+            $d = $dbName;
+        } else {
+            throw new RqlDriverError("Database name must be a string. or evaluate to a string");
+        }
+        $this->setPositionalArg(0, $d);
     }
     
     protected function getTermType() {
