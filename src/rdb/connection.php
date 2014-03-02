@@ -5,7 +5,7 @@ require_once("datum.php");
 
 class Connection
 {
-    public function __construct($host, $port = 28015, $db = null, $apiKey = null) {
+    public function __construct($host, $port = 28015, $db = null, $apiKey = null, $timeout = null) {
         if (!isset($host)) throw new RqlDriverError("No host given.");
         if (!isset($port)) throw new RqlDriverError("No port given.");
         if (isset($db) && !is_string($db)) throw new RqlDriverError("Database must be a string.");
@@ -16,8 +16,8 @@ class Connection
         if (!isset($apiKey))
             $apiKey = "";
         $this->apiKey = $apiKey;
-        $this->timeout = null;
-
+        $this->timeout = $timeout;
+        
         if (isset($db))
             $this->useDb($db);
 
@@ -254,8 +254,9 @@ class Connection
     }
 
     private function applyTimeout($timeout) {
+        $timeout = (!is_numeric($timeout)) ? null : $timeout;
         if ($this->isOpen()) {
-            if (!stream_set_timeout($this->socket, $timeout)) {
+            if (!stream_set_timeout($this->socket, (int)$timeout)) {
                 throw new RqlDriverError("Could not set timeout");
             }
         }

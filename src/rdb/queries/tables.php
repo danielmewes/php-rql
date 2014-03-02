@@ -101,13 +101,20 @@ class Table extends ValuedQuery
 
     public function __construct($database, $tableName, $useOutdated = null) {
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
-        if (!\is_string($tableName)) throw new RqlDriverError("Table name must be a string.");
         if (isset($useOutdated) && !is_bool($useOutdated)) throw new RqlDriverError("Use outdated must be bool.");
+        
+        if (is_string($tableName)) {
+            $t = new StringDatum($tableName);
+        } else if (is_object($tableName)) {
+            $t = $tableName;
+        } else {
+            throw new RqlDriverError("Table name must be a string. or evaluate to a string");
+        }
         
         $i = 0;
         if (isset($database))
             $this->setPositionalArg($i++, $database);
-        $this->setPositionalArg($i++, new StringDatum($tableName));
+        $this->setPositionalArg($i++, $t);
         if (isset($useOutdated)) {
             $this->setOptionalArg('use_outdated', new BoolDatum($useOutdated));
         }
