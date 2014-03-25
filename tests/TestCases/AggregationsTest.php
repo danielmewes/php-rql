@@ -6,8 +6,6 @@ class AggregationsTest extends TestCase
     {    
         $this->checkQueryResult(r\expr(array(1, 2, 3, 4))->reduce(function($a, $b) { return $a->add($b); }),
             10.0);
-        $this->checkQueryResult(r\expr(array(1, 2, 3, 4))->reduce(function($a, $b) { return $a->add($b); }, 5),
-            15.0);
             
         $this->checkQueryResult(r\expr(array(1, 2, 3, 4))->count(),
             4.0);

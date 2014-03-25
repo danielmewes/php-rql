@@ -51,21 +51,15 @@ class Distinct extends ValuedQuery
 
 class GroupedMapReduce extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $grouping, $mapping, $reduction, $base = null) {
+    public function __construct(ValuedQuery $sequence, $grouping, $mapping, $reduction) {
         $grouping = nativeToFunction($grouping);
         $mapping = nativeToFunction($mapping);
         $reduction = nativeToFunction($reduction);
-        if (isset($base)) {
-            $base = nativeToDatum($base);
-        }
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $grouping);
         $this->setPositionalArg(2, $mapping);
         $this->setPositionalArg(3, $reduction);
-        if (isset($base)) {
-            $this->setOptionalArg('base', $base);
-        }
     }
     
     protected function getTermType() {

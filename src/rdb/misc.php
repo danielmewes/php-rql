@@ -209,8 +209,8 @@ abstract class ValuedQuery extends Query
     public function sample($n) {
         return new Sample($this, $n);
     }
-    public function reduce($reductionFunction, $base = null) {
-        return new Reduce($this, $reductionFunction, $base);
+    public function reduce($reductionFunction) {
+        return new Reduce($this, $reductionFunction);
     }
     public function count($filter = null) {
         return new Count($this, $filter);
