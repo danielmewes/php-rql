@@ -3,9 +3,8 @@
 class Get extends ValuedQuery
 {
     public function __construct(Table $table, $key) {
-        if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
-            $key = nativeToDatum($key);
-        }
+        $key = nativeToDatum($key);
+
         $this->setPositionalArg(0, $table);
         $this->setPositionalArg(1, $key);
     }
@@ -18,9 +17,8 @@ class Get extends ValuedQuery
 class GetAll extends ValuedQuery
 {
     public function __construct(Table $table, $key, $opts = null) {
-        if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
-            $key = nativeToDatum($key);
-        }
+        $key = nativeToDatum($key);
+
         $this->setPositionalArg(0, $table);
         $this->setPositionalArg(1, $key);
         if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
@@ -42,9 +40,7 @@ class GetMultiple extends ValuedQuery
     public function __construct(Table $table, $keys, $opts = null) {
         if (!is_array($keys)) throw new RqlDriverError("Keys in GetMultiple must be an array.");
         foreach ($keys as &$key) {
-            if (!(is_object($key) && is_subclass_of($key, "\\r\\Query"))) {
-                $key = nativeToDatum($key);
-            }
+            $key = nativeToDatum($key);
             unset($key);
         }
         $this->setPositionalArg(0, $table);
@@ -69,8 +65,8 @@ class GetMultiple extends ValuedQuery
 class Between extends ValuedQuery
 {
     public function __construct(ValuedQuery $selection, $leftBound, $rightBound, $opts = null) {
-        if (!(is_object($leftBound) && is_subclass_of($leftBound, "\\r\\Query"))) $leftBound = nativeToDatum($leftBound);
-        if (!(is_object($rightBound) && is_subclass_of($rightBound, "\\r\\Query"))) $rightBound = nativeToDatum($rightBound);
+        $leftBound = nativeToDatum($leftBound);
+        $rightBound = nativeToDatum($rightBound);
         
         $this->setPositionalArg(0, $selection);
         $this->setPositionalArg(1, $leftBound);
@@ -92,20 +88,8 @@ class Between extends ValuedQuery
 class Filter extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $predicate, $default = null) {
-        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query"))) {
-            try {
-                $predicate = nativeToDatum($predicate);
-                if (!is_subclass_of($predicate, "\\r\\Datum")) {
-                    // $predicate is not a simple datum. Wrap it into a function:                
-                    $predicate = new RFunction(array(new RVar('_')), $predicate);
-                }
-            } catch (RqlDriverError $e) {
-                $predicate = nativeToFunction($predicate);
-            }
-        } else if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\FunctionQuery"))) {
-            $predicate = new RFunction(array(new RVar('_')), $predicate);
-        }
-        if (isset($default) && !(is_object($default) && is_subclass_of($default, "\\r\\Query"))) {
+        $predicate = nativeToDatumOrFunction($predicate);
+        if (isset($default)) {
             $default = nativeToDatum($default);
         }
         

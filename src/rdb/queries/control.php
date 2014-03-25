@@ -3,8 +3,7 @@
 class RDo extends ValuedQuery
 {
     public function __construct($args, $inExpr) {
-        if (!(is_object($inExpr) && is_subclass_of($inExpr, "\\r\\Query")))
-            $inExpr = nativeToFunction($inExpr);
+        $inExpr = nativeToFunction($inExpr);
         $this->setPositionalArg(0, $inExpr);
         
         $i = 1;
@@ -26,21 +25,9 @@ class RDo extends ValuedQuery
 class Branch extends ValuedQuery
 {
     public function __construct(Query $test, $trueBranch, $falseBranch) {
-        if (!(is_object($trueBranch) && is_subclass_of($trueBranch, "\\r\\Query"))) {
-            try {
-                $trueBranch = nativeToDatum($trueBranch);
-            } catch (RqlDriverError $e) {
-                $trueBranch = nativeToFunction($trueBranch);
-            }
-        }
-        if (!(is_object($falseBranch) && is_subclass_of($falseBranch, "\\r\\Query"))) {
-            try {
-                $falseBranch = nativeToDatum($falseBranch);
-            } catch (RqlDriverError $e) {
-                $falseBranch = nativeToFunction($falseBranch);
-            }
-        }
-        
+        $trueBranch = nativeToDatumOrFunction($trueBranch);
+        $falseBranch = nativeToDatumOrFunction($falseBranch);
+
         $this->setPositionalArg(0, $test);
         $this->setPositionalArg(1, $trueBranch);
         $this->setPositionalArg(2, $falseBranch);
@@ -54,8 +41,7 @@ class Branch extends ValuedQuery
 class RForeach extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $queryFunction) {
-        if (!(is_object($queryFunction) && is_subclass_of($queryFunction, "\\r\\Query")))
-            $queryFunction = nativeToFunction($queryFunction);
+        $queryFunction = nativeToFunction($queryFunction);
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $queryFunction);
     }
@@ -83,14 +69,8 @@ class Error extends ValuedQuery
 class RDefault extends ValuedQuery
 {
     public function __construct(Query $query, $defaultCase) {
-        if (!(is_object($defaultCase) && is_subclass_of($defaultCase, "\\r\\Query"))) {
-            try {
-                $defaultCase = nativeToDatum($defaultCase);
-            } catch (RqlDriverError $e) {
-                $defaultCase = nativeToFunction($defaultCase);
-            }
-        }
-        
+        $defaultCase = nativeToDatumOrFunction($defaultCase);
+
         $this->setPositionalArg(0, $query);
         $this->setPositionalArg(1, $defaultCase);
     }

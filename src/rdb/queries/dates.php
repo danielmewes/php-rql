@@ -13,19 +13,15 @@ class Now extends ValuedQuery
 class Time extends ValuedQuery
 {
     public function __construct($year, $month, $day, $hourOrTimezone, $minute = null, $second = null, $timezone = null) {
-        if (!(is_object($year) && is_subclass_of($year, "\\r\\Query")))
-            $year = nativeToDatum($year);
-        if (!(is_object($month) && is_subclass_of($month, "\\r\\Query")))
-            $month = nativeToDatum($month);
-        if (!(is_object($day) && is_subclass_of($day, "\\r\\Query")))
-            $day = nativeToDatum($day);
-        if (!(is_object($hourOrTimezone) && is_subclass_of($hourOrTimezone, "\\r\\Query")))
-            $hourOrTimezone = nativeToDatum($hourOrTimezone);
-        if (isset($minute) && !(is_object($minute) && is_subclass_of($minute, "\\r\\Query")))
+        $year = nativeToDatum($year);
+        $month = nativeToDatum($month);
+        $day = nativeToDatum($day);
+        $hourOrTimezone = nativeToDatum($hourOrTimezone);
+        if (isset($minute))
             $minute = nativeToDatum($minute);
-        if (isset($second) && !(is_object($second) && is_subclass_of($second, "\\r\\Query")))
+        if (isset($second))
             $second = nativeToDatum($second);
-        if (isset($timezone) && !(is_object($timezone) && is_subclass_of($timezone, "\\r\\Query")))
+        if (isset($timezone))
             $timezone = nativeToDatum($timezone);
         
         $this->setPositionalArg(0, $year);
@@ -48,8 +44,7 @@ class Time extends ValuedQuery
 class EpochTime extends ValuedQuery
 {
     public function __construct($epochTime) {
-        if (!(is_object($epochTime) && is_subclass_of($epochTime, "\\r\\Query")))
-            $epochTime = nativeToDatum($epochTime);
+        $epochTime = nativeToDatum($epochTime);
         
         $this->setPositionalArg(0, $epochTime);
     }
@@ -73,8 +68,7 @@ class ToEpochTime extends ValuedQuery
 class Iso8601 extends ValuedQuery
 {
     public function __construct($iso8601Date, $opts = null) {
-        if (!(is_object($iso8601Date) && is_subclass_of($iso8601Date, "\\r\\Query")))
-            $iso8601Date = nativeToDatum($iso8601Date);
+        $iso8601Date = nativeToDatum($iso8601Date);
         
         $this->setPositionalArg(0, $iso8601Date);
         if (isset($opts)) {
@@ -104,8 +98,7 @@ class ToIso8601 extends ValuedQuery
 class InTimezone extends ValuedQuery
 {
     public function __construct(ValuedQuery $time, $timezone) {
-        if (!(is_object($timezone) && is_subclass_of($timezone, "\\r\\Query")))
-            $timezone = nativeToDatum($timezone);
+        $timezone = nativeToDatum($timezone);
             
         $this->setPositionalArg(0, $time);
         $this->setPositionalArg(1, $timezone);
@@ -130,10 +123,8 @@ class Timezone extends ValuedQuery
 class During extends ValuedQuery
 {
     public function __construct(ValuedQuery $time, $startTime, $endTime, $opts = null) {
-        if (!(is_object($startTime) && is_subclass_of($startTime, "\\r\\Query")))
-            $startTime = nativeToDatum($startTime);
-        if (!(is_object($endTime) && is_subclass_of($endTime, "\\r\\Query")))
-            $endTime = nativeToDatum($endTime);
+        $startTime = nativeToDatum($startTime);
+        $endTime = nativeToDatum($endTime);
             
         $this->setPositionalArg(0, $time);
         $this->setPositionalArg(1, $startTime);

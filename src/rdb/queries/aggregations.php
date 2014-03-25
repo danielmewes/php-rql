@@ -24,19 +24,7 @@ class Count extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $filter = null) {
         if (isset($filter)) {
-            if (!(is_object($filter) && is_subclass_of($filter, "\\r\\Query"))) {
-                try {
-                    $filter = nativeToDatum($filter);
-                    if (!is_subclass_of($filter, "\\r\\Datum")) {
-                        // $filter is not a simple datum. Wrap it into a function:                
-                        $filter = new RFunction(array(new RVar('_')), $filter);
-                    }
-                } catch (RqlDriverError $e) {
-                    $filter = nativeToFunction($filter);
-                }
-            } else if (!(is_object($filter) && is_subclass_of($filter, "\\r\\FunctionQuery"))) {
-                $filter = new RFunction(array(new RVar('_')), $filter);
-            }
+            $filter = nativeToDatumOrFunction($filter);
         }
     
         $this->setPositionalArg(0, $sequence);
@@ -64,14 +52,10 @@ class Distinct extends ValuedQuery
 class GroupedMapReduce extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $grouping, $mapping, $reduction, $base = null) {
-        if (!(is_object($grouping) && is_subclass_of($grouping, "\\r\\Query")))
-            $grouping = nativeToFunction($grouping);
-        if (!(is_object($mapping) && is_subclass_of($mapping, "\\r\\Query")))
-            $mapping = nativeToFunction($mapping);
-        if (!(is_object($reduction) && is_subclass_of($reduction, "\\r\\Query")))
-            $reduction = nativeToFunction($reduction);
-        if (isset($base) && !(is_object($base) && is_subclass_of($base, "\\r\\Query"))) {
-            // Convert base automatically
+        $grouping = nativeToFunction($grouping);
+        $mapping = nativeToFunction($mapping);
+        $reduction = nativeToFunction($reduction);
+        if (isset($base)) {
             $base = nativeToDatum($base);
         }
         
@@ -94,8 +78,7 @@ class GroupBy extends ValuedQuery
     public function __construct(ValuedQuery $sequence, $keys, MakeObject $reductionObject) {
         if (is_string($keys))
             $keys = array($keys);
-        if (!(is_object($keys) && is_subclass_of($keys, "\\r\\Query")))
-            $keys = nativeToDatum($keys);
+        $keys = nativeToDatum($keys);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $keys);
@@ -110,19 +93,7 @@ class GroupBy extends ValuedQuery
 class Contains extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
-            try {
-                $value = nativeToDatum($value);
-                if (!is_subclass_of($value, "\\r\\Datum")) {
-                    // $value is not a simple datum. Wrap it into a function:                
-                    $value = new RFunction(array(new RVar('_')), $value);
-                }
-            } catch (RqlDriverError $e) {
-                $value = nativeToFunction($value);
-            }
-        } else if (!(is_object($value) && is_subclass_of($value, "\\r\\FunctionQuery"))) {
-            $value = new RFunction(array(new RVar('_')), $value);
-        }
+        $value = nativeToDatumOrFunction($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);

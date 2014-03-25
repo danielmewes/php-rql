@@ -11,10 +11,9 @@ class Pluck extends ValuedQuery
         // ArrayDatum, which will be interpreted correctly. So we can just always
         // interpret arrays as patterns.
     
-        if (is_string($attributes))
+        if (!is_array($attributes))
             $attributes = array($attributes);
-        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
-            $attributes = nativeToDatum($attributes);
+        $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attributes);
@@ -29,10 +28,9 @@ class Without extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
         // See comment above about pluck. The same applies here.
-        if (is_string($attributes))
+        if (!is_array($attributes))
             $attributes = array($attributes);
-        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
-            $attributes = nativeToDatum($attributes);
+        $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attributes);
@@ -46,8 +44,7 @@ class Without extends ValuedQuery
 class Merge extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $other) {
-        if (!(is_object($other) && is_subclass_of($other, "\\r\\Query")))
-            $other = nativeToDatum($other);
+        $other = nativeToDatum($other);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $other);
@@ -61,8 +58,7 @@ class Merge extends ValuedQuery
 class Append extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
@@ -76,8 +72,7 @@ class Append extends ValuedQuery
 class Prepend extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
@@ -91,8 +86,7 @@ class Prepend extends ValuedQuery
 class Difference extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
@@ -106,8 +100,7 @@ class Difference extends ValuedQuery
 class SetInsert extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
@@ -121,8 +114,7 @@ class SetInsert extends ValuedQuery
 class SetIntersection extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
@@ -136,8 +128,7 @@ class SetIntersection extends ValuedQuery
 class SetDifference extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
@@ -151,8 +142,7 @@ class SetDifference extends ValuedQuery
 class SetUnion extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
@@ -166,8 +156,7 @@ class SetUnion extends ValuedQuery
 class GetField extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute) {
-        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query")))
-            $attribute = new StringDatum($attribute);
+        $attribute = new StringDatum($attribute);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attribute);
@@ -184,8 +173,7 @@ class HasFields extends ValuedQuery
         // See comment above about pluck. The same applies here.
         if (is_string($attributes))
             $attributes = array($attributes);
-        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
-            $attributes = nativeToDatum($attributes);
+        $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attributes);
@@ -199,10 +187,8 @@ class HasFields extends ValuedQuery
 class InsertAt extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $index, $value) {
-        if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
-            $index = new NumberDatum($index);
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $index = nativeToDatum($index);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $index);
@@ -217,10 +203,8 @@ class InsertAt extends ValuedQuery
 class SpliceAt extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $index, $value) {
-        if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
-            $index = new NumberDatum($index);
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $index = nativeToDatum($index);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $index);
@@ -235,10 +219,9 @@ class SpliceAt extends ValuedQuery
 class DeleteAt extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $index, $endIndex = null) {
-        if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
-            $index = new NumberDatum($index);
-        if (isset($endIndex) && !(is_object($endIndex) && is_subclass_of($endIndex, "\\r\\Query")))
-            $endIndex = new NumberDatum($endIndex);
+        $index = nativeToDatum($index);
+        if (isset($endIndex))
+            $endIndex = nativeToDatum($endIndex);
         
         
         $this->setPositionalArg(0, $sequence);
@@ -256,10 +239,8 @@ class DeleteAt extends ValuedQuery
 class ChangeAt extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $index, $value) {
-        if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
-            $index = new NumberDatum($index);
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query")))
-            $value = nativeToDatum($value);
+        $index = nativeToDatum($index);
+        $value = nativeToDatum($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $index);

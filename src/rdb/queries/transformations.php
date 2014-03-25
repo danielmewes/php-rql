@@ -4,10 +4,9 @@ class WithFields extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attributes) {
         // The same comment as in pluck applies.
-        if (is_string($attributes))
+        if (!is_array($attributes))
             $attributes = array($attributes);
-        if (!(is_object($attributes) && is_subclass_of($attributes, "\\r\\Query")))
-            $attributes = nativeToDatum($attributes);
+        $attributes = nativeToDatum($attributes);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attributes);
@@ -66,19 +65,7 @@ class OrderBy extends ValuedQuery
         }
         foreach ($keys as &$val) {
             if (!(is_object($val) && is_subclass_of($val, "\\r\\Ordering"))) {
-                if (!(is_object($val) && is_subclass_of($val, "\\r\\Query"))) {
-                    try {
-                        $val = nativeToDatum($val);
-                        if (!is_subclass_of($val, "\\r\\Datum")) {
-                            // $val is not a simple datum. Wrap it into a function:                
-                            $val = new RFunction(array(new RVar('_')), $val);
-                        }
-                    } catch (RqlDriverError $e) {
-                        $val = nativeToFunction($val);
-                    }
-                } else if (!(is_object($val) && is_subclass_of($val, "\\r\\FunctionQuery"))) {
-                    $val = new RFunction(array(new RVar('_')), $val);
-                }
+                $val = nativeToDatumOrFunction($val);
             }
             unset($val);
         }
@@ -98,8 +85,7 @@ class OrderBy extends ValuedQuery
 class Skip extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $n) {
-        if (!(is_object($n) && is_subclass_of($n, "\\r\\Query")))
-            $n = new NumberDatum($n);
+        $n = nativeToDatum($n);
             
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $n);
@@ -113,8 +99,7 @@ class Skip extends ValuedQuery
 class Limit extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $n) {
-        if (!(is_object($n) && is_subclass_of($n, "\\r\\Query")))
-            $n = new NumberDatum($n);
+        $n = nativeToDatum($n);
             
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $n);
@@ -128,10 +113,9 @@ class Limit extends ValuedQuery
 class Slice extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $startIndex, $endIndex = null, $opts = null) {
-        if (!(is_object($startIndex) && is_subclass_of($startIndex, "\\r\\Query")))
-            $startIndex = new NumberDatum($startIndex);
-        if (isset($endIndex) && !(is_object($endIndex) && is_subclass_of($endIndex, "\\r\\Query")))
-            $endIndex = new NumberDatum($endIndex);
+        $startIndex = nativeToDatum($startIndex);
+        if (isset($endIndex))
+            $endIndex = nativeToDatum($endIndex);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $startIndex);
@@ -157,8 +141,7 @@ class Slice extends ValuedQuery
 class Nth extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $index) {
-        if (!(is_object($index) && is_subclass_of($index, "\\r\\Query")))
-            $index = new NumberDatum($index);
+        $index = nativeToDatum($index);
 
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $index);
@@ -172,19 +155,7 @@ class Nth extends ValuedQuery
 class IndexesOf extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $predicate) {
-        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query"))) {
-            try {
-                $predicate = nativeToDatum($predicate);
-                if (!is_subclass_of($predicate, "\\r\\Datum")) {
-                    // $predicate is not a simple datum. Wrap it into a function:                
-                    $predicate = new RFunction(array(new RVar('_')), $predicate);
-                }
-            } catch (RqlDriverError $e) {
-                $predicate = nativeToFunction($predicate);
-            }
-        } else if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\FunctionQuery"))) {
-            $predicate = new RFunction(array(new RVar('_')), $predicate);
-        }
+        $predicate = nativeToDatumOrFunction($predicate);
 
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $predicate);
@@ -221,8 +192,7 @@ class Union extends ValuedQuery
 class Sample extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $n) {
-        if (!(is_object($n) && is_subclass_of($n, "\\r\\Query")))
-            $n = new NumberDatum($n);
+        $n = nativeToDatum($n);
 
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $n);
