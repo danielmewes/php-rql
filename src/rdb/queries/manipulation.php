@@ -44,7 +44,7 @@ class Without extends ValuedQuery
 class Merge extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $other) {
-        $other = nativeToDatum($other);
+        $other = nativeToDatumOrFunction($other);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $other);
