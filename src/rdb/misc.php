@@ -398,19 +398,7 @@ abstract class Ordering extends Query {
 
 class Asc extends Ordering {
     public function __construct($attribute) {
-        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query"))) {
-            try {
-                $attribute = nativeToDatum($attribute);
-                if (!is_subclass_of($attribute, "\\r\\Datum")) {
-                    // $attribute is not a simple datum. Wrap it into a function:
-                    $attribute = new RFunction(array(new RVar('_')), $attribute);
-                }
-            } catch (RqlDriverError $e) {
-                $attribute = nativeToFunction($attribute);
-            }
-        } else if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\FunctionQuery"))) {
-            $attribute = new RFunction(array(new RVar('_')), $attribute);
-        }
+        $attribute = nativeToDatumOrFunction($attribute);
         $this->setPositionalArg(0, $attribute);
     }
 
@@ -421,19 +409,7 @@ class Asc extends Ordering {
 
 class Desc extends Ordering {
     public function __construct($attribute) {
-        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query"))) {
-            try {
-                $attribute = nativeToDatum($attribute);
-                if (!is_subclass_of($attribute, "\\r\\Datum")) {
-                    // $attribute is not a simple datum. Wrap it into a function:
-                    $attribute = new RFunction(array(new RVar('_')), $attribute);
-                }
-            } catch (RqlDriverError $e) {
-                $attribute = nativeToFunction($attribute);
-            }
-        } else if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\FunctionQuery"))) {
-            $attribute = new RFunction(array(new RVar('_')), $attribute);
-        }
+        $attribute = nativeToDatumOrFunction($attribute);
         $this->setPositionalArg(0, $attribute);
     }
 
