@@ -11,6 +11,20 @@ class MathTest extends TestCase
         $this->checkQueryResult(r\expr('id:0,name:mlucy,foo:bar')->match('name:(\w+)'),
             array('str' => 'name:mlucy', 'start' => 5, 'groups' => array(array('str' => 'mlucy', 'start' => 10, 'end' => 15)), 'end' => 15));
 
+        $this->checkQueryResult(r\expr('aA')->upcase(),
+            "AA");
+        $this->checkQueryResult(r\expr('aA')->downcase(),
+            "aa");
+
+        $this->checkQueryResult(r\expr('foo bar bax')->split(),
+            array('foo', 'bar', 'bax'));
+        $this->checkQueryResult(r\expr('foo,bar,bax')->split(","),
+            array('foo', 'bar', 'bax'));
+        $this->checkQueryResult(r\expr('foo')->split(""),
+            array('f', 'o', 'o'));
+        $this->checkQueryResult(r\expr('foo bar bax')->split(null, 1),
+            array('foo', 'bar bax'));
+
         $this->checkQueryResult(r\expr('a')->add('b'),
             'ab');
         $this->checkQueryResult(r\expr(1)->add(2),

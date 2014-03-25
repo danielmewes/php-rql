@@ -109,4 +109,43 @@ class Match extends ValuedQuery
     }
 }
 
+class Upcase extends ValuedQuery
+{
+    public function __construct(ValuedQuery $value) {
+        $this->setPositionalArg(0, $value);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_UPCASE;
+    }
+}
+
+class Downcase extends ValuedQuery
+{
+    public function __construct(ValuedQuery $value) {
+        $this->setPositionalArg(0, $value);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DOWNCASE;
+    }
+}
+
+class Split extends ValuedQuery
+{
+    public function __construct(ValuedQuery $value, $separator = null, $maxSplits = null) {
+        $this->setPositionalArg(0, $value);
+        if (isset($separator) || isset($maxSplits)) {
+            $this->setPositionalArg(1, nativeToDatum($separator));
+        }
+        if (isset($maxSplits)) {
+            $this->setPositionalArg(2, nativeToDatum($maxSplits));
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SPLIT;
+    }
+}
+
 ?>

@@ -334,6 +334,15 @@ abstract class ValuedQuery extends Query
     public function match($expression) {
         return new Match($this, $expression);
     }
+    public function upcase() {
+        return new Upcase($this);
+    }
+    public function downcase() {
+        return new Downcase($this);
+    }
+    public function split($separator = null, $maxSplits = null) {
+        return new split($this, $separator, $maxSplits);
+    }
     public function rForeach($queryFunction) {
         return new RForeach($this, $queryFunction);
     }
