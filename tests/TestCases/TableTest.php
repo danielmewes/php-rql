@@ -7,7 +7,7 @@ class TableTest extends TestCase
         // Test management operations
         r\dbCreate('tableTest')->run($this->conn);
         
-        $this->checkQueryResult(r\db('tableTest')->tableCreate('t1', array('durability' => 'soft', 'cache_size' => 8, 'primary_key' => 'p')), array('created' => 1.0));
+        $this->checkQueryResult(r\db('tableTest')->tableCreate('t1', array('durability' => 'soft', 'primary_key' => 'p')), array('created' => 1.0));
         $this->checkQueryResult(r\db('tableTest')->table('t1')->insert(array( 'p' => 'foo')), array('unchanged' => 0, 'skipped' => 0, 'replaced' => 0, 'inserted' => 1, 'errors' => 0, 'deleted' => 0));
         
         $this->checkQueryResult(r\db('tableTest')->tableList(), array('t1'));
