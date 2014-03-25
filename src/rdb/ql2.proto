@@ -204,6 +204,8 @@ message Term {
                          // | Sequence, STRING -> Sequence
         // Return an array containing the keys of the object.
         KEYS = 94; // OBJECT -> ARRAY
+        // Creates an object
+        OBJECT = 143; // STRING, DATUM, ... -> OBJECT
         // Check whether an object contains all the specified fields,
         // or filters a sequence so that all objects inside of it
         // contain all the specified fields.
@@ -417,6 +419,10 @@ message Term {
         // matches the regular expression `b`.
         MATCH = 97; // STRING, STRING -> DATUM
 
+        // Change the case of a string.
+        UPCASE = 141; // STRING -> STRING
+        DOWNCASE = 142; // STRING -> STRING
+
         // Select a number of elements from sequence with uniform distribution.
         SAMPLE = 81; // Sequence, NUMBER -> Sequence
 
@@ -500,6 +506,21 @@ message Term {
 
         // Indicates to MERGE to replace the other object rather than merge it.
         LITERAL = 137; // JSON -> Merging
+
+        // SEQUENCE, STRING -> GROUPED_SEQUENCE | SEQUENCE, FUNCTION -> GROUPED_SEQUENCE
+        GROUP = 144;
+        SUM = 145;
+        AVG = 146;
+        MIN = 147;
+        MAX = 148;
+
+        // `str.split()` splits on whitespace
+        // `str.split(" ")` splits on spaces only
+        // `str.split(" ", 5)` splits on spaces with at most 5 results
+        // `str.split(nil, 5)` splits on whitespace with at most 5 results
+        SPLIT = 149; // STRING -> ARRAY | STRING, STRING -> ARRAY | STRING, STRING, NUMBER -> ARRAY | STRING, NULL, NUMBER -> ARRAY
+
+        UNGROUP = 150; // GROUPED_DATA -> ARRAY
     }
     optional TermType type = 1;
 
