@@ -45,24 +45,6 @@ function tableList() {
     return new TableList(null);
 }
 
-function count()
-{
-    $object = array('COUNT' => new BoolDatum(true));
-    return new MakeObject($object);
-}
-
-function sum($attribute)
-{
-    $object = array('SUM' => new StringDatum($attribute));
-    return new MakeObject($object);
-}
-
-function avg($attribute)
-{
-    $object = array('AVG' => new StringDatum($attribute));
-    return new MakeObject($object);
-}
-
 function rDo($args, $inExpr)
 {
     return new RDo($args, $inExpr);

@@ -2,17 +2,11 @@
 
 class Reduce extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $reductionFunction, $base) {
-        if (!(is_object($reductionFunction) && is_subclass_of($reductionFunction, "\\r\\Query")))
-            $reductionFunction = nativeToFunction($reductionFunction);
-        if (isset($base) && !(is_object($base) && is_subclass_of($base, "\\r\\Query")))
-            $base = nativeToDatum($base);
+    public function __construct(ValuedQuery $sequence, $reductionFunction) {
+        $reductionFunction = nativeToFunction($reductionFunction);
 
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $reductionFunction);
-        if (isset($base)) {
-            $this->setOptionalArg('base', $base);
-        }
     }
     
     protected function getTermType() {
@@ -49,38 +43,109 @@ class Distinct extends ValuedQuery
     }
 }
 
-class GroupedMapReduce extends ValuedQuery
+class Group extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $grouping, $mapping, $reduction) {
-        $grouping = nativeToFunction($grouping);
-        $mapping = nativeToFunction($mapping);
-        $reduction = nativeToFunction($reduction);
+    public function __construct(ValuedQuery $sequence, $groupOn) {
+        if (!is_array($groupOn)) {
+            $groupOn = array($groupOn);
+        }
+        if (isset($groupOn['index'])) {
+            $this->setOptionalArg('index', nativeToDatum($groupOn['index']));
+            unset($groupOn['index']);
+        }
         
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, $grouping);
-        $this->setPositionalArg(2, $mapping);
-        $this->setPositionalArg(3, $reduction);
+        $i = 1;
+        foreach ($groupOn as $g) {
+            $this->setPositionalArg($i++, nativeToDatumOrFunction($g));
+        }
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_GROUPED_MAP_REDUCE;
+        return pb\Term_TermType::PB_GROUP;
     }
 }
 
-class GroupBy extends ValuedQuery
+class Ungroup extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $keys, MakeObject $reductionObject) {
-        if (is_string($keys))
-            $keys = array($keys);
-        $keys = nativeToDatum($keys);
-        
+    public function __construct(ValuedQuery $sequence) {
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, $keys);
-        $this->setPositionalArg(2, $reductionObject);
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_GROUPBY;
+        return pb\Term_TermType::PB_UNGROUP;
+    }
+}
+
+class Sum extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SUM;
+    }
+}
+
+class Avg extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_AVG;
+    }
+}
+
+class Min extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MIN;
+    }
+}
+
+class Max extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MAX;
     }
 }
 

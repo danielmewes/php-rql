@@ -218,13 +218,23 @@ abstract class ValuedQuery extends Query
     public function distinct() {
         return new Distinct($this);
     }
-    public function groupedMapReduce($grouping, $mapping, $reduction, $base = null) {
-        return new GroupedMapReduce($this, $grouping, $mapping, $reduction, $base);
+    public function group($groupOn) {
+        return new Group($this, $groupOn);
     }
-    // RethinkDB in 1.4 expects a MakeObject term as the reduction object.
-    // An ordinary ObjectDatum doesn't work. (this has been fixed in 1.5 though)
-    public function groupBy($keys, MakeObject $reductionObject) {
-        return new GroupBy($this, $keys, $reductionObject);
+    public function ungroup() {
+        return new Ungroup($this);
+    }
+    public function avg($attribute = null) {
+        return new Avg($this, $attribute);
+    }
+    public function sum($attribute = null) {
+        return new Sum($this, $attribute);
+    }
+    public function min($attribute = null) {
+        return new Min($this, $attribute);
+    }
+    public function max($attribute = null) {
+        return new Max($this, $attribute);
     }
     // Note: The API docs suggest that as of 1.6, contains can accept multiple values.
     //  We do not support that for the time being.
