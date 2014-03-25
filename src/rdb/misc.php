@@ -435,6 +435,20 @@ class Info extends ValuedQuery {
     }
 }
 
+class RObject extends ValuedQuery {
+    public function __construct($object) {
+        if (!is_array($object)) throw RqlDriverError("Argument to r\\Object must be an array.");
+        $i = 0;
+        foreach($object as $v) {
+            $this->setPositionalArg($i++, nativeToDatum($v));
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_OBJECT;
+    }
+}
+
 class Json extends ValuedQuery {
     public function __construct($json) {
         if (!(is_object($json) && is_subclass_of($json, "\\r\\Query"))) {

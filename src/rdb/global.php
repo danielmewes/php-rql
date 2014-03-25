@@ -111,6 +111,11 @@ function json($json) {
     return new Json($json);
 }
 
+function rObject($object)
+{
+    return new RObject($object);
+}
+
 function literal($value) {
     return new Literal($value);
 }
