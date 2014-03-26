@@ -42,15 +42,15 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>03/25/2014 New release: PHP-RQL 1.12.0. Support for new <a href="https://github.com/rethinkdb/rethinkdb/releases">RethinkDB 1.12 features</a>, including the new terms <code>group()</code>, <code>ungroup()</code>, <code>rObject()</code>, <code>split()</code>, <code>upcase()</code> and <code>downcase()</code>. If you are using <code>groupedMapReduce()</code> (removed), <code>groupBy()</code> (removed) or <code>reduce()</code> (optional base argument removed), you may have to modify your application. Other changes in PHP-RQL 1.12.0 include: <code>db()</code> and <code>table()</code> now accept ReQL terms as their argument, <code>r\systemInfo()</code> includes the version of PHP-RQL, and lambda functions are allowed to return native PHP types, rather than having to wrap the return value into an <code>r\expr()</code>.</li>
 <li>02/25/2014 New release: PHP-RQL 1.11.2. Adds support for <a href="https://github.com/danielmewes/php-rql/issues/51">index parameter to orderBy</a>.</li>
 <li>12/23/2013 New release: PHP-RQL 1.11.1. Fixes an <a href="https://github.com/danielmewes/php-rql/issues/47">issue</a> due to which floating point numbers were incorrectly rounded when inserting or updating documents.</li>
-<li>12/03/2013 New release: PHP-RQL 1.11.0. Support for new RethinkDB 1.11 features (noreplyWait, indexStatus, indexWait, sync, profiling). PHP-RQL 1.11 internally makes use of RethinkDB 1.11 JSON-based server replies. In our experiments, this improved the speed of retrieving complex documents by a factor of 3 if you are already using the <a href="http://php-rql.dnsalias.net/wiki/index.php/InstallExtension">optimized protobuf extension</a>, and by a factor of 15 or more without the extension.</li>
 </ul><h2>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 1.11</li>
+<li>RethinkDB 1.12</li>
 </ul><h2>
 <a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
 
