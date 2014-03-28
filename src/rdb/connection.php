@@ -8,7 +8,6 @@ class Connection
     public function __construct($host, $port = 28015, $db = null, $apiKey = null, $timeout = null) {
         if (!isset($host)) throw new RqlDriverError("No host given.");
         if (!isset($port)) throw new RqlDriverError("No port given.");
-        if (isset($db) && !is_string($db)) throw new RqlDriverError("Database must be a string.");
         if (isset($apiKey) && !is_string($apiKey)) throw new RqlDriverError("The API key must be a string.");
 
         $this->host = $host;
@@ -20,6 +19,8 @@ class Connection
         
         if (isset($db))
             $this->useDb($db);
+        if (isset($timeout))
+            $this->setTimeout($timeout);
 
         $this->connect();
     }
@@ -52,10 +53,12 @@ class Connection
     }
 
     public function useDb($dbName) {
+        if (!is_string($dbName)) throw new RqlDriverError("Database must be a string.");
         $this->defaultDb = new Db($dbName);
     }
 
     public function setTimeout($timeout) {
+        if (!is_numeric($timeout)) throw new RqlDriverError("Timeout must be a number.");
         $this->applyTimeout($timeout);
         $this->timeout = $timeout;
     }

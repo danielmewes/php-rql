@@ -1,6 +1,6 @@
 <?php namespace r\pb;
 /**
- * Auto generated from ql2.proto at 2013-12-03 15:24:24
+ * Auto generated from ql2.proto at 2014-03-24 18:15:24
  */
 
 /**
@@ -538,6 +538,7 @@ final class Term_TermType
     const PB_CONTAINS = 93;
     const PB_GET_FIELD = 31;
     const PB_KEYS = 94;
+    const PB_OBJECT = 143;
     const PB_HAS_FIELDS = 32;
     const PB_WITH_FIELDS = 96;
     const PB_PLUCK = 33;
@@ -592,6 +593,8 @@ final class Term_TermType
     const PB_DESC = 74;
     const PB_INFO = 79;
     const PB_MATCH = 97;
+    const PB_UPCASE = 141;
+    const PB_DOWNCASE = 142;
     const PB_SAMPLE = 81;
     const PB_DEFAULT = 92;
     const PB_JSON = 98;
@@ -634,6 +637,13 @@ final class Term_TermType
     const PB_NOVEMBER = 124;
     const PB_DECEMBER = 125;
     const PB_LITERAL = 137;
+    const PB_GROUP = 144;
+    const PB_SUM = 145;
+    const PB_AVG = 146;
+    const PB_MIN = 147;
+    const PB_MAX = 148;
+    const PB_SPLIT = 149;
+    const PB_UNGROUP = 150;
 
     /**
      * Returns defined enum values
@@ -680,6 +690,7 @@ final class Term_TermType
             'CONTAINS' => self::PB_CONTAINS,
             'GET_FIELD' => self::PB_GET_FIELD,
             'KEYS' => self::PB_KEYS,
+            'OBJECT' => self::PB_OBJECT,
             'HAS_FIELDS' => self::PB_HAS_FIELDS,
             'WITH_FIELDS' => self::PB_WITH_FIELDS,
             'PLUCK' => self::PB_PLUCK,
@@ -734,6 +745,8 @@ final class Term_TermType
             'DESC' => self::PB_DESC,
             'INFO' => self::PB_INFO,
             'MATCH' => self::PB_MATCH,
+            'UPCASE' => self::PB_UPCASE,
+            'DOWNCASE' => self::PB_DOWNCASE,
             'SAMPLE' => self::PB_SAMPLE,
             'DEFAULT' => self::PB_DEFAULT,
             'JSON' => self::PB_JSON,
@@ -776,6 +789,13 @@ final class Term_TermType
             'NOVEMBER' => self::PB_NOVEMBER,
             'DECEMBER' => self::PB_DECEMBER,
             'LITERAL' => self::PB_LITERAL,
+            'GROUP' => self::PB_GROUP,
+            'SUM' => self::PB_SUM,
+            'AVG' => self::PB_AVG,
+            'MIN' => self::PB_MIN,
+            'MAX' => self::PB_MAX,
+            'SPLIT' => self::PB_SPLIT,
+            'UNGROUP' => self::PB_UNGROUP,
         );
     }
 }

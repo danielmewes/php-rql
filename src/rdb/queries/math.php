@@ -4,8 +4,7 @@
 class BinaryOp extends ValuedQuery
 {
     public function __construct($termType, ValuedQuery $value, $other) {
-        if (!(is_object($other) && is_subclass_of($other, "\\r\\Query")))
-            $other = nativeToDatum($other);
+        $other = nativeToDatum($other);
         $this->termType = $termType;
 
         $this->setPositionalArg(0, $value);
@@ -99,8 +98,7 @@ class Not extends ValuedQuery
 class Match extends ValuedQuery
 {
     public function __construct(ValuedQuery $value, $expression) {
-        if (!(is_object($expression) && is_subclass_of($expression, "\\r\\Query")))
-            $expression = nativeToDatum($expression);
+        $expression = nativeToDatum($expression);
 
         $this->setPositionalArg(0, $value);
         $this->setPositionalArg(1, $expression);
@@ -108,6 +106,45 @@ class Match extends ValuedQuery
 
     protected function getTermType() {
         return pb\Term_TermType::PB_MATCH;
+    }
+}
+
+class Upcase extends ValuedQuery
+{
+    public function __construct(ValuedQuery $value) {
+        $this->setPositionalArg(0, $value);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_UPCASE;
+    }
+}
+
+class Downcase extends ValuedQuery
+{
+    public function __construct(ValuedQuery $value) {
+        $this->setPositionalArg(0, $value);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DOWNCASE;
+    }
+}
+
+class Split extends ValuedQuery
+{
+    public function __construct(ValuedQuery $value, $separator = null, $maxSplits = null) {
+        $this->setPositionalArg(0, $value);
+        if (isset($separator) || isset($maxSplits)) {
+            $this->setPositionalArg(1, nativeToDatum($separator));
+        }
+        if (isset($maxSplits)) {
+            $this->setPositionalArg(2, nativeToDatum($maxSplits));
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SPLIT;
     }
 }
 

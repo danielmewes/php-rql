@@ -15,11 +15,6 @@ else if ($__PHP_RQL_PROTOBUF_BACKEND == 'pb4php') {
 }
 else throw new Exception("Unknown PHP-RQL protobuf backend: " . $__PHP_RQL_PROTOBUF_BACKEND);
 
-function systemInfo()
-{
-    global $__PHP_RQL_PROTOBUF_BACKEND;
-    return "Protobuf backend: " . $__PHP_RQL_PROTOBUF_BACKEND . "\n";
-}
 
 require_once("util.php");
 require_once("global.php");
@@ -28,5 +23,17 @@ require_once("connection.php");
 require_once("datum.php");
 require_once("queries.php");
 require_once("function.php");
+require_once("version.php");
+
+
+function systemInfo()
+{
+    global $__PHP_RQL_PROTOBUF_BACKEND;
+    global $__PHP_RQL_VERSION;
+    $result = "";
+    $result .=  "Protobuf backend: " . $__PHP_RQL_PROTOBUF_BACKEND . "\n";
+    $result .=  "PHP-RQL Version: " . $__PHP_RQL_VERSION . "\n";
+    return $result;
+}
 
 ?>

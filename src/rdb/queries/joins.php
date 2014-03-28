@@ -3,8 +3,7 @@
 class InnerJoin extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, ValuedQuery $otherSequence, $predicate) {
-        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query")))
-            $predicate = nativeToFunction($predicate);
+        $predicate = nativeToFunction($predicate);
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $otherSequence);
         $this->setPositionalArg(2, $predicate);
@@ -18,8 +17,7 @@ class InnerJoin extends ValuedQuery
 class OuterJoin extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, ValuedQuery $otherSequence, $predicate) {
-        if (!(is_object($predicate) && is_subclass_of($predicate, "\\r\\Query")))
-            $predicate = nativeToFunction($predicate);
+        $predicate = nativeToFunction($predicate);
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $otherSequence);
         $this->setPositionalArg(2, $predicate);
@@ -33,19 +31,7 @@ class OuterJoin extends ValuedQuery
 class EqJoin extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute, ValuedQuery $otherSequence, $opts = null) {
-        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query"))) {
-            try {
-                $attribute = nativeToDatum($attribute);
-                if (!is_subclass_of($attribute, "\\r\\Datum")) {
-                    // $attribute is not a simple datum. Wrap it into a function:                
-                    $attribute = new RFunction(array(new RVar('_')), $attribute);
-                }
-            } catch (RqlDriverError $e) {
-                $attribute = nativeToFunction($attribute);
-            }
-        } else if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\FunctionQuery"))) {
-            $attribute = new RFunction(array(new RVar('_')), $attribute);
-        }
+        $attribute = nativeToDatumOrFunction($attribute);
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attribute);
         $this->setPositionalArg(2, $otherSequence);

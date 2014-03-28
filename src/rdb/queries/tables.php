@@ -17,7 +17,7 @@ class TableCreate extends ValuedQuery
 {
     public function __construct($database, $tableName, $options = null) {
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
-        if (!\is_string($tableName)) throw new RqlDriverError("Table name must be a string.");
+        $tableName = nativeToDatum($tableName);
         if (isset($options)) {
             if (!is_array($options)) throw new RqlDriverError("Options must be an array.");
             foreach ($options as $key => &$val) {
@@ -32,7 +32,7 @@ class TableCreate extends ValuedQuery
         $i = 0;
         if (isset($database))
             $this->setPositionalArg($i++, $database);
-        $this->setPositionalArg($i++, new StringDatum($tableName));
+        $this->setPositionalArg($i++, $tableName);
         if (isset($options)) {
             foreach ($options as $key => $val) {
                 $this->setOptionalArg($key, $val);
@@ -49,12 +49,12 @@ class TableDrop extends ValuedQuery
 {
     public function __construct($database, $tableName) {
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
-        if (!\is_string($tableName)) throw new RqlDriverError("Table name must be a string.");
+        $tableName = nativeToDatum($tableName);
 
         $i = 0;
         if (isset($database))
             $this->setPositionalArg($i++, $database);
-        $this->setPositionalArg($i++, new StringDatum($tableName));
+        $this->setPositionalArg($i++, $tableName);
     }
     
     protected function getTermType() {
@@ -101,6 +101,7 @@ class Table extends ValuedQuery
 
     public function __construct($database, $tableName, $useOutdated = null) {
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
+        $tableName = nativeToDatum($tableName);
         if (isset($useOutdated) && !is_bool($useOutdated)) throw new RqlDriverError("Use outdated must be bool.");
         
         if (is_string($tableName)) {
@@ -114,7 +115,7 @@ class Table extends ValuedQuery
         $i = 0;
         if (isset($database))
             $this->setPositionalArg($i++, $database);
-        $this->setPositionalArg($i++, $t);
+        $this->setPositionalArg($i++, $tableName);
         if (isset($useOutdated)) {
             $this->setOptionalArg('use_outdated', new BoolDatum($useOutdated));
         }

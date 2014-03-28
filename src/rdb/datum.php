@@ -60,6 +60,8 @@ function nativeToDatum($v) {
     }
     else if (is_string($v)) {
         return new StringDatum($v);
+    } else if (is_object($v) && is_subclass_of($v, "\\r\\Query")) {
+        return $v;
     }
     else {
         throw new RqlDriverError("Unhandled type " . get_class($v));

@@ -14,7 +14,7 @@ class IndexList extends ValuedQuery
 class IndexCreate extends ValuedQuery
 {
     public function __construct(Table $table, $indexName, $keyFunction = null, $options = null) {
-        if (!\is_string($indexName)) throw new RqlDriverError("Index name must be a string.");
+        $indexName = nativeToDatum($indexName);
         if (isset($keyFunction)) {
             if (!(is_object($keyFunction) && is_subclass_of($keyFunction, "\\r\\Query"))) {
                 $keyFunction = nativeToFunction($keyFunction);
@@ -34,7 +34,7 @@ class IndexCreate extends ValuedQuery
         }
 
         $this->setPositionalArg(0, $table);
-        $this->setPositionalArg(1, new StringDatum($indexName));
+        $this->setPositionalArg(1, $indexName);
         if (isset($keyFunction))
             $this->setPositionalArg(2, $keyFunction);
         if (isset($options)) {
@@ -52,9 +52,9 @@ class IndexCreate extends ValuedQuery
 class IndexDrop extends ValuedQuery
 {
     public function __construct(Table $table, $indexName) {
-        if (!\is_string($indexName)) throw new RqlDriverError("Index name must be a string.");
+        $indexName = nativeToDatum($indexName);
         $this->setPositionalArg(0, $table);
-        $this->setPositionalArg(1, new StringDatum($indexName));
+        $this->setPositionalArg(1, $indexName);
     }
     
     protected function getTermType() {
@@ -71,7 +71,7 @@ class IndexStatus extends ValuedQuery
         if (isset($indexNames)) {
             $pos = 1;
             foreach ($indexNames as $v) {
-                $this->setPositionalArg($pos++, new StringDatum($v));
+                $this->setPositionalArg($pos++, nativeToDatum($v));
             }
         }
     }
@@ -90,7 +90,7 @@ class IndexWait extends ValuedQuery
         if (isset($indexNames)) {
             $pos = 1;
             foreach ($indexNames as $v) {
-                $this->setPositionalArg($pos++, new StringDatum($v));
+                $this->setPositionalArg($pos++, nativeToDatum($v));
             }
         }
     }

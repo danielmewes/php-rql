@@ -5,9 +5,9 @@ require_once("connection.php");
 
 // ------------- Global functions in namespace r -------------
 
-function connect($host, $port = 28015, $db = null, $apiKey = null)
+function connect($host, $port = 28015, $db = null, $apiKey = null, $timeout = null)
 {
-    return new Connection($host, $port, $db, $apiKey);
+    return new Connection($host, $port, $db, $apiKey, $timeout);
 }
 
 function db($dbName)
@@ -43,24 +43,6 @@ function tableDrop($tableName) {
 }
 function tableList() {
     return new TableList(null);
-}
-
-function count()
-{
-    $object = array('COUNT' => new BoolDatum(true));
-    return new MakeObject($object);
-}
-
-function sum($attribute)
-{
-    $object = array('SUM' => new StringDatum($attribute));
-    return new MakeObject($object);
-}
-
-function avg($attribute)
-{
-    $object = array('AVG' => new StringDatum($attribute));
-    return new MakeObject($object);
 }
 
 function rDo($args, $inExpr)
@@ -109,6 +91,11 @@ function asc($attribute) {
 
 function json($json) {
     return new Json($json);
+}
+
+function rObject($object)
+{
+    return new RObject($object);
 }
 
 function literal($value) {

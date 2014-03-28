@@ -209,8 +209,8 @@ abstract class ValuedQuery extends Query
     public function sample($n) {
         return new Sample($this, $n);
     }
-    public function reduce($reductionFunction, $base = null) {
-        return new Reduce($this, $reductionFunction, $base);
+    public function reduce($reductionFunction) {
+        return new Reduce($this, $reductionFunction);
     }
     public function count($filter = null) {
         return new Count($this, $filter);
@@ -218,13 +218,23 @@ abstract class ValuedQuery extends Query
     public function distinct() {
         return new Distinct($this);
     }
-    public function groupedMapReduce($grouping, $mapping, $reduction, $base = null) {
-        return new GroupedMapReduce($this, $grouping, $mapping, $reduction, $base);
+    public function group($groupOn) {
+        return new Group($this, $groupOn);
     }
-    // RethinkDB in 1.4 expects a MakeObject term as the reduction object.
-    // An ordinary ObjectDatum doesn't work. (this has been fixed in 1.5 though)
-    public function groupBy($keys, MakeObject $reductionObject) {
-        return new GroupBy($this, $keys, $reductionObject);
+    public function ungroup() {
+        return new Ungroup($this);
+    }
+    public function avg($attribute = null) {
+        return new Avg($this, $attribute);
+    }
+    public function sum($attribute = null) {
+        return new Sum($this, $attribute);
+    }
+    public function min($attribute = null) {
+        return new Min($this, $attribute);
+    }
+    public function max($attribute = null) {
+        return new Max($this, $attribute);
     }
     // Note: The API docs suggest that as of 1.6, contains can accept multiple values.
     //  We do not support that for the time being.
@@ -334,6 +344,15 @@ abstract class ValuedQuery extends Query
     public function match($expression) {
         return new Match($this, $expression);
     }
+    public function upcase() {
+        return new Upcase($this);
+    }
+    public function downcase() {
+        return new Downcase($this);
+    }
+    public function split($separator = null, $maxSplits = null) {
+        return new split($this, $separator, $maxSplits);
+    }
     public function rForeach($queryFunction) {
         return new RForeach($this, $queryFunction);
     }
@@ -398,19 +417,7 @@ abstract class Ordering extends Query {
 
 class Asc extends Ordering {
     public function __construct($attribute) {
-        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query"))) {
-            try {
-                $attribute = nativeToDatum($attribute);
-                if (!is_subclass_of($attribute, "\\r\\Datum")) {
-                    // $attribute is not a simple datum. Wrap it into a function:
-                    $attribute = new RFunction(array(new RVar('_')), $attribute);
-                }
-            } catch (RqlDriverError $e) {
-                $attribute = nativeToFunction($attribute);
-            }
-        } else if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\FunctionQuery"))) {
-            $attribute = new RFunction(array(new RVar('_')), $attribute);
-        }
+        $attribute = nativeToDatumOrFunction($attribute);
         $this->setPositionalArg(0, $attribute);
     }
 
@@ -421,19 +428,7 @@ class Asc extends Ordering {
 
 class Desc extends Ordering {
     public function __construct($attribute) {
-        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query"))) {
-            try {
-                $attribute = nativeToDatum($attribute);
-                if (!is_subclass_of($attribute, "\\r\\Datum")) {
-                    // $attribute is not a simple datum. Wrap it into a function:
-                    $attribute = new RFunction(array(new RVar('_')), $attribute);
-                }
-            } catch (RqlDriverError $e) {
-                $attribute = nativeToFunction($attribute);
-            }
-        } else if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\FunctionQuery"))) {
-            $attribute = new RFunction(array(new RVar('_')), $attribute);
-        }
+        $attribute = nativeToDatumOrFunction($attribute);
         $this->setPositionalArg(0, $attribute);
     }
 
@@ -456,6 +451,20 @@ class Info extends ValuedQuery {
 
     protected function getTermType() {
         return pb\Term_TermType::PB_INFO;
+    }
+}
+
+class RObject extends ValuedQuery {
+    public function __construct($object) {
+        if (!is_array($object)) throw RqlDriverError("Argument to r\\Object must be an array.");
+        $i = 0;
+        foreach($object as $v) {
+            $this->setPositionalArg($i++, nativeToDatum($v));
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_OBJECT;
     }
 }
 

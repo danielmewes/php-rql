@@ -6,7 +6,7 @@ class Huge extends Dataset
     {
         // Prepare a table with 5000 rows
         r\dbCreate('Huge')->run($this->conn);
-        r\db('Huge')->tableCreate('t5000', array('durability' => 'soft', 'cache_size' => 128 * 1024 * 1024))->run($this->conn);
+        r\db('Huge')->tableCreate('t5000', array('durability' => 'soft'))->run($this->conn);
         
         $doc = array('key' => str_repeat("var", 1000));
         $docs = array_fill(0, 5000, $doc);

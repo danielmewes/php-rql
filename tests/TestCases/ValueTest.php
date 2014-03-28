@@ -27,12 +27,13 @@ class ValueTest extends TestCase
             $this->checkQueryResult(r\expr(array('foo' => true)), array('foo' => true), $runOptions);
             $this->checkQueryResult(r\expr(array(1, 2, 3)), array(1.0, 2.0, 3.0), $runOptions);
             $this->checkQueryResult(r\expr(array(1, 'foo', true, null)), array(1.0, 'foo', true, null), $runOptions);
-            
+
             // Special cases where we have to use manual Datum objects
             $this->checkQueryResult(new r\ArrayDatum(array()), array(), $runOptions);
             $this->checkQueryResult(new r\ObjectDatum(array()), array(), $runOptions);
             $this->checkQueryResult(new r\ObjectDatum(array(4 => new r\StringDatum('a'))), array(4 => 'a'), $runOptions);
             $this->checkQueryResult(new r\ObjectDatum(array('4' => new r\StringDatum('a'))), array('4' => 'a'), $runOptions);
+            $this->checkQueryResult(r\expr(array(new r\ObjectDatum(array()))), array(array()), $runOptions);
 
         if (!$useJson) {
             $useJson = true;

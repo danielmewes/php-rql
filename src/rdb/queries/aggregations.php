@@ -2,17 +2,11 @@
 
 class Reduce extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $reductionFunction, $base) {
-        if (!(is_object($reductionFunction) && is_subclass_of($reductionFunction, "\\r\\Query")))
-            $reductionFunction = nativeToFunction($reductionFunction);
-        if (isset($base) && !(is_object($base) && is_subclass_of($base, "\\r\\Query")))
-            $base = nativeToDatum($base);
+    public function __construct(ValuedQuery $sequence, $reductionFunction) {
+        $reductionFunction = nativeToFunction($reductionFunction);
 
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $reductionFunction);
-        if (isset($base)) {
-            $this->setOptionalArg('base', $base);
-        }
     }
     
     protected function getTermType() {
@@ -24,19 +18,7 @@ class Count extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $filter = null) {
         if (isset($filter)) {
-            if (!(is_object($filter) && is_subclass_of($filter, "\\r\\Query"))) {
-                try {
-                    $filter = nativeToDatum($filter);
-                    if (!is_subclass_of($filter, "\\r\\Datum")) {
-                        // $filter is not a simple datum. Wrap it into a function:                
-                        $filter = new RFunction(array(new RVar('_')), $filter);
-                    }
-                } catch (RqlDriverError $e) {
-                    $filter = nativeToFunction($filter);
-                }
-            } else if (!(is_object($filter) && is_subclass_of($filter, "\\r\\FunctionQuery"))) {
-                $filter = new RFunction(array(new RVar('_')), $filter);
-            }
+            $filter = nativeToDatumOrFunction($filter);
         }
     
         $this->setPositionalArg(0, $sequence);
@@ -61,68 +43,116 @@ class Distinct extends ValuedQuery
     }
 }
 
-class GroupedMapReduce extends ValuedQuery
+class Group extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $grouping, $mapping, $reduction, $base = null) {
-        if (!(is_object($grouping) && is_subclass_of($grouping, "\\r\\Query")))
-            $grouping = nativeToFunction($grouping);
-        if (!(is_object($mapping) && is_subclass_of($mapping, "\\r\\Query")))
-            $mapping = nativeToFunction($mapping);
-        if (!(is_object($reduction) && is_subclass_of($reduction, "\\r\\Query")))
-            $reduction = nativeToFunction($reduction);
-        if (isset($base) && !(is_object($base) && is_subclass_of($base, "\\r\\Query"))) {
-            // Convert base automatically
-            $base = nativeToDatum($base);
+    public function __construct(ValuedQuery $sequence, $groupOn) {
+        if (!is_array($groupOn)) {
+            $groupOn = array($groupOn);
+        }
+        if (isset($groupOn['index'])) {
+            $this->setOptionalArg('index', nativeToDatum($groupOn['index']));
+            unset($groupOn['index']);
         }
         
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, $grouping);
-        $this->setPositionalArg(2, $mapping);
-        $this->setPositionalArg(3, $reduction);
-        if (isset($base)) {
-            $this->setOptionalArg('base', $base);
+        $i = 1;
+        foreach ($groupOn as $g) {
+            $this->setPositionalArg($i++, nativeToDatumOrFunction($g));
         }
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_GROUPED_MAP_REDUCE;
+        return pb\Term_TermType::PB_GROUP;
     }
 }
 
-class GroupBy extends ValuedQuery
+class Ungroup extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $keys, MakeObject $reductionObject) {
-        if (is_string($keys))
-            $keys = array($keys);
-        if (!(is_object($keys) && is_subclass_of($keys, "\\r\\Query")))
-            $keys = nativeToDatum($keys);
-        
+    public function __construct(ValuedQuery $sequence) {
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, $keys);
-        $this->setPositionalArg(2, $reductionObject);
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_GROUPBY;
+        return pb\Term_TermType::PB_UNGROUP;
+    }
+}
+
+class Sum extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_SUM;
+    }
+}
+
+class Avg extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_AVG;
+    }
+}
+
+class Min extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MIN;
+    }
+}
+
+class Max extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $attribute = null) {
+        if (isset($attribute)) {
+            $attribute = nativeToDatumOrFunction($attribute);
+        }
+    
+        $this->setPositionalArg(0, $sequence);
+        if (isset($attribute)) {
+            $this->setPositionalArg(1, $attribute);
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MAX;
     }
 }
 
 class Contains extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
-            try {
-                $value = nativeToDatum($value);
-                if (!is_subclass_of($value, "\\r\\Datum")) {
-                    // $value is not a simple datum. Wrap it into a function:                
-                    $value = new RFunction(array(new RVar('_')), $value);
-                }
-            } catch (RqlDriverError $e) {
-                $value = nativeToFunction($value);
-            }
-        } else if (!(is_object($value) && is_subclass_of($value, "\\r\\FunctionQuery"))) {
-            $value = new RFunction(array(new RVar('_')), $value);
-        }
+        $value = nativeToDatumOrFunction($value);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $value);
