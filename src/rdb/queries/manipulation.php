@@ -156,7 +156,8 @@ class SetUnion extends ValuedQuery
 class GetField extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute) {
-        $attribute = new StringDatum($attribute);
+        if (!(is_object($attribute) && is_subclass_of($attribute, "\\r\\Query")))
+            $attribute = new StringDatum($attribute);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attribute);
