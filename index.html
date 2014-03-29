@@ -42,9 +42,9 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>03/28/2014 New release: PHP-RQL 1.12.1. Fixes a regression due to which <code>getField()</code> only accepted string constants as its argument. It now accepts either a string or a ReQL query again. Thanks to <a href="https://github.com/wojons">Alexis Okuwa</a> for investigating this bug!</li>
 <li>03/25/2014 New release: PHP-RQL 1.12.0. Support for new <a href="https://github.com/rethinkdb/rethinkdb/releases">RethinkDB 1.12 features</a>, including the new terms <code>group()</code>, <code>ungroup()</code>, <code>rObject()</code>, <code>split()</code>, <code>upcase()</code> and <code>downcase()</code>. If you are using <code>groupedMapReduce()</code> (removed), <code>groupBy()</code> (removed) or <code>reduce()</code> (optional base argument removed), you may have to modify your application. Other changes in PHP-RQL 1.12.0 include: <code>db()</code> and <code>table()</code> now accept ReQL terms as their argument, <code>r\systemInfo()</code> includes the version of PHP-RQL, and lambda functions are allowed to return native PHP types, rather than having to wrap the return value into an <code>r\expr()</code>.</li>
 <li>02/25/2014 New release: PHP-RQL 1.11.2. Adds support for <a href="https://github.com/danielmewes/php-rql/issues/51">index parameter to orderBy</a>.</li>
-<li>12/23/2013 New release: PHP-RQL 1.11.1. Fixes an <a href="https://github.com/danielmewes/php-rql/issues/47">issue</a> due to which floating point numbers were incorrectly rounded when inserting or updating documents.</li>
 </ul><h2>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
