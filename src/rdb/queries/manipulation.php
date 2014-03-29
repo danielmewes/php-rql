@@ -156,7 +156,7 @@ class SetUnion extends ValuedQuery
 class GetField extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $attribute) {
-        $attribute = new nativeToDatum($attribute);
+        $attribute = nativeToDatum($attribute);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attribute);
