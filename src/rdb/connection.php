@@ -15,8 +15,8 @@ class Connection
         if (!isset($apiKey))
             $apiKey = "";
         $this->apiKey = $apiKey;
-        $this->timeout = null;
-
+        $this->timeout = $timeout;
+        
         if (isset($db))
             $this->useDb($db);
         if (isset($timeout))
@@ -257,8 +257,9 @@ class Connection
     }
 
     private function applyTimeout($timeout) {
+        $timeout = (!is_numeric($timeout)) ? null : $timeout;
         if ($this->isOpen()) {
-            if (!stream_set_timeout($this->socket, $timeout)) {
+            if (!stream_set_timeout($this->socket, (int)$timeout)) {
                 throw new RqlDriverError("Could not set timeout");
             }
         }

@@ -104,6 +104,14 @@ class Table extends ValuedQuery
         $tableName = nativeToDatum($tableName);
         if (isset($useOutdated) && !is_bool($useOutdated)) throw new RqlDriverError("Use outdated must be bool.");
         
+        if (is_string($tableName)) {
+            $t = new StringDatum($tableName);
+        } else if (is_object($tableName)) {
+            $t = $tableName;
+        } else {
+            throw new RqlDriverError("Table name must be a string. or evaluate to a string");
+        }
+        
         $i = 0;
         if (isset($database))
             $this->setPositionalArg($i++, $database);
