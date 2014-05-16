@@ -20,12 +20,8 @@ class WithFields extends ValuedQuery
 class Map extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $mappingFunction) {
-        if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\Query"))) {
-            $mappingFunction = nativeToFunction($mappingFunction);
-        } else if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\FunctionQuery"))) {
-            $mappingFunction = new RFunction(array(new RVar('_')), $mappingFunction);
-        }
-        
+        $mappingFunction = nativeToFunction($mappingFunction);
+
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $mappingFunction);
     }
@@ -38,11 +34,7 @@ class Map extends ValuedQuery
 class ConcatMap extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $mappingFunction) {
-        if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\Query"))) {
-            $mappingFunction = nativeToFunction($mappingFunction);
-        } else if (!(is_object($mappingFunction) && is_subclass_of($mappingFunction, "\\r\\FunctionQuery"))) {
-            $mappingFunction = new RFunction(array(new RVar('_')), $mappingFunction);
-        }
+        $mappingFunction = nativeToFunction($mappingFunction);
         
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $mappingFunction);

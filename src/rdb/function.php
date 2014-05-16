@@ -46,15 +46,28 @@ class RFunction extends FunctionQuery {
         $this->setPositionalArg(0, new ArrayDatum($args));
         $this->setPositionalArg(1, $top);
     }
-    
+
+    public function _hasUnwrappedImplicitVar() {
+        // A function wraps implicit variables
+        return false;
+    }
+
     protected function getTermType() {
         return pb\Term_TermType::PB_FUNC;
     }
 }
 
+function wrapImplicitVar(Query $q) {
+    if ($q->_hasUnwrappedImplicitVar()) {
+        return new RFunction(array(new RVar('_')), $q);
+    } else {
+        return $q;
+    }
+}
+
 function nativeToFunction($f) {
-    if (is_object($f) && is_subclass_of($f, "\\r\\FunctionQuery")) {
-        return $f;
+    if (is_object($f) && is_subclass_of($f, "\\r\\Query")) {
+        return wrapImplicitVar($f);
     }
 
     $reflection = new \ReflectionFunction($f);
@@ -89,10 +102,8 @@ function nativeToDatumOrFunction($f) {
         } catch (RqlDriverError $e) {
             $f = nativeToFunction($f);
         }
-    } else if (!(is_object($f) && (is_subclass_of($f, "\\r\\FunctionQuery") || is_subclass_of($f, "\\r\\Datum")))) {
-        $f = new RFunction(array(new RVar('_')), $f);
     }
-    return $f;
+    return wrapImplicitVar($f);
 }
 
 ?>

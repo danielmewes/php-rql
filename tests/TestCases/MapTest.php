@@ -17,6 +17,10 @@ class MapTest extends TestCase
             array('Iron Man', 'Wolverine', 'Spiderman', 'Iron Man', 'Wolverine', 'Spiderman'));
         $this->checkQueryResult(r\expr(array(r\db('Heroes')->table('marvel')->coerceTo('array'), r\db('Heroes')->table('marvel')->coerceTo('array')))->concatMap(r\row()->pluck('superhero'))->map(r\row('superhero')),
             array('Iron Man', 'Wolverine', 'Spiderman', 'Iron Man', 'Wolverine', 'Spiderman'));
+
+        // Regression test for #62
+        $this->checkQueryResult(r\expr(array(1,2,3))->map(r\branch(r\expr(true), function ($x) { return $x; }, function ($x) { return $x; })),
+            array(1.0, 2.0, 3.0));
     }
 }
 

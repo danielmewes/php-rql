@@ -16,11 +16,7 @@ class IndexCreate extends ValuedQuery
     public function __construct(Table $table, $indexName, $keyFunction = null, $options = null) {
         $indexName = nativeToDatum($indexName);
         if (isset($keyFunction)) {
-            if (!(is_object($keyFunction) && is_subclass_of($keyFunction, "\\r\\Query"))) {
-                $keyFunction = nativeToFunction($keyFunction);
-            } else if (!(is_object($keyFunction) && is_subclass_of($keyFunction, "\\r\\FunctionQuery"))) {
-                $keyFunction = new RFunction(array(new RVar('_')), $keyFunction);
-            }
+            $keyFunction = nativeToFunction($keyFunction);
         }
         if (isset($options)) {
             if (!is_array($options)) throw new RqlDriverError("Options must be an array.");

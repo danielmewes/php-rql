@@ -8,12 +8,22 @@ abstract class Query
 
     protected function setOptionalArg($key, Query $val) {
         if (!is_string($key)) throw new RqlDriverError("Internal driver error: Got a non-string key for an optional argument.");
+        if ($val->_hasUnwrappedImplicitVar()) {
+            $this->unwrappedImplicitVar = true;
+        }
         $this->optionalArgs[$key] = $val;
     }
 
     protected function setPositionalArg($pos, Query $arg) {
         if (!is_numeric($pos)) throw new RqlDriverError("Internal driver error: Got a non-numeric position for a positional argument.");
+        if ($arg->_hasUnwrappedImplicitVar()) {
+            $this->unwrappedImplicitVar = true;
+        }
         $this->positionalArgs[$pos] = $arg;
+    }
+
+    public function _hasUnwrappedImplicitVar() {
+        return $this->unwrappedImplicitVar;
     }
 
     public function _getPBTerm() {
@@ -140,6 +150,7 @@ abstract class Query
 
     private $positionalArgs = array();
     private $optionalArgs = array();
+    private $unwrappedImplicitVar = false;
 }
 
 // This is just any query except for Table and Db at the moment.
@@ -441,6 +452,10 @@ class ImplicitVar extends ValuedQuery
 {
     protected function getTermType() {
         return pb\Term_TermType::PB_IMPLICIT_VAR;
+    }
+    public function _hasUnwrappedImplicitVar() {
+        // A function wraps implicit variables
+        return true;
     }
 }
 

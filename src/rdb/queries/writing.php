@@ -39,16 +39,11 @@ class Update extends ValuedQuery
                 } else {
                     $delta = nativeToDatum($delta);
                 }
-                if (!is_subclass_of($delta, "\\r\\Datum")) {
-                    // $delta is not a simple datum. Wrap it into a function:                
-                    $delta = new RFunction(array(new RVar('_')), $delta);
-                }
             } catch (RqlDriverError $e) {
                 $delta = nativeToFunction($delta);
             }
-        } else if (!(is_object($delta) && is_subclass_of($delta, "\\r\\FunctionQuery")) && !(is_object($delta) && is_subclass_of($delta, "\\r\\Datum"))) {
-            $delta = new RFunction(array(new RVar('_')), $delta);
         }
+        $delta = wrapImplicitVar($delta);
         
         $this->setPositionalArg(0, $selection);
         $this->setPositionalArg(1, $delta);
@@ -96,12 +91,12 @@ class Replace extends ValuedQuery
                     $delta = new Json($json);
                 } else {
                     $delta = nativeToDatum($delta);
-                    $delta = new RFunction(array(new RVar('_')), $delta);
                 }
             } catch (RqlDriverError $e) {
                 $delta = nativeToFunction($delta);
             }
         }
+        $delta = wrapImplicitVar($delta);
         
         $this->setPositionalArg(0, $selection);
         $this->setPositionalArg(1, $delta);
