@@ -25,8 +25,8 @@ class RDo extends ValuedQuery
 class Branch extends ValuedQuery
 {
     public function __construct(Query $test, $trueBranch, $falseBranch) {
-        $trueBranch = nativeToDatumOrFunction($trueBranch);
-        $falseBranch = nativeToDatumOrFunction($falseBranch);
+        $trueBranch = nativeToDatum($trueBranch);
+        $falseBranch = nativeToDatum$falseBranch);
 
         $this->setPositionalArg(0, $test);
         $this->setPositionalArg(1, $trueBranch);
