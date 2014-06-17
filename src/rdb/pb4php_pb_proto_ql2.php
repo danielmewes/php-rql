@@ -1,94 +1,21 @@
 <?php namespace r\pb;
-class VersionDummy extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-  }
-}
-class VersionDummy_Version extends \PBEnum
+class VersionDummy_Version
 {
   const PB_V0_1  = 0x3f61ba36;
   const PB_V0_2  = 0x723081e1;
+  const PB_V0_3  = 0x5f75e83e;
 }
-class Datum extends \PBMessage
+class VersionDummy_Protocol
 {
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBEnum";
-    $this->values[1] = null;
-    $this->fields[2] = "\\I_PBBool";
-    $this->values[2] = null;
-    $this->fields[3] = "\\PBDouble";
-    $this->values[3] = null;
-    $this->fields[4] = "\\I_PBString";
-    $this->values[4] = null;
-    $this->fields[5] = "\\r\\pb\\Datum";
-    $this->values[5] = array();
-    $this->fields[6] = "\\r\\pb\\Datum_AssocPair";
-    $this->values[6] = array();
-  }
-  function getType()
-  {
-    return $this->_get_value("1");
-  }
-  function setType($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getRBool()
-  {
-    return $this->_get_value("2");
-  }
-  function setRBool($value)
-  {
-    return $this->_set_value("2", $value);
-  }
-  function getRNum()
-  {
-    return $this->_get_value("3");
-  }
-  function setRNum($value)
-  {
-    return $this->_set_value("3", $value);
-  }
-  function getRStr()
-  {
-    return $this->_get_value("4");
-  }
-  function setRStr($value)
-  {
-    return $this->_set_value("4", $value);
-  }
-  function getRArrayAt($offset)
-  {
-    return $this->_get_arr_value("5", $offset);
-  }
-  function appendRArray($value)
-  {
-    $this->_set_arr_value("5", $this->_get_arr_size("5"), $value);
-  }
-  function getRArrayCount()
-  {
-    return $this->_get_arr_size("5");
-  }
-  function getRObjectAt($offset)
-  {
-    return $this->_get_arr_value("6", $offset);
-  }
-  function appendRObject($value)
-  {
-    $this->_set_arr_value("6", $this->_get_arr_size("6"), $value);
-  }
-  function getRObjectCount()
-  {
-    return $this->_get_arr_size("6");
-  }
+  const PB_PROTOBUF  = 0x271ffc41;
+  const PB_JSON  = 0x7e6970c7;
 }
-class Datum_DatumType extends \PBEnum
+class Frame_FrameType
+{
+  const PB_POS  = 1;
+  const PB_OPT  = 2;
+}
+class Datum_DatumType
 {
   const PB_R_NULL  = 1;
   const PB_R_BOOL  = 2;
@@ -98,97 +25,25 @@ class Datum_DatumType extends \PBEnum
   const PB_R_OBJECT  = 6;
   const PB_R_JSON  = 7;
 }
-class Datum_AssocPair extends \PBMessage
+class Response_ResponseType
 {
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBString";
-    $this->values[1] = null;
-    $this->fields[2] = "\\r\\pb\\Datum";
-    $this->values[2] = null;
-  }
-  function getKey()
-  {
-    return $this->_get_value("1");
-  }
-  function setKey($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getVal()
-  {
-    return $this->_get_value("2");
-  }
-  function setVal($value)
-  {
-    return $this->_set_value("2", $value);
-  }
+  const PB_SUCCESS_ATOM  = 1;
+  const PB_SUCCESS_SEQUENCE  = 2;
+  const PB_SUCCESS_PARTIAL  = 3;
+  const PB_SUCCESS_FEED  = 5;
+  const PB_WAIT_COMPLETE  = 4;
+  const PB_CLIENT_ERROR  = 16;
+  const PB_COMPILE_ERROR  = 17;
+  const PB_RUNTIME_ERROR  = 18;
 }
-class Term extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBEnum";
-    $this->values[1] = null;
-    $this->fields[2] = "\\r\\pb\\Datum";
-    $this->values[2] = null;
-    $this->fields[3] = "\\r\\pb\\Term";
-    $this->values[3] = array();
-    $this->fields[4] = "\\r\\pb\\Term_AssocPair";
-    $this->values[4] = array();
-  }
-  function getType()
-  {
-    return $this->_get_value("1");
-  }
-  function setType($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getDatum()
-  {
-    return $this->_get_value("2");
-  }
-  function setDatum($value)
-  {
-    return $this->_set_value("2", $value);
-  }
-  function getArgsAt($offset)
-  {
-    return $this->_get_arr_value("3", $offset);
-  }
-  function appendArgs($value)
-  {
-    $this->_set_arr_value("3", $this->_get_arr_size("3"), $value);
-  }
-  function getArgsCount()
-  {
-    return $this->_get_arr_size("3");
-  }
-  function getOptargsAt($offset)
-  {
-    return $this->_get_arr_value("4", $offset);
-  }
-  function appendOptargs($value)
-  {
-    $this->_set_arr_value("4", $this->_get_arr_size("4"), $value);
-  }
-  function getOptargsCount()
-  {
-    return $this->_get_arr_size("4");
-  }
-}
-class Term_TermType extends \PBEnum
+class Term_TermType
 {
   const PB_DATUM  = 1;
   const PB_MAKE_ARRAY  = 2;
   const PB_MAKE_OBJ  = 3;
   const PB_VAR  = 10;
   const PB_JAVASCRIPT  = 11;
+  const PB_HTTP  = 153;
   const PB_ERROR  = 12;
   const PB_IMPLICIT_VAR  = 13;
   const PB_DB  = 14;
@@ -238,8 +93,6 @@ class Term_TermType extends \PBEnum
   const PB_IS_EMPTY  = 86;
   const PB_UNION  = 44;
   const PB_NTH  = 45;
-  const PB_GROUPED_MAP_REDUCE  = 46;
-  const PB_GROUPBY  = 47;
   const PB_INNER_JOIN  = 48;
   const PB_OUTER_JOIN  = 49;
   const PB_EQ_JOIN  = 50;
@@ -327,277 +180,15 @@ class Term_TermType extends \PBEnum
   const PB_MAX  = 148;
   const PB_SPLIT  = 149;
   const PB_UNGROUP  = 150;
+  const PB_RANDOM  = 151;
+  const PB_CHANGES  = 152;
+  const PB_ARGS  = 154;
 }
-class Term_AssocPair extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBString";
-    $this->values[1] = null;
-    $this->fields[2] = "\\r\\pb\\Term";
-    $this->values[2] = null;
-  }
-  function getKey()
-  {
-    return $this->_get_value("1");
-  }
-  function setKey($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getVal()
-  {
-    return $this->_get_value("2");
-  }
-  function setVal($value)
-  {
-    return $this->_set_value("2", $value);
-  }
-}
-class Query extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBEnum";
-    $this->values[1] = null;
-    $this->fields[2] = "\\r\\pb\\Term";
-    $this->values[2] = null;
-    $this->fields[3] = "\\I_PBInt";
-    $this->values[3] = null;
-    $this->fields[4] = "\\I_PBBool";
-    $this->values[4] = null;
-    $this->fields[5] = "\\I_PBBool";
-    $this->values[5] = null;
-    $this->fields[6] = "\\r\\pb\\Query_AssocPair";
-    $this->values[6] = array();
-  }
-  function getType()
-  {
-    return $this->_get_value("1");
-  }
-  function setType($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getQuery()
-  {
-    return $this->_get_value("2");
-  }
-  function setQuery($value)
-  {
-    return $this->_set_value("2", $value);
-  }
-  function getToken()
-  {
-    return $this->_get_value("3");
-  }
-  function setToken($value)
-  {
-    return $this->_set_value("3", $value);
-  }
-  function getOBSOLETENoreply()
-  {
-    return $this->_get_value("4");
-  }
-  function setOBSOLETENoreply($value)
-  {
-    return $this->_set_value("4", $value);
-  }
-  function getAcceptsRJson()
-  {
-    return $this->_get_value("5");
-  }
-  function setAcceptsRJson($value)
-  {
-    return $this->_set_value("5", $value);
-  }
-  function getGlobalOptargsAt($offset)
-  {
-    return $this->_get_arr_value("6", $offset);
-  }
-  function appendGlobalOptargs($value)
-  {
-    $this->_set_arr_value("6", $this->_get_arr_size("6"), $value);
-  }
-  function getGlobalOptargsCount()
-  {
-    return $this->_get_arr_size("6");
-  }
-}
-class Query_QueryType extends \PBEnum
+class Query_QueryType
 {
   const PB_START  = 1;
   const PB_CONTINUE  = 2;
   const PB_STOP  = 3;
   const PB_NOREPLY_WAIT  = 4;
-}
-class Query_AssocPair extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBString";
-    $this->values[1] = null;
-    $this->fields[2] = "\\r\\pb\\Term";
-    $this->values[2] = null;
-  }
-  function getKey()
-  {
-    return $this->_get_value("1");
-  }
-  function setKey($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getVal()
-  {
-    return $this->_get_value("2");
-  }
-  function setVal($value)
-  {
-    return $this->_set_value("2", $value);
-  }
-}
-class Frame extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBEnum";
-    $this->values[1] = null;
-    $this->fields[2] = "\\I_PBInt";
-    $this->values[2] = null;
-    $this->fields[3] = "\\I_PBString";
-    $this->values[3] = null;
-  }
-  function getType()
-  {
-    return $this->_get_value("1");
-  }
-  function setType($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getPos()
-  {
-    return $this->_get_value("2");
-  }
-  function setPos($value)
-  {
-    return $this->_set_value("2", $value);
-  }
-  function getOpt()
-  {
-    return $this->_get_value("3");
-  }
-  function setOpt($value)
-  {
-    return $this->_set_value("3", $value);
-  }
-}
-class Frame_FrameType extends \PBEnum
-{
-  const PB_POS  = 1;
-  const PB_OPT  = 2;
-}
-class Backtrace extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\r\\pb\\Frame";
-    $this->values[1] = array();
-  }
-  function getFramesAt($offset)
-  {
-    return $this->_get_arr_value("1", $offset);
-  }
-  function appendFrames($value)
-  {
-    $this->_set_arr_value("1", $this->_get_arr_size("1"), $value);
-  }
-  function getFramesCount()
-  {
-    return $this->_get_arr_size("1");
-  }
-}
-class Response extends \PBMessage
-{
-  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;
-  public function __construct($reader=null)
-  {
-    parent::__construct($reader);
-    $this->fields[1] = "\\I_PBEnum";
-    $this->values[1] = null;
-    $this->fields[2] = "\\I_PBInt";
-    $this->values[2] = null;
-    $this->fields[3] = "\\r\\pb\\Datum";
-    $this->values[3] = array();
-    $this->fields[4] = "\\r\\pb\\Backtrace";
-    $this->values[4] = null;
-    $this->fields[5] = "\\r\\pb\\Datum";
-    $this->values[5] = null;
-  }
-  function getType()
-  {
-    return $this->_get_value("1");
-  }
-  function setType($value)
-  {
-    return $this->_set_value("1", $value);
-  }
-  function getToken()
-  {
-    return $this->_get_value("2");
-  }
-  function setToken($value)
-  {
-    return $this->_set_value("2", $value);
-  }
-  function getResponseAt($offset)
-  {
-    return $this->_get_arr_value("3", $offset);
-  }
-  function appendResponse($value)
-  {
-    $this->_set_arr_value("3", $this->_get_arr_size("3"), $value);
-  }
-  function getResponseCount()
-  {
-    return $this->_get_arr_size("3");
-  }
-  function getBacktrace()
-  {
-    return $this->_get_value("4");
-  }
-  function setBacktrace($value)
-  {
-    return $this->_set_value("4", $value);
-  }
-  function getProfile()
-  {
-    return $this->_get_value("5");
-  }
-  function setProfile($value)
-  {
-    return $this->_set_value("5", $value);
-  }
-}
-class Response_ResponseType extends \PBEnum
-{
-  const PB_SUCCESS_ATOM  = 1;
-  const PB_SUCCESS_SEQUENCE  = 2;
-  const PB_SUCCESS_PARTIAL  = 3;
-  const PB_WAIT_COMPLETE  = 4;
-  const PB_CLIENT_ERROR  = 16;
-  const PB_COMPILE_ERROR  = 17;
-  const PB_RUNTIME_ERROR  = 18;
 }
 ?>

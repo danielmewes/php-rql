@@ -26,19 +26,16 @@ abstract class Query
         return $this->unwrappedImplicitVar;
     }
 
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->setType($this->getTermType());
+    public function _getJSONTerm() {
+        $args = array();
         foreach ($this->positionalArgs as $i => $arg) {
-            $term->appendArgs($arg->_getPBTerm());
+            $args[] = $arg->_getJSONTerm();
         }
+        $optargs = array();
         foreach ($this->optionalArgs as $key => $val) {
-            $pair = new pb\Term_AssocPair();
-            $pair->setKey($key);
-            $pair->setVal($val->_getPBTerm());
-            $term->appendOptargs($pair);
+            $optargs[$key] = $val->_getJSONTerm();
         }
-        return $term;
+        return array($this->getTermType(), $args, (object)$optargs);
     }
 
     public function run(Connection $connection, $options = null) {
@@ -571,9 +568,9 @@ class Cursor implements \Iterator
         return "Cursor";
     }
 
-    public function __construct(Connection $connection, pb\Response $initialResponse) {
+    public function __construct(Connection $connection, $initialResponse, $token) {
         $this->connection = $connection;
-        $this->token = $initialResponse->getToken();
+        $this->token = $token;
         $this->wasIterated = false;
 
         $this->setBatch($initialResponse);
@@ -591,14 +588,13 @@ class Cursor implements \Iterator
         $this->setBatch($response);
     }
 
-    private function setBatch(pb\Response $response) {
-        $this->isComplete = $response->getType() == pb\Response_ResponseType::PB_SUCCESS_SEQUENCE;
+    private function setBatch($response) {
+        $this->isComplete = $response['t'] == pb\Response_ResponseType::PB_SUCCESS_SEQUENCE;
         $this->currentIndex = 0;
-        $this->currentSize = $response->getResponseCount();
+        $this->currentSize = \count($response['r']);
         $this->currentData = array();
-        for ($i = 0; $i < $this->currentSize; ++$i) {
-            $datum = protobufToDatum($response->getResponseAt($i));
-            $this->currentData[$i] = $datum;
+        foreach ($response['r'] as $row) {
+            $this->currentData[] = $datum = decodedJSONToDatum($row);
         }
     }
 

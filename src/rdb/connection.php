@@ -70,15 +70,13 @@ class Connection
         $token = $this->generateToken();
 
         // Send the request
-        $pbQuery = $this->makeQuery();
-        $pbQuery->setToken($token);
-        $pbQuery->setType(pb\Query_QueryType::PB_NOREPLY_WAIT);
-        $this->sendProtobuf($pbQuery);
+        $jsonQuery = array(pb\Query_QueryType::PB_NOREPLY_WAIT);
+        $this->sendQuery($token, $jsonQuery);
 
         // Await the response
         $response = $this->receiveResponse($token);
 
-        if ($response->getType() != pb\Response_ResponseType::PB_WAIT_COMPLETE) {
+        if ($response['t'] != pb\Response_ResponseType::PB_WAIT_COMPLETE) {
             throw new RqlDriverError("Unexpected response type to noreplyWait query.");
         }
     }
@@ -91,33 +89,18 @@ class Connection
         $token = $this->generateToken();
 
         // Send the request
-        $pbTerm = $query->_getPBTerm();
-        $pbQuery = $this->makeQuery();
-        $pbQuery->setToken($token);
-        $pbQuery->setType(pb\Query_QueryType::PB_START);
-        $pbQuery->setQuery($pbTerm);
+        $jsonTerm = $query->_getJSONTerm();
+        $globalOptargs = array();
         if (isset($this->defaultDb)) {
-            $pair = new pb\Query_AssocPair();
-            $pair->setKey('db');
-            $pair->setVal($this->defaultDb->_getPBTerm());
-            $pbQuery->appendGlobalOptargs($pair);
-        }
-        // This noJsonResponse option is just there for testing purposes and as a fallback
-        // should there be any problems with our implementation of JSON responses
-        if (isset($options['noJsonResponse']) && $options['noJsonResponse'] === true) {
-            $pbQuery->setAcceptsRJson(false);
-        } else {
-            $pbQuery->setAcceptsRJson(true);
+            $globalOptargs['db'] = $this->defaultDb->_getJSONTerm();
         }
         if (isset($options)) {
             foreach ($options as $key => $value) {
-                $pair = new pb\Query_AssocPair();
-                $pair->setKey($key);
-                $pair->setVal(nativeToDatum($value)->_getPBTerm());
-                $pbQuery->appendGlobalOptargs($pair);
+                $globalOptargs[$key] = nativeToDatum($value)->_getJSONTerm();
             }
         }
-        $this->sendProtobuf($pbQuery);
+        $jsonQuery = array(pb\Query_QueryType::PB_START, $jsonTerm, (Object)$globalOptargs);
+        $this->sendQuery($token, $jsonQuery);
 
         if (isset($options) && isset($options['noreply']) && $options['noreply'] === true) {
             return null;
@@ -126,18 +109,18 @@ class Connection
             // Await the response
             $response = $this->receiveResponse($token, $query);
 
-            if ($response->getType() == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
+            if ($response['t'] == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
                 $this->activeTokens[$token] = true;
             }
 
-            if ($response->getProfile() !== null) {
-                $profile = protobufToDatum($response->getProfile());
+            if (isset($response['p'])) {
+                $profile = decodedJSONToDatum($response['p']);
             }
 
-            if ($response->getType() == pb\Response_ResponseType::PB_SUCCESS_ATOM)
+            if ($response['t'] == pb\Response_ResponseType::PB_SUCCESS_ATOM)
                 return $this->createDatumFromResponse($response);
             else
-                return $this->createCursorFromResponse($response);
+                return $this->createCursorFromResponse($response, $token);
         }
     }
 
@@ -146,15 +129,13 @@ class Connection
         if (!is_numeric($token)) throw new RqlDriverError("Token must be a number.");
 
         // Send the request
-        $pbQuery = $this->makeQuery();
-        $pbQuery->setToken($token);
-        $pbQuery->setType(pb\Query_QueryType::PB_CONTINUE);
-        $this->sendProtobuf($pbQuery);
+        $jsonQuery = array(pb\Query_QueryType::PB_CONTINUE);
+        $this->sendQuery($token, $jsonQuery);
 
         // Await the response
         $response = $this->receiveResponse($token);
 
-        if ($response->getType() != pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
+        if ($response['t'] != pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
             unset($this->activeTokens[$token]);
         }
 
@@ -166,10 +147,8 @@ class Connection
         if (!is_numeric($token)) throw new RqlDriverError("Token must be a number.");
 
         // Send the request
-        $pbQuery = $this->makeQuery();
-        $pbQuery->setToken($token);
-        $pbQuery->setType(pb\Query_QueryType::PB_STOP);
-        $this->sendProtobuf($pbQuery);
+        $jsonQuery = array(pb\Query_QueryType::PB_STOP);
+        $this->sendQuery($token, $jsonQuery);
 
         // Await the response (but don't check for errors. the stop response doesn't even have a type)
         $response = $this->receiveResponse($token, null, true);
@@ -193,67 +172,80 @@ class Connection
     }
 
     private function receiveResponse($token, $query = null, $noChecks = false) {
-        $responseBuf = $this->receiveProtobuf();
-        $response = new pb\Response();
-        $response->ParseFromString($responseBuf);
+        $responseHeader = $this->receiveStr(4 + 8);
+        $responseHeader = unpack("Vtoken/Vtoken2/Vsize", $responseHeader);
+        $responseToken = $responseHeader['token'];
+        if ($responseHeader['token2'] != 0) {
+            throw new RqlDriverError("Invalid response from server: Invalid token.");
+        }
+        $responseSize = $responseHeader['size'];
+        $responseBuf = $this->receiveStr($responseSize);
+
+        $response = json_decode($responseBuf);
+        if (json_last_error() != JSON_ERROR_NONE) {
+            throw new RqlDriverError("Unable to decode JSON response (error code " . json_last_error() . ")");
+        }
+        if (!is_object($response)) {
+            throw new RqlDriverError("Invalid response from server: Not an object.");
+        }
+        $response = (array)$response;
         if (!$noChecks)
-            $this->checkResponse($response, $token, $query);
+            $this->checkResponse($response, $responseToken, $token, $query);
 
         return $response;
     }
 
-    private function checkResponse(pb\Response $response, $token, $query = null) {
-        if (is_null($response->getType())) throw new RqlDriverError("Response message has no type.");
+    private function checkResponse($response, $responseToken, $token, $query = null) {
+        if (!isset($response['t'])) throw new RqlDriverError("Response message has no type.");
 
-        if ($response->getType() == pb\Response_ResponseType::PB_CLIENT_ERROR) {
-            throw new RqlDriverError("Server says PHP-RQL is buggy: " . $response->getResponseAt(0)->getRStr());
+        if ($response['t'] == pb\Response_ResponseType::PB_CLIENT_ERROR) {
+            throw new RqlDriverError("Server says PHP-RQL is buggy: " . $response['r'][0]);
         }
 
-        if ($response->getToken() != $token) {
-            throw new RqlDriverError("Received wrong token. Response does not match the request. Expected $token, received " . $response->getToken());
+        if ($responseToken != $token) {
+            throw new RqlDriverError("Received wrong token. Response does not match the request. Expected $token, received " . $responseToken);
         }
 
-        if ($response->getType() == pb\Response_ResponseType::PB_COMPILE_ERROR) {
+        if ($response['t'] == pb\Response_ResponseType::PB_COMPILE_ERROR) {
             $backtrace = null;
-            if (!is_null($response->getBacktrace()))
-                $backtrace =  Backtrace::_fromProtobuffer($response->getBacktrace());
-            throw new RqlUserError("Compile error: " . $response->getResponseAt(0)->getRStr(), $query, $backtrace);
+            if (isset($response['b']))
+                $backtrace = Backtrace::_fromJSON($response['b']);
+            throw new RqlUserError("Compile error: " . $response['r'][0], $query, $backtrace);
         }
-        else if ($response->getType() == pb\Response_ResponseType::PB_RUNTIME_ERROR) {
+        else if ($response['t'] == pb\Response_ResponseType::PB_RUNTIME_ERROR) {
             $backtrace = null;
-            if (!is_null($response->getBacktrace()))
-                $backtrace =  Backtrace::_fromProtobuffer($response->getBacktrace());
-            throw new RqlUserError("Runtime error: " . $response->getResponseAt(0)->getRStr(), $query, $backtrace);
+            if (isset($response['b']))
+                $backtrace = Backtrace::_fromJSON($response['b']);
+            throw new RqlUserError("Runtime error: " . $response['r'][0], $query, $backtrace);
         }
     }
 
-    private function createCursorFromResponse(pb\Response $response) {
-        return new Cursor($this, $response);
+    private function createCursorFromResponse($response, $token) {
+        return new Cursor($this, $response, $token);
     }
 
-    private function createDatumFromResponse(pb\Response $response) {
-        $datum = $response->getResponseAt(0);
-        return protobufToDatum($datum);
+    private function createDatumFromResponse($response) {
+        $datum = $response['r'][0];
+        return decodedJSONToDatum($datum);
     }
 
-    private function makeQuery() {
-        $query = new pb\Query();
-
-        return $query;
-    }
-
-    private function sendProtobuf($protobuf) {
-        $request = $protobuf->SerializeToString();
+    private function sendQuery($token, $json) {
+        // PHP by default loses some precision when encoding floats, so we temporarily
+        // bump up the `precision` option to avoid this.
+        // The 17 assumes IEEE-754 double precision numbers.
+        // Source: http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+        //         "The same argument applied to double precision shows that 17 decimal
+        //          digits are required to recover a double precision number."
+        $previousPrecision = ini_set("precision", 17);
+        $request = json_encode($json);
+        if ($previousPrecision !== false) {
+            ini_set("precision", $previousPrecision);
+        }
+        if ($request === false) throw new RqlDriverError("Failed to encode query as JSON: " . json_last_error());
+    
         $requestSize = pack("V", strlen($request));
-        $this->sendStr($requestSize . $request);
-    }
-
-    private function receiveProtobuf() {
-        $responseSize = $this->receiveStr(4);
-        $responseSize = unpack("V", $responseSize);
-        $responseSize = $responseSize[1];
-        $responseBuf = $this->receiveStr($responseSize);
-        return $responseBuf;
+        $binaryToken = pack("V", $token) . pack("V", 0);
+        $this->sendStr($binaryToken . $requestSize . $request);
     }
 
     private function applyTimeout($timeout) {
@@ -283,11 +275,14 @@ class Connection
     private function sendHandshake() {
         if (!$this->isOpen()) throw new RqlDriverError("Not connected");
 
-        $binaryVersion = pack("V", pb\VersionDummy_Version::PB_V0_2); // "V" is little endian, 32 bit unsigned integer
+        $binaryVersion = pack("V", pb\VersionDummy_Version::PB_V0_3); // "V" is little endian, 32 bit unsigned integer
         $handshake = $binaryVersion;
 
         $binaryKeyLength = pack("V", strlen($this->apiKey));
         $handshake .= $binaryKeyLength . $this->apiKey;
+
+        $binaryProtocol = pack("V", pb\VersionDummy_Protocol::PB_JSON);
+        $handshake .= $binaryProtocol;
 
         $this->sendStr($handshake);
     }

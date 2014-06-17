@@ -2,14 +2,14 @@
 /**
  * Parse a .proto file and generates the classes in a file
  * @author Nikolai Kordulla
+ *
+ * This version is stripped down to generate only enum constants.
+ * It's not a fully functional Protobuf parser anymore.
  */
 class PBParser
 {
     // the message types array of (field, param[]='repeated,required,optional')
     var $m_types = array();
-    
-    // the message classtype
-    var $c_types = array();
     
     // namespace
     var $namespace = NULL;
@@ -72,21 +72,14 @@ class PBParser
 
             if ($classfile['type'] == 'message')
             {
-                $string .= 'class ' . $classname  . " extends \PBMessage\n{\n";
-                $this->_create_class_constructor($classfile['value'], $string, $classname);
-                $this->_create_class_body($classfile['value'], $string, $classname);
-                $this->c_types[$classfile['name']] = 'PBMessage';
+                // Nothing to do here in the case of PHP-RQL
             }
             else if ($classfile['type'] == 'enum')
             {
-                $string .= 'class ' . $classname  . " extends \PBEnum\n{\n";
+                $string .= 'class ' . $classname  . "\n{\n";
                 $this->_create_class_definition($classfile['value'], $string);
-                $this->c_types[$classfile['name']] = 'PBEnum';
+                $string .= "}\n";
             }
-
-            // now create the class body with all set and get functions
-
-            $string .= "}\n";
         }
         if (isset($this->namespace)) {
             $namespaceDeclaration = " namespace $this->namespace;";
@@ -94,95 +87,6 @@ class PBParser
             $namespaceDeclaration = "";
         }
         file_put_contents($filename, '<?php' . $namespaceDeclaration . "\n" . $string . '?>');
-    }
-	
-	/**
-	 * Gets the type
-	 * @param field array
-	 * @return type
-	 */
-	private function _get_type($field)
-	{
-		if (isset($this->scalar_types[$field['value']['type']]))
-			return $this->scalar_types[$field['value']['type']];
-		else if (isset($this->c_types[$field['value']['namespace']]))
-			return $this->c_types[$field['value']['namespace']];
-		return @$this->c_types[$field['value']['type']];
-	}
-	
-    /**
-     * Creates the class body with functions for each field
-     * @param Array $classfile
-     * @param String $string
-     * @param String $classname - classname
-     */
-    private function _create_class_body($classfile, &$string, $classname)
-    {
-        foreach($classfile as $field)
-        {
-        	$type = $this->_get_type($field);
-        	//var_dump($type);
-        	//$type = $this->_get_type($field['value']['type']);
-			if ( isset($field['value']['repeated']) && ( isset($this->scalar_types[$field['value']['type']]) 
-			    										|| $type == 'PBEnum') )
-			{
-                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'At($offset)' . "\n  {\n";
-                $string .= '    $v = $this->_get_arr_value("' . $field['value']['value'] . '", $offset);'  . "\n";
-                $string .= '    return $v->get_value();' . "\n";;
-                $string .= "  }\n";
-
-                /*$string .= '  function add' .  $field['value']['name'] . '($value)' . "\n  {\n";
-                $string .= '    $v = $this->_add_arr_value("' . $field['value']['value'] . '");'  . "\n";
-                $string .= '    $v->set_value($value);' . "\n";;
-                $string .= "  }\n";*/
-
-                $string .= '  function append' .  $this->toCamelCase($field['value']['name']) . '($value)' . "\n  {\n";
-                $string .= '    $v = new $this->fields["' . $field['value']['value'] . '"]();' . "\n";
-                $string .= '    $v->set_value($value);' . "\n";
-                $string .= '    $this->_set_arr_value("' . $field['value']['value'] . '", $this->_get_arr_size("' .  $field['value']['value'] . '"), $v);'  . "\n";
-                $string .= "  }\n";
-
-                /*$string .= '  function remove_last_' .  $field['value']['name'] . '()' . "\n  {\n";
-                $string .= '    $this->_remove_last_arr_value("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";*/
-
-                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'Count()' . "\n  {\n";
-                $string .= '    return $this->_get_arr_size("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";
-			}			
-            else if (isset($field['value']['repeated']))
-            {
-                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'At($offset)' . "\n  {\n";
-                $string .= '    return $this->_get_arr_value("' . $field['value']['value'] . '", $offset);'  . "\n";
-                $string .= "  }\n";
-
-                /*$string .= '  function add_' .  $field['value']['name'] . '()' . "\n  {\n";
-                $string .= '    return $this->_add_arr_value("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";*/
-
-                $string .= '  function append' .  $this->toCamelCase($field['value']['name']) . '($value)' . "\n  {\n";
-                $string .= '    $this->_set_arr_value("' . $field['value']['value'] . '", $this->_get_arr_size("' . $field['value']['value'] . '"), $value);'  . "\n";
-                $string .= "  }\n";
-
-                /*$string .= '  function remove_last_' .  $field['value']['name'] . '()' . "\n  {\n";
-                $string .= '    $this->_remove_last_arr_value("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";*/
-
-                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . 'Count()' . "\n  {\n";
-                $string .= '    return $this->_get_arr_size("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";
-            }
-            else
-            {
-                $string .= '  function get' . $this->toCamelCase($field['value']['name']) . "()\n  {\n";
-                $string .= '    return $this->_get_value("' . $field['value']['value'] . '");'  . "\n";
-                $string .= "  }\n";
-
-                $string .= '  function set' .  $this->toCamelCase($field['value']['name']) . '($value)' . "\n  {\n";
-                $string .= '    return $this->_set_value("' . $field['value']['value'] . '", $value);'  . "\n";
-                $string .= "  }\n";
-            }
-        }
     }
 
     /**
@@ -199,74 +103,6 @@ class PBParser
         }
 
     }
-
-
-    /**
-     * Creates the class constructor
-     * @param Array $classfile
-     * @param String $string
-     * @param String $classname - classname
-     */
-    private function _create_class_constructor($classfile, &$string, $classname)
-    {
-        $string .= '  var $wired_type = \PBMessage::WIRED_LENGTH_DELIMITED;' . "\n";
-        $string .= "  public function __construct(" . '$reader=null'  . ")\n  {\n";
-        $string .= "    parent::__construct(" . '$reader'  . ");\n";
-
-        foreach($classfile as $field)
-        {
-            $classtype = "";
-            $classtype = $field['value']['type'];
-            // Use INLINE enums if possible
-            if (isset($field['value']['namespace'])) {
-                foreach ($this->m_types as $m_type) {
-                    if ($m_type['name'] == $field['value']['namespace']) {
-                        if ($m_type['type'] == 'enum')
-                            $classtype = "i_pbenum";
-                        break;
-                    }   
-                }
-            }
-            $classtype = str_replace(".", "_", $classtype);
-            $_classtype = $classtype;
-            // create the right namespace
-            if (isset($this->scalar_types[strtolower($classtype)])) {
-                $namespacePrefix = "";
-                if ($this->scalar_types[$classtype] != $classtype) 
-                    $namespacePrefix = "\\\\";
-                $classtype = $namespacePrefix . $this->scalar_types[$classtype];
-            }
-            else if ((strpos($classtype, '_') === false))
-                $classtype = addslashes($this->namespaceStr) . str_replace('.', '_', $field['value']['namespace']);
-
-
-            $string .= '    $this->fields[' . $field['value']['value'] . '] = "' . $classtype . '"' . ";\n";
-
-            if (isset($field['value']['repeated']))
-            {
-                $string .= '    $this->values[' . $field['value']['value'] . '] = array()' . ";\n";
-            }
-            else
-            {
-                //$string .= '    $this->fields["' . $field['value']['value'] . '"] = new ' . $classtype . "();\n";
-                $string .= '    $this->values[' . $field['value']['value'] . '] = null' . ";\n";
-            }
-
-            // default value only for optional fields
-            if (!isset($field['value']['repeated']) && isset($field['value']['optional'])
-                    && isset($field['value']['default']))
-            {
-                $string .= '    $this->values["' . $field['value']['value'] . '"] = new ' . $classtype . "();\n";
-                if (isset($this->scalar_types[strtolower($_classtype)]))
-                    $string .= '    $this->values["' . $field['value']['value'] . '"]->value = ' . $field['value']['default'] . '' . ";\n";
-                // it must be an enum field perhaps type check
-                else
-                    $string .= '    $this->values["' . $field['value']['value'] . '"]->value = ' . $classtype . '::' . $field['value']['default'] . '' . ";\n";
-            }
-        }
-        $string .= "  }\n";
-    }
-
 
     /**
      * Parses the message

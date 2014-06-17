@@ -5,12 +5,7 @@ class Insert extends ValuedQuery
     public function __construct(Table $table, $document, $opts = null) {
         if (isset($opts) && !\is_array($opts)) throw new RqlDriverError("Options must be an array.");
         if (!(is_object($document) && is_subclass_of($document, "\\r\\Query"))) {
-            $json = tryEncodeAsJson($document);
-            if ($json !== false) {
-                $document = new Json($json);
-            } else {
-                $document = nativeToDatum($document);
-            }
+            $document = nativeToDatum($document);
         }
         
         $this->setPositionalArg(0, $table);
@@ -33,12 +28,7 @@ class Update extends ValuedQuery
         if (isset($opts) && !\is_array($opts)) throw new RqlDriverError("Options must be an array.");
         if (!(is_object($delta) && is_subclass_of($delta, "\\r\\Query"))) {
             try {
-                $json = tryEncodeAsJson($delta);
-                if ($json !== false) {
-                    $delta = new Json($json);
-                } else {
-                    $delta = nativeToDatum($delta);
-                }
+                $delta = nativeToDatum($delta);
             } catch (RqlDriverError $e) {
                 $delta = nativeToFunction($delta);
             }
@@ -86,12 +76,7 @@ class Replace extends ValuedQuery
             // If we can make it an object, we will wrap that object into a function.
             // Otherwise, we will try to make it a function.
             try {
-                $json = tryEncodeAsJson($delta);
-                if ($json !== false) {
-                    $delta = new Json($json);
-                } else {
-                    $delta = nativeToDatum($delta);
-                }
+                $delta = nativeToDatum($delta);
             } catch (RqlDriverError $e) {
                 $delta = nativeToFunction($delta);
             }

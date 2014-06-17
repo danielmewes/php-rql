@@ -26,7 +26,7 @@ function nativeToDatum($v) {
                 $datumArray[$key] = $subDatum;
             }
         }
-    
+
         // Note: In the case of $hasNonNumericKey === false, we cannot
         //   know if we should convert to an array or an object. We
         //   currently assume array, but this is not overly clean.
@@ -68,107 +68,16 @@ function nativeToDatum($v) {
     }
 }
 
-function tryEncodeAsJson($v) {
-    if (canEncodeAsJson($v)) {
-        // PHP by default loses some precision when encoding floats, so we temporarily
-        // bump up the `precision` option to avoid this.
-        // The 17 assumes IEEE-754 double precision numbers.
-        // Source: http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
-        //         "The same argument applied to double precision shows that 17 decimal
-        //          digits are required to recover a double precision number."
-        $previousPrecision = ini_set("precision", 17);
-        $json = json_encode($v);
-        if ($previousPrecision !== false) {
-            ini_set("precision", $previousPrecision);
-        }
-        if ($json === false) throw new RqlDriverError("Failed to encode document as JSON: " . json_last_error());
-        return $json;
-    } else {
-        return false;
-    }
-}
-
 // ------------- Helpers -------------
-function protobufToDatum(pb\Datum $datum) {
-    switch ($datum->getType()) {
-        case pb\Datum_DatumType::PB_R_NULL: return NullDatum::_fromProtobuffer($datum);
-        case pb\Datum_DatumType::PB_R_BOOL: return BoolDatum::_fromProtobuffer($datum);
-        case pb\Datum_DatumType::PB_R_NUM: return NumberDatum::_fromProtobuffer($datum);
-        case pb\Datum_DatumType::PB_R_STR: return StringDatum::_fromProtobuffer($datum);
-        case pb\Datum_DatumType::PB_R_ARRAY: return ArrayDatum::_fromProtobuffer($datum);
-        case pb\Datum_DatumType::PB_R_OBJECT: return ObjectDatum::_fromProtobuffer($datum);
-        case pb\Datum_DatumType::PB_R_JSON: return jsonToDatum($datum->getRStr());
-        default: throw new RqlDriverError("Unhandled datum type " . $datum->getType());
-    }
-}
+function decodedJSONToDatum($json) {
+    if (is_null($json)) return NullDatum::_fromJSON($json);
+    if (is_bool($json)) return BoolDatum::_fromJSON($json);
+    if (is_int($json) || is_float($json)) return NumberDatum::_fromJSON($json);
+    if (is_string($json)) return StringDatum::_fromJSON($json);
+    if (is_array($json)) return ArrayDatum::_fromJSON($json);
+    if (is_object($json)) return ObjectDatum::_fromJSON($json);
 
-function jsonToDatum($json) {
-    $jsonObject = json_decode($json);
-    if (json_last_error() != JSON_ERROR_NONE) {
-        throw new RqlDriverError("Unable to convert JSON to datum: " . json_last_error_msg());
-    }
-    return jsonObjectToDatum($jsonObject);
-}
-
-function jsonObjectToDatum($v) {
-    // This is very similar to nativeToDatum(), except that it doesn't handle non-datum
-    // terms and handles arrays vs. objects differently, and converts ints to floats.
-    // It is internally used by jsonToDatum().
-
-    if (is_array($v) || is_object($v)) {
-        $datumArray = array();
-        foreach($v as $key => $val) {
-            if (!is_numeric($key) && !is_string($key)) throw new RqlDriverError("Key must be a string.");
-            $subDatum = jsonObjectToDatum($val);
-            $datumArray[$key] = $subDatum;
-        }
-
-        if (is_object($v)) {
-            return new ObjectDatum($datumArray);
-        } else {
-            return new ArrayDatum($datumArray);
-        }
-    }
-    else if (is_null($v)) {
-        return new NullDatum();
-    }
-    else if (is_bool($v)) {
-        return new BoolDatum($v);
-    }
-    else if (is_int($v) || is_float($v)) {
-        return new NumberDatum((float)$v);
-    }
-    else if (is_string($v)) {
-        return new StringDatum($v);
-    }
-    else {
-        throw new RqlDriverError("Unhandled type " . get_class($v));
-    }
-}
-
-function canEncodeAsJson($v) {
-    if (is_array($v)) {
-        foreach($v as $key => $val) {
-            if (!is_numeric($key) && !is_string($key)) return false;
-            if (!canEncodeAsJson($val)) return false;
-        }
-        return true;
-    }
-    else if (is_null($v)) {
-        return true;
-    }
-    else if (is_bool($v)) {
-        return true;
-    }
-    else if (is_int($v) || is_float($v)) {
-        return true;
-    }
-    else if (is_string($v)) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    throw new RqlDriverError("Unhandled type " . get_class($json));
 }
 
 // ------------- RethinkDB make queries -------------
@@ -209,19 +118,10 @@ abstract class Datum extends ValuedQuery
             $this->setValue($value);
         }
     }
-
-    public function _getPBTerm() {
-        $term = new pb\Term();
-        $term->setType(pb\Term_TermType::PB_DATUM);
-        $term->setDatum($this->_getPBDatum());
-        return $term;
-    }
     
     protected function getTermType() {
         return pb\Term_TermType::PB_DATUM;
     }
-    
-    abstract public function _getPBDatum();
     
     public function toNative() {
         return $this->getValue();
@@ -253,13 +153,11 @@ abstract class Datum extends ValuedQuery
 
 class NullDatum extends Datum
 {
-    public function _getPBDatum() {
-        $datum = new pb\Datum();
-        $datum->setType(pb\Datum_DatumType::PB_R_NULL);
-        return $datum;
+    public function _getJSONTerm() {
+        return null;
     }
     
-    static public function _fromProtobuffer(pb\Datum $datum) {
+    static public function _fromJSON($json) {
         $result = new NullDatum();
         $result->setValue(null);
         return $result;
@@ -277,18 +175,13 @@ class NullDatum extends Datum
 
 class BoolDatum extends Datum
 {
-    public function _getPBDatum() {
-        $datum = new pb\Datum();
-        $datum->setType(pb\Datum_DatumType::PB_R_BOOL);
-        $datum->setRBool($this->getValue());
-        return $datum;
+    public function _getJSONTerm() {
+        return (bool)$this->getValue();
     }
     
-    static public function _fromProtobuffer(pb\Datum $datum) {
-        $val = $datum->getRBool();
-        
+    static public function _fromJSON($json) {
         $result = new BoolDatum();
-        $result->setValue($val);
+        $result->setValue((bool)$json);
         return $result;
     }
     
@@ -306,18 +199,13 @@ class BoolDatum extends Datum
 
 class NumberDatum extends Datum
 {
-    public function _getPBDatum() {
-        $datum = new pb\Datum();
-        $datum->setType(pb\Datum_DatumType::PB_R_NUM);
-        $datum->setRNum($this->getValue());
-        return $datum;
+    public function _getJSONTerm() {
+        return (float)$this->getValue();
     }
     
-    static public function _fromProtobuffer(pb\Datum $datum) {
-        $val = $datum->getRNum();
-        
+    static public function _fromJSON($json) {
         $result = new NumberDatum();
-        $result->setValue($val);
+        $result->setValue((float)$json);
         return $result;
     }
     
@@ -329,18 +217,13 @@ class NumberDatum extends Datum
 
 class StringDatum extends Datum
 {
-    public function _getPBDatum() {
-        $datum = new pb\Datum();
-        $datum->setType(pb\Datum_DatumType::PB_R_STR);
-        $datum->setRStr($this->getValue());
-        return $datum;
+    public function _getJSONTerm() {
+        return (string)$this->getValue();
     }
-    
-    static public function _fromProtobuffer(pb\Datum $datum) {
-        $val = $datum->getRStr();
-        
+
+    static public function _fromJSON($json) {
         $result = new StringDatum();
-        $result->setValue($val);
+        $result->setValue((string)$json);
         return $result;
     }
     
@@ -356,25 +239,19 @@ class StringDatum extends Datum
 
 class ArrayDatum extends Datum
 {
-    public function _getPBDatum() {
-        $datum = new pb\Datum();
-        $datum->setType(pb\Datum_DatumType::PB_R_ARRAY);
-        foreach ($this->getValue() as $val) {
-            $datum->appendRArray($val->_getPBDatum());
-        }
-        return $datum;
+    public function _getJSONTerm() {
+        $term = new MakeArray(array_values($this->getValue()));
+        return $term->_getJSONTerm();
     }
     
-    static public function _fromProtobuffer(pb\Datum $datum) {
-        $size = $datum->getRArrayCount();
-        $val = array();
-        for ($i = 0; $i < $size; ++$i) {
-            $v = protobufToDatum($datum->getRArrayAt($i));
-            $val[$i] = $v;
+    static public function _fromJSON($json) {
+        $jsonArray = array_values((array)$json);
+        foreach ($jsonArray as &$val)  {
+            $val = decodedJSONToDatum($val);
+            unset($val);
         }
-        
         $result = new ArrayDatum();
-        $result->setValue($val);
+        $result->setValue($jsonArray);
         return $result;
     }
     
@@ -411,29 +288,23 @@ class ArrayDatum extends Datum
 
 class ObjectDatum extends Datum
 {
-    public function _getPBDatum() {
-        $datum = new pb\Datum();
-        $datum->setType(pb\Datum_DatumType::PB_R_OBJECT);
-        foreach ($this->getValue() as $key => $val) {
-            $pair = new pb\Datum_AssocPair();
-            $pair->setKey($key);
-            $pair->setVal($val->_getPBDatum());
-            $datum->appendRObject($pair);
+    public function _getJSONTerm() {
+        $jsonValue = $this->getValue();
+        foreach ($jsonValue as $key => &$val) {
+            $val = $val->_getJSONTerm();
+            unset($val);
         }
-        return $datum;
+        return (Object)$jsonValue;
     }
     
-    static public function _fromProtobuffer(pb\Datum $datum) {
-        $size = $datum->getRObjectCount();
-        $val = array();
-        for ($i = 0; $i < $size; ++$i) {
-            $pair = $datum->getRObjectAt($i);
-            $v = protobufToDatum($pair->getVal());
-            $val[$pair->getKey()] = $v;
+    static public function _fromJSON($json) {
+        $jsonObject = (array)$json;
+        foreach ($jsonObject as $key => &$val)  {
+            $val = decodedJSONToDatum($val);
+            unset($val);
         }
-        
         $result = new ObjectDatum();
-        $result->setValue($val);
+        $result->setValue($jsonObject);
         return $result;
     }
     
@@ -468,6 +339,5 @@ class ObjectDatum extends Datum
         return $string;
     }
 }
-
 
 ?>

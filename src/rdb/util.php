@@ -3,12 +3,11 @@
 // ------------- RethinkDB Backtraces -------------
 class Backtrace
 {
-    static public function _fromProtobuffer(pb\Backtrace $backtrace) {
+    static public function _fromJSON($backtrace) {
         $result = new Backtrace();
         $result->frames = array();
-        $size = $backtrace->getFramesCount();
-        for ($i = 0; $i < $size; ++$i)
-            $result->frames[$i] = Frame::_fromProtobuffer($backtrace->getFramesAt($i));
+        foreach ($backtrace as $frame)
+            $result->frames[] = Frame::_fromJSON($frame);
         return $result;
     }
 
@@ -25,18 +24,15 @@ class Backtrace
 
 class Frame
 {
-    static public function _fromProtobuffer(pb\Frame $frame) {
+    static public function _fromJSON($frame) {
         $result = new Frame();
-        if ($frame->getType() == pb\Frame_FrameType::PB_POS) {
-            $result->isPositionalArg = true;
-            $result->positionalArgPosition = $frame->getPos();
-        }
-        else if ($frame->getType() == pb\Frame_FrameType::PB_OPT) {
+        if (is_string($frame)) {
             $result->isOptionalArg = true;
-            $result->optionalArgName = $frame->getOpt();
+            $result->optionalArgName = $frame;
+        } else {
+            $result->isPositionalArg = true;
+            $result->positionalArgPosition = $frame;
         }
-        else
-            throw new RqlDriverError("Unhandled backtrace frame time: " . $frame->type());
 
         return $result;
     }
