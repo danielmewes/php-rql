@@ -418,6 +418,9 @@ abstract class ValuedQuery extends Query
     public function seconds() {
         return new Seconds($this);
     }
+    public function changes() {
+        return new Changes($this);
+    }
 }
 
 abstract class Ordering extends Query {

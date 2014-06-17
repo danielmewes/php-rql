@@ -118,4 +118,15 @@ class Table extends ValuedQuery
     }
 }
 
+class Changes extends ValuedQuery
+{
+    public function __construct(ValuedQuery $table) {
+        $this->setPositionalArg(0, $table);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_CHANGES;
+    }
+}
+
 ?>

@@ -156,6 +156,25 @@ class MathTest extends TestCase
             false);
         $this->checkQueryResult(r\not(r\expr(false)),
             true);
+
+        for ($i = 0; $i < 10; ++$i) {
+            $this->checkQueryResult(r\random()->lt(1.0),
+                true);
+            $this->checkQueryResult(r\random()->ge(0.0),
+                true);
+        }
+        for ($i = 0; $i < 10; ++$i) {
+            $this->checkQueryResult(r\random(10)->lt(10),
+                true);
+            $this->checkQueryResult(r\random(10)->ge(0.0),
+                true);
+        }
+        for ($i = 0; $i < 10; ++$i) {
+            $this->checkQueryResult(r\random(5, 10)->lt(10),
+                true);
+            $this->checkQueryResult(r\random(5, 10)->ge(5.0),
+                true);
+        }
     }
 }
 

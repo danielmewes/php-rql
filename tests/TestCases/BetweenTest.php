@@ -7,6 +7,7 @@ class BetweenTest extends TestCase
         $this->requireDataset('Heroes');
     
         r\db('Heroes')->table('marvel')->indexCreate('test', function($x) { return r\expr('5'); })->run($this->conn);
+        r\db('Heroes')->table('marvel')->indexWait('test')->run($this->conn);
     
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->between('5', '5', 'test')->count(), 0.0);
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->between('5', '5', array('index' => 'test'))->count(), 0.0);

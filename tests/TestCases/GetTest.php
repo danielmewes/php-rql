@@ -7,6 +7,7 @@ class GetTest extends TestCase
         $this->requireDataset('Heroes');
     
         r\db('Heroes')->table('marvel')->indexCreate('test', function($x) { return r\expr('5'); })->run($this->conn);
+        r\db('Heroes')->table('marvel')->indexWait('test')->run($this->conn);
     
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->getAll('5', 'test')->count(), 3.0);
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->getAll('Iron Man')->count(), 1.0);

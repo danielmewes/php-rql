@@ -148,6 +148,10 @@ function not($expr) {
     return new Not($expr);
 }
 
+function random($left = null, $right = null, $opts = null) {
+    return new Random($left, $right, $opts);
+}
+
 function now() {
     return new Now();
 }

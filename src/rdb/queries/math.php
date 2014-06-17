@@ -148,4 +148,25 @@ class Split extends ValuedQuery
     }
 }
 
+class Random extends ValuedQuery
+{
+    public function __construct($left = null, $right = null, $opts = null) {
+        if (isset($left)) {
+            $this->setPositionalArg(0, nativeToDatum($left));
+        }
+        if (isset($right)) {
+            $this->setPositionalArg(1, nativeToDatum($right));
+        }
+        if (isset($opts)) {
+            foreach ($opts as $opt => $val) {
+                $this->setOptionalArg($opt, nativeToDatum($val));
+            }
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_RANDOM;
+    }
+}
+
 ?>
