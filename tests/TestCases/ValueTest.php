@@ -28,6 +28,8 @@ class ValueTest extends TestCase
         $this->checkQueryResult(new r\ObjectDatum(array(4 => new r\StringDatum('a'))), array(4 => 'a'), $runOptions);
         $this->checkQueryResult(new r\ObjectDatum(array('4' => new r\StringDatum('a'))), array('4' => 'a'), $runOptions);
         $this->checkQueryResult(r\expr(array(new r\ObjectDatum(array()))), array(array()), $runOptions);
+        $this->checkQueryResult(r\expr((Object)array()), array(), $runOptions);
+        $this->checkQueryResult(r\expr(array((Object)array())), array(array()), $runOptions);
     }
 }
 

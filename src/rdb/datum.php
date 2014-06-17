@@ -5,10 +5,15 @@ require_once("util.php");
 require_once("function.php");
 
 function nativeToDatum($v) {
-    if (is_array($v)) {
+    if (is_array($v) || (is_object($v) && get_class($v) == "stdClass")) {
         $datumArray = array();
         $hasNonNumericKey = false;
         $mustUseMakeTerm = false;
+        if (is_object($v)) {
+            // Handle "stdClass" objects
+            $hasNonNumericKey = true; // Force conversion into an ObjectDatum
+            $v = (array)$v;
+        }
         foreach($v as $key => $val) {
             if (!is_numeric($key) && !is_string($key)) throw new RqlDriverError("Key must be a string.");
             if ((is_object($val) && is_subclass_of($val, "\\r\\Query")) && !(is_object($val) && is_subclass_of($val, "\\r\\Datum"))) {
