@@ -519,22 +519,20 @@ class Cursor implements \Iterator
         }
     }
     public function next() {
+        $this->requestMoreIfNecessary();
         if (!$this->valid()) throw new RqlDriverError("No more data available.");
         $this->wasIterated = true;
         $this->currentIndex++;
-        if ($this->currentIndex == $this->currentSize) {
-            // We are at the end of currentData. Request new if available
-            if (!$this->isComplete)
-                $this->requestNewBatch();
-        }
     }
     public function valid() {
+        $this->requestMoreIfNecessary();
         return !$this->isComplete || ($this->currentIndex < $this->currentSize);
     }
     public function key() {
         return null;
     }
     public function current() {
+        $this->requestMoreIfNecessary();
         if (!$this->valid()) throw new RqlDriverError("No more data available.");
         return $this->currentData[$this->currentIndex];
     }
@@ -586,9 +584,25 @@ class Cursor implements \Iterator
         }
     }
 
+    private function requestMoreIfNecessary() {
+        while ($this->currentIndex == $this->currentSize) {
+            // We are at the end of currentData. Request more if available
+            if ($this->isComplete) {
+                return;
+            }
+            $this->requestNewBatch();
+        }
+    }
+
     private function requestNewBatch() {
-        $response = $this->connection->_continueQuery($this->token);
-        $this->setBatch($response);
+        try {
+            $response = $this->connection->_continueQuery($this->token);
+            $this->setBatch($response);
+        } catch (\Exception $e) {
+            $this->isComplete = true;
+            $this->close();
+            throw $e;
+        }
     }
 
     private function setBatch($response) {
