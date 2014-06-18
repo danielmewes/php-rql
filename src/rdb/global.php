@@ -93,6 +93,10 @@ function json($json) {
     return new Json($json);
 }
 
+function http($url, $opts = null) {
+    return new Http($url, $opts);
+}
+
 function rObject($object)
 {
     return new RObject($object);

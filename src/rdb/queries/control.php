@@ -124,4 +124,20 @@ class TypeOf extends ValuedQuery
     }
 }
 
+class Http extends ValuedQuery
+{
+    public function __construct($url, $opts = null) {
+        $this->setPositionalArg(0, nativeToDatum($url));
+        if (isset($opts)) {
+            foreach ($opts as $opt => $val) {
+                $this->setOptionalArg($opt, nativeToDatum($val));
+            }
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_HTTP;
+    }
+}
+
 ?>
