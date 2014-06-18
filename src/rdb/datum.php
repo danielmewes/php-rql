@@ -67,8 +67,7 @@ function nativeToDatum($v) {
         return new StringDatum($v);
     } else if (is_object($v) && is_subclass_of($v, "\\r\\Query")) {
         return $v;
-    }
-    else {
+    } else {
         throw new RqlDriverError("Unhandled type " . get_class($v));
     }
 }
@@ -83,6 +82,51 @@ function decodedJSONToDatum($json) {
     if (is_object($json)) return ObjectDatum::_fromJSON($json);
 
     throw new RqlDriverError("Unhandled type " . get_class($json));
+}
+
+function tryEncodeAsJson($v) {
+    if (canEncodeAsJson($v)) {
+        // PHP by default loses some precision when encoding floats, so we temporarily
+        // bump up the `precision` option to avoid this.
+        // The 17 assumes IEEE-754 double precision numbers.
+        // Source: http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+        //         "The same argument applied to double precision shows that 17 decimal
+        //          digits are required to recover a double precision number."
+        $previousPrecision = ini_set("precision", 17);
+        $json = json_encode($v);
+        if ($previousPrecision !== false) {
+            ini_set("precision", $previousPrecision);
+        }
+        if ($json === false) throw new RqlDriverError("Failed to encode document as JSON: " . json_last_error());
+        return $json;
+    } else {
+        return false;
+    }
+}
+
+function canEncodeAsJson($v) {
+    if (is_array($v)) {
+        foreach($v as $key => $val) {
+            if (!is_numeric($key) && !is_string($key)) return false;
+            if (!canEncodeAsJson($val)) return false;
+        }
+        return true;
+    }
+    else if (is_null($v)) {
+        return true;
+    }
+    else if (is_bool($v)) {
+        return true;
+    }
+    else if (is_int($v) || is_float($v)) {
+        return true;
+    }
+    else if (is_string($v)) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 // ------------- RethinkDB make queries -------------
