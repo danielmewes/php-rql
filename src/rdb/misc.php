@@ -145,8 +145,8 @@ abstract class Query
         }
     }
 
-    private $positionalArgs = array();
-    private $optionalArgs = array();
+    protected $positionalArgs = array();
+    protected $optionalArgs = array();
     private $unwrappedImplicitVar = false;
 }
 
