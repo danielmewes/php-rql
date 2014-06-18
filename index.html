@@ -42,15 +42,15 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>06/17/2014 New release: PHP-RQL 1.13.0. Uses <a href="http://rethinkdb.com/blog/1.13-release/">RethinkDB 1.13</a>'s new JSON API instead of protocol buffers. Support for <code>r\http()</code>, <code>r\random()</code> and <code>changes()</code>. Minor bug fixes.</li>
 <li>05/16/2014 New release: PHP-RQL 1.12.2. Replaced the internal handling of <code>r\row()</code>. Fixes an <a href="https://github.com/danielmewes/php-rql/issues/62">issue</a> with <code>branch()</code>.</li>
 <li>03/28/2014 New release: PHP-RQL 1.12.1. Fixes a regression due to which <code>getField()</code> only accepted string constants as its argument. It now accepts either a string or a ReQL query again. Thanks to <a href="https://github.com/wojons">Alexis Okuwa</a> for investigating this bug!</li>
-<li>03/25/2014 New release: PHP-RQL 1.12.0. Support for new <a href="https://github.com/rethinkdb/rethinkdb/releases">RethinkDB 1.12 features</a>, including the new terms <code>group()</code>, <code>ungroup()</code>, <code>rObject()</code>, <code>split()</code>, <code>upcase()</code> and <code>downcase()</code>. If you are using <code>groupedMapReduce()</code> (removed), <code>groupBy()</code> (removed) or <code>reduce()</code> (optional base argument removed), you may have to modify your application. Other changes in PHP-RQL 1.12.0 include: <code>db()</code> and <code>table()</code> now accept ReQL terms as their argument, <code>r\systemInfo()</code> includes the version of PHP-RQL, and lambda functions are allowed to return native PHP types, rather than having to wrap the return value into an <code>r\expr()</code>.</li>
 </ul><h2>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 1.12</li>
+<li>RethinkDB 1.13</li>
 </ul><h2>
 <a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
 
@@ -66,9 +66,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <li>Copy the contents of the src directory (folders pb4php and rdb) into the path of your PHP project, or your system's PHP path (e.g. /usr/share/php).</li>
 </ol>
 </li>
-</ul><p>After installing the driver, we recommend that you also install the <a href="http://php-rql.dnsalias.net/wiki/index.php/InstallExtension">PHP Protobuf extension</a> for improved performance.</p>
-
-<h2>
+</ul><h2>
 <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
 <div class="highlight highlight-php"><pre><span class="o">&lt;?</span><span class="nx">php</span>
@@ -85,11 +83,11 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
     <span class="nv">$document</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'someKey'</span> <span class="o">=&gt;</span> <span class="s1">'someValue'</span><span class="p">);</span>
     <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">insert</span><span class="p">(</span><span class="nv">$document</span><span class="p">)</span>
         <span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
-    <span class="k">echo</span> <span class="s2">"Insert: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+    <span class="k">echo</span> <span class="s2">"Insert: </span><span class="si">$result\n</span><span class="s2">"</span><span class="p">;</span>
 
     <span class="c1">// How many documents are in the table?</span>
     <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
-    <span class="k">echo</span> <span class="s2">"Count: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+    <span class="k">echo</span> <span class="s2">"Count: </span><span class="si">$result\n</span><span class="s2">"</span><span class="p">;</span>
 
     <span class="c1">// List the someKey values of the documents in the table</span>
     <span class="c1">// (using a mapping-function)</span>
@@ -98,7 +96,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
         <span class="p">})</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
 
     <span class="k">foreach</span> <span class="p">(</span><span class="nv">$result</span> <span class="k">as</span> <span class="nv">$doc</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">echo</span> <span class="s2">"Doc: </span><span class="si">$doc</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
+        <span class="k">echo</span> <span class="s2">"Doc: </span><span class="si">$doc\n</span><span class="s2">"</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="c1">// Delete the test table</span>
@@ -110,9 +108,8 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="attributions" class="anchor" href="#attributions"><span class="octicon octicon-link"></span></a>Attributions</h2>
 
 <ul>
-<li>PHP-RQL uses <a href="http://code.google.com/p/pb4php/">pb4php</a> by Nikolai Kordulla.</li>
-<li>A <a href="https://code.google.com/p/pb4php/issues/detail?id=16">patch</a> for support of doubles in protocol buffers comes from Dmitry Vorobyev</li>
-<li>The documentation system and most of the API documentation (except for PHP-specific parts) are from <a href="http://rethinkdb.com">RethinkDB</a>, as is the protocol buffer specification used.</li>
+<li>PHP-RQL uses code from <a href="http://code.google.com/p/pb4php/">pb4php</a> by Nikolai Kordulla.</li>
+<li>The documentation system and most of the API documentation (except for PHP-specific parts) are from <a href="http://rethinkdb.com">RethinkDB</a>, as is the protocol specification used.</li>
 </ul>
       </section>
       <footer>
