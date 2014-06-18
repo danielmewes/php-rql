@@ -134,9 +134,12 @@ class MakeArray extends ValuedQuery
 {
     public function __construct($value) {
         if (!is_array($value)) throw new RqlDriverError("Value must be an array.");
-        $this->positionalArgs = $value;
+        $i = 0;
+        foreach($value as $val) {
+            $this->setPositionalArg($i++, $val);
+        }
     }
-
+    
     protected function getTermType() {
         return pb\Term_TermType::PB_MAKE_ARRAY;
     }
@@ -146,7 +149,9 @@ class MakeObject extends ValuedQuery
 {
     public function __construct($value) {
         if (!is_array($value)) throw new RqlDriverError("Value must be an array.");
-        $this->optionalArgs = $value;
+        foreach($value as $key => $val) {
+            $this->setOptionalArg($key, $val);
+        }
     }
     
     protected function getTermType() {
@@ -284,7 +289,7 @@ class StringDatum extends Datum
 class ArrayDatum extends Datum
 {
     public function _getJSONTerm() {
-        $term = new MakeArray($this->getValue());
+        $term = new MakeArray(array_values($this->getValue()));
         return $term->_getJSONTerm();
     }
     
