@@ -231,6 +231,21 @@ function december() {
     return new December();
 }
 
+function geoJSON($geojson) {
+    return new GeoJSON($geojson);
+}
+
+function point($lat, $lon) {
+    return new Point($lat, $lon);
+}
+
+function line($points) {
+    return new Line($points);
+}
+
+function polygon($points) {
+    return new Polygon($points);
+}
 
 
 ?>

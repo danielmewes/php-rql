@@ -421,6 +421,12 @@ abstract class ValuedQuery extends Query
     public function changes() {
         return new Changes($this);
     }
+    public function toGeoJSON() {
+        return new ToGeoJSON($this);
+    }
+    public function intersects($geometry) {
+        return new Intersects($this, $geometry);
+    }
 }
 
 abstract class Ordering extends Query {

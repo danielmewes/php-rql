@@ -17,5 +17,6 @@ require_once("queries/index.php");
 require_once("queries/transformations.php");
 require_once("queries/writing.php");
 require_once("queries/dates.php");
+require_once("queries/geo.php");
 
 ?>

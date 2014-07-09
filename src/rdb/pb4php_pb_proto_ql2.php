@@ -183,6 +183,12 @@ class Term_TermType
   const PB_RANDOM  = 151;
   const PB_CHANGES  = 152;
   const PB_ARGS  = 154;
+  const PB_GEOJSON  = 155;
+  const PB_TOGEOJSON  = 156;
+  const PB_POINT  = 157;
+  const PB_LINE  = 158;
+  const PB_POLYGON  = 159;
+  const PB_INTERSECTS  = 160;
 }
 class Query_QueryType
 {
