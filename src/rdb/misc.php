@@ -424,8 +424,11 @@ abstract class ValuedQuery extends Query
     public function toGeoJSON() {
         return new ToGeoJSON($this);
     }
-    public function intersects($geometry) {
-        return new Intersects($this, $geometry);
+    public function intersects($g2) {
+        return new Intersects($this, $g2);
+    }
+    public function distance($g2) {
+        return new Distance($this, $g2);
     }
 }
 

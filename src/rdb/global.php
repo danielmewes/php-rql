@@ -247,5 +247,18 @@ function polygon($points) {
     return new Polygon($points);
 }
 
+// TODO! Opt args
+function circle($center, $radius) {
+    return new Circle($center, $radius);
+}
+
+function intersects($g1, $g2) {
+    return new Intersects($g1, $g2);
+}
+
+function distance($g1, $g2) {
+    return new Distance($g1, $g2);
+}
+
 
 ?>

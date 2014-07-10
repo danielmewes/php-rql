@@ -68,15 +68,39 @@ class Polygon extends ValuedQuery
     }
 }
 
+class Circle extends ValuedQuery
+{
+    public function __construct($center, $radius) {
+        $this->setPositionalArg(0, nativeToDatum($center));
+        $this->setPositionalArg(1, nativeToDatum($radius));
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_CIRCLE;
+    }
+}
+
 class Intersects extends ValuedQuery
 {
-    public function __construct(ValuedQuery $reference, $geometry) {
-        $this->setPositionalArg(0, $reference);
-        $this->setPositionalArg(1, nativeToDatum($geometry));
+    public function __construct($g1, $g2) {
+        $this->setPositionalArg(0, nativeToDatum($g1));
+        $this->setPositionalArg(1, nativeToDatum($g2));
     }
     
     protected function getTermType() {
         return pb\Term_TermType::PB_INTERSECTS;
+    }
+}
+
+class Distance extends ValuedQuery
+{
+    public function __construct($g1, $g2) {
+        $this->setPositionalArg(0, nativeToDatum($g1));
+        $this->setPositionalArg(1, nativeToDatum($g2));
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_DISTANCE;
     }
 }
 

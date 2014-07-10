@@ -188,7 +188,9 @@ class Term_TermType
   const PB_POINT  = 157;
   const PB_LINE  = 158;
   const PB_POLYGON  = 159;
-  const PB_INTERSECTS  = 160;
+  const PB_DISTANCE  = 160;
+  const PB_INTERSECTS  = 161;
+  const PB_CIRCLE  = 162;
 }
 class Query_QueryType
 {
