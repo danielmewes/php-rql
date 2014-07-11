@@ -183,16 +183,16 @@ class Term_TermType
   const PB_RANDOM  = 151;
   const PB_CHANGES  = 152;
   const PB_ARGS  = 154;
-  const PB_GEOJSON  = 155;
-  const PB_TOGEOJSON  = 156;
-  const PB_POINT  = 157;
-  const PB_LINE  = 158;
-  const PB_POLYGON  = 159;
-  const PB_DISTANCE  = 160;
-  const PB_INTERSECTS  = 161;
-  const PB_INCLUDES  = 162;
-  const PB_CIRCLE  = 163;
-  const PB_RECTANGLE  = 164;
+  const PB_GEOJSON  = 156;
+  const PB_TOGEOJSON  = 157;
+  const PB_POINT  = 158;
+  const PB_LINE  = 159;
+  const PB_POLYGON  = 160;
+  const PB_DISTANCE  = 161;
+  const PB_INTERSECTS  = 162;
+  const PB_INCLUDES  = 163;
+  const PB_CIRCLE  = 164;
+  const PB_RECTANGLE  = 165;
 }
 class Query_QueryType
 {

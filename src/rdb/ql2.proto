@@ -613,16 +613,16 @@ message Term {
         ARGS = 154; // ARRAY -> SPECIAL (used to splice arguments)
 
         // TODO! document
-        GEOJSON = 155;
-        TOGEOJSON = 156;
-        POINT = 157;
-        LINE = 158;
-        POLYGON = 159;
-        DISTANCE = 160;
-        INTERSECTS = 161;
-        INCLUDES = 162;
-        CIRCLE = 163;
-        RECTANGLE = 164;
+        GEOJSON = 156;
+        TOGEOJSON = 157;
+        POINT = 158;
+        LINE = 159;
+        POLYGON = 160;
+        DISTANCE = 161;
+        INTERSECTS = 162;
+        INCLUDES = 163;
+        CIRCLE = 164;
+        RECTANGLE = 165;
     }
     optional TermType type = 1;
 
