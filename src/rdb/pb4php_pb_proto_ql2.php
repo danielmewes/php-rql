@@ -190,7 +190,9 @@ class Term_TermType
   const PB_POLYGON  = 159;
   const PB_DISTANCE  = 160;
   const PB_INTERSECTS  = 161;
-  const PB_CIRCLE  = 162;
+  const PB_INCLUDES  = 162;
+  const PB_CIRCLE  = 163;
+  const PB_RECTANGLE  = 164;
 }
 class Query_QueryType
 {

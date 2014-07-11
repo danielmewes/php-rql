@@ -427,8 +427,11 @@ abstract class ValuedQuery extends Query
     public function intersects($g2) {
         return new Intersects($this, $g2);
     }
-    public function distance($g2) {
-        return new Distance($this, $g2);
+    public function includes($g2) {
+        return new Includes($this, $g2);
+    }
+    public function distance($g2, $opts = null) {
+        return new Distance($this, $g2, $opts);
     }
 }
 

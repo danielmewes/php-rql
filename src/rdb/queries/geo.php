@@ -70,13 +70,37 @@ class Polygon extends ValuedQuery
 
 class Circle extends ValuedQuery
 {
-    public function __construct($center, $radius) {
+    public function __construct($center, $radius, $opts) {
         $this->setPositionalArg(0, nativeToDatum($center));
         $this->setPositionalArg(1, nativeToDatum($radius));
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {
         return pb\Term_TermType::PB_CIRCLE;
+    }
+}
+
+class Rectangle extends ValuedQuery
+{
+    public function __construct($base, $opposite, $opts) {
+        $this->setPositionalArg(0, nativeToDatum($base));
+        $this->setPositionalArg(1, nativeToDatum($opposite));
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_RECTANGLE;
     }
 }
 
@@ -92,11 +116,29 @@ class Intersects extends ValuedQuery
     }
 }
 
-class Distance extends ValuedQuery
+class Includes extends ValuedQuery
 {
     public function __construct($g1, $g2) {
         $this->setPositionalArg(0, nativeToDatum($g1));
         $this->setPositionalArg(1, nativeToDatum($g2));
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_INCLUDES;
+    }
+}
+
+class Distance extends ValuedQuery
+{
+    public function __construct($g1, $g2, $opts = null) {
+        $this->setPositionalArg(0, nativeToDatum($g1));
+        $this->setPositionalArg(1, nativeToDatum($g2));
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
     }
     
     protected function getTermType() {

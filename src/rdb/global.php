@@ -247,17 +247,20 @@ function polygon($points) {
     return new Polygon($points);
 }
 
-// TODO! Opt args
-function circle($center, $radius) {
-    return new Circle($center, $radius);
+function circle($center, $radius, $opts = null) {
+    return new Circle($center, $radius, $opts);
+}
+
+function rectangle($base, $opposite, $opts = null) {
+    return new Rectangle($base, $opposite, $opts);
 }
 
 function intersects($g1, $g2) {
     return new Intersects($g1, $g2);
 }
 
-function distance($g1, $g2) {
-    return new Distance($g1, $g2);
+function distance($g1, $g2, $opts = null) {
+    return new Distance($g1, $g2, $opts);
 }
 
 
