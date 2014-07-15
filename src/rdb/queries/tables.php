@@ -76,6 +76,9 @@ class Table extends ValuedQuery
     public function getMultiple($keys, $opts = null) {
         return new GetMultiple($this, $keys, $opts);
     }
+    public function getIntersecting($geo, $opts = null) {
+        return new GetIntersecting($this, $geo, $opts);
+    }
     public function sync() {
         return new Sync($this);
     }

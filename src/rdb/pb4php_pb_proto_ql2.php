@@ -193,6 +193,7 @@ class Term_TermType
   const PB_INCLUDES  = 163;
   const PB_CIRCLE  = 164;
   const PB_RECTANGLE  = 165;
+  const PB_GET_INTERSECTING  = 166;
 }
 class Query_QueryType
 {

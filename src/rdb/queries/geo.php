@@ -146,4 +146,24 @@ class Distance extends ValuedQuery
     }
 }
 
+class GetIntersecting extends ValuedQuery
+{
+    public function __construct(Table $table, $geo, $opts = null) {
+        $geo = nativeToDatum($geo);
+
+        $this->setPositionalArg(0, $table);
+        $this->setPositionalArg(1, $geo);
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_GET_INTERSECTING;
+    }
+}
+
 ?>
