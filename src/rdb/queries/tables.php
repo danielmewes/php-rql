@@ -79,6 +79,9 @@ class Table extends ValuedQuery
     public function getIntersecting($geo, $opts = null) {
         return new GetIntersecting($this, $geo, $opts);
     }
+    public function getNearest($center, $opts = null) {
+        return new GetNearest($this, $center, $opts);
+    }
     public function sync() {
         return new Sync($this);
     }

@@ -86,24 +86,6 @@ class Circle extends ValuedQuery
     }
 }
 
-class Rectangle extends ValuedQuery
-{
-    public function __construct($base, $opposite, $opts) {
-        $this->setPositionalArg(0, nativeToDatum($base));
-        $this->setPositionalArg(1, nativeToDatum($opposite));
-        if (isset($opts)) {
-            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
-            foreach ($opts as $k => $v) {
-                $this->setOptionalArg($k, nativeToDatum($v));
-            }
-        }
-    }
-    
-    protected function getTermType() {
-        return pb\Term_TermType::PB_RECTANGLE;
-    }
-}
-
 class Intersects extends ValuedQuery
 {
     public function __construct($g1, $g2) {
@@ -163,6 +145,37 @@ class GetIntersecting extends ValuedQuery
     
     protected function getTermType() {
         return pb\Term_TermType::PB_GET_INTERSECTING;
+    }
+}
+
+class GetNearest extends ValuedQuery
+{
+    public function __construct(Table $table, $center, $opts = null) {
+        $center = nativeToDatum($center);
+
+        $this->setPositionalArg(0, $table);
+        $this->setPositionalArg(1, $center);
+        if (isset($opts)) {
+            if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
+            foreach ($opts as $k => $v) {
+                $this->setOptionalArg($k, nativeToDatum($v));
+            }
+        }
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_GET_NEAREST;
+    }
+}
+
+class Fill extends ValuedQuery
+{
+    public function __construct($g1) {
+        $this->setPositionalArg(0, nativeToDatum($g1));
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_FILL;
     }
 }
 

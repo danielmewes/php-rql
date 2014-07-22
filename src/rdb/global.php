@@ -251,10 +251,6 @@ function circle($center, $radius, $opts = null) {
     return new Circle($center, $radius, $opts);
 }
 
-function rectangle($base, $opposite, $opts = null) {
-    return new Rectangle($base, $opposite, $opts);
-}
-
 function intersects($g1, $g2) {
     return new Intersects($g1, $g2);
 }

@@ -433,6 +433,9 @@ abstract class ValuedQuery extends Query
     public function distance($g2, $opts = null) {
         return new Distance($this, $g2, $opts);
     }
+    public function fill() {
+        return new Fill($this);
+    }
 }
 
 abstract class Ordering extends Query {
