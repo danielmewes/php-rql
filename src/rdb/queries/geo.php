@@ -18,7 +18,7 @@ class ToGeoJSON extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_TOGEOJSON;
+        return pb\Term_TermType::PB_TO_GEOJSON;
     }
 }
 
