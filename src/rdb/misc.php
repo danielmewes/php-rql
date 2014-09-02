@@ -580,6 +580,10 @@ class Cursor implements \Iterator
         $this->currentData = array();
     }
 
+    public function bufferedCount() {
+        $this->currentSize - $this->currentIndex;
+    }
+
     public function __toString() {
         return "Cursor";
     }
