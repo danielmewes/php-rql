@@ -49,6 +49,13 @@ class AggregationsTest extends TestCase
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(r\row()->eq('z')), false);
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(function ($x) {return $x->eq('a');}), true);
          $this->checkQueryResult(r\expr(array('a', 'b', 'c'))->contains(function ($x) {return $x->eq('z');}), false);
+
+         $this->requireDataset('Heroes');
+         $this->checkQueryResult(r\db('Heroes')->table('marvel')->indexCreate('combatPower'), array('created' => 1.0));
+         $this->checkQueryResult(r\db('Heroes')->table('marvel')->indexWait('combatPower')->pluck(array('index', 'ready')), array(array('index' => 'combatPower', 'ready' => true)));
+         $this->checkQueryResult(r\db('Heroes')->table('marvel')->distinct(array('index' => 'combatPower')),
+             array(2.0, 5.0));
+         $this->datasets['Heroes']->reset();
     }
 }
 
