@@ -91,6 +91,12 @@ class Table extends ValuedQuery
     public function indexCreateMulti($indexName, $keyFunction = null) {
         return new IndexCreate($this, $indexName, $keyFunction, array('multi' => true));
     }
+    public function indexCreateGeo($indexName, $keyFunction = null) {
+        return new IndexCreate($this, $indexName, $keyFunction, array('geo' => true));
+    }
+    public function indexCreateMultiGeo($indexName, $keyFunction = null) {
+        return new IndexCreate($this, $indexName, $keyFunction, array('multi' => true, 'geo' => true));
+    }
     public function indexDrop($indexName) {
         return new IndexDrop($this, $indexName);
     }
