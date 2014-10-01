@@ -42,15 +42,15 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>10/01/2014 New release: PHP-RQL 1.15.0. Support for new features in <a href="http://rethinkdb.com/blog/1.15-release/">RethinkDB 1.15</a>. Namely <code>r\uuid()</code> and geospatial terms. In PHP-RQL, you can create a geospatial index through the <code>table-&gt;indexCreateGeo()</code> term. A geospatial multi index can be created through <code>table-&gt;indexCreateMultiGeo()</code>.</li>
 <li>10/01/2014 New release: PHP-RQL 1.14.0. Support for new features in <a href="http://rethinkdb.com/blog/1.14-release/">RethinkDB 1.14</a>. Namely <code>r\binary()</code> and indexed <code>distinct()</code>.</li>
 <li>06/17/2014 New release: PHP-RQL 1.13.0. Uses <a href="http://rethinkdb.com/blog/1.13-release/">RethinkDB 1.13</a>'s new JSON API instead of protocol buffers. Support for <code>r\http()</code>, <code>r\random()</code> and <code>changes()</code>. Minor bug fixes.</li>
-<li>05/16/2014 New release: PHP-RQL 1.12.2. Replaced the internal handling of <code>r\row()</code>. Fixes an <a href="https://github.com/danielmewes/php-rql/issues/62">issue</a> with <code>branch()</code>.</li>
 </ul><h2>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 1.14</li>
+<li>RethinkDB 1.15</li>
 </ul><h2>
 <a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
 
