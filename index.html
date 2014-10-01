@@ -42,15 +42,15 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a name="updates" class="anchor" href="#updates"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>10/01/2014 New release: PHP-RQL 1.14.0. Support for new features in <a href="http://rethinkdb.com/blog/1.14-release/">RethinkDB 1.14</a>. Namely <code>r\binary()</code> and indexed <code>distinct()</code>.</li>
 <li>06/17/2014 New release: PHP-RQL 1.13.0. Uses <a href="http://rethinkdb.com/blog/1.13-release/">RethinkDB 1.13</a>'s new JSON API instead of protocol buffers. Support for <code>r\http()</code>, <code>r\random()</code> and <code>changes()</code>. Minor bug fixes.</li>
 <li>05/16/2014 New release: PHP-RQL 1.12.2. Replaced the internal handling of <code>r\row()</code>. Fixes an <a href="https://github.com/danielmewes/php-rql/issues/62">issue</a> with <code>branch()</code>.</li>
-<li>03/28/2014 New release: PHP-RQL 1.12.1. Fixes a regression due to which <code>getField()</code> only accepted string constants as its argument. It now accepts either a string or a ReQL query again. Thanks to <a href="https://github.com/wojons">Alexis Okuwa</a> for investigating this bug!</li>
 </ul><h2>
 <a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 1.13</li>
+<li>RethinkDB 1.14</li>
 </ul><h2>
 <a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
 
@@ -83,11 +83,11 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
     <span class="nv">$document</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'someKey'</span> <span class="o">=&gt;</span> <span class="s1">'someValue'</span><span class="p">);</span>
     <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">insert</span><span class="p">(</span><span class="nv">$document</span><span class="p">)</span>
         <span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
-    <span class="k">echo</span> <span class="s2">"Insert: </span><span class="si">$result\n</span><span class="s2">"</span><span class="p">;</span>
+    <span class="k">echo</span> <span class="s2">"Insert: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
 
     <span class="c1">// How many documents are in the table?</span>
     <span class="nv">$result</span> <span class="o">=</span> <span class="nx">r\table</span><span class="p">(</span><span class="s2">"tablePhpTest"</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
-    <span class="k">echo</span> <span class="s2">"Count: </span><span class="si">$result\n</span><span class="s2">"</span><span class="p">;</span>
+    <span class="k">echo</span> <span class="s2">"Count: </span><span class="si">$result</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
 
     <span class="c1">// List the someKey values of the documents in the table</span>
     <span class="c1">// (using a mapping-function)</span>
@@ -96,7 +96,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
         <span class="p">})</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="nv">$conn</span><span class="p">);</span>
 
     <span class="k">foreach</span> <span class="p">(</span><span class="nv">$result</span> <span class="k">as</span> <span class="nv">$doc</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">echo</span> <span class="s2">"Doc: </span><span class="si">$doc\n</span><span class="s2">"</span><span class="p">;</span>
+        <span class="k">echo</span> <span class="s2">"Doc: </span><span class="si">$doc</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="c1">// Delete the test table</span>
