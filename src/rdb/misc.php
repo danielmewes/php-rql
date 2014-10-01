@@ -223,8 +223,8 @@ abstract class ValuedQuery extends Query
     public function count($filter = null) {
         return new Count($this, $filter);
     }
-    public function distinct() {
-        return new Distinct($this);
+    public function distinct($opts = null) {
+        return new Distinct($this, $opts);
     }
     public function group($groupOn) {
         return new Group($this, $groupOn);

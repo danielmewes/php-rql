@@ -34,8 +34,13 @@ class Count extends ValuedQuery
 
 class Distinct extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence) {
+    public function __construct(ValuedQuery $sequence, $opts = null) {
         $this->setPositionalArg(0, $sequence);
+        if (isset($opts)) {
+            foreach ($opts as $opt => $val) {
+                $this->setOptionalArg($opt, nativeToDatum($val));
+            }
+        }
     }
     
     protected function getTermType() {

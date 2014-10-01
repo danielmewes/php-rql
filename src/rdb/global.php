@@ -81,6 +81,15 @@ function expr($obj) {
     return nativeToDatum($obj);
 }
 
+function binary($str) {
+    $encodedStr = base64_encode($str);
+    if ($encodedStr === FALSE) {
+        throw new RqlDriverError("Failed to Base64 encode '" . $str . "'");
+    }
+    $pseudo = array('$reql_type$' => 'BINARY', 'data' => $encodedStr);
+    return nativeToDatum($pseudo);
+}
+
 function desc($attribute) {
     return new Desc($attribute);
 }

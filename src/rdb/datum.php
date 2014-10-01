@@ -345,7 +345,7 @@ class ObjectDatum extends Datum
         }
         return (Object)$jsonValue;
     }
-    
+
     static public function _fromJSON($json) {
         $jsonObject = (array)$json;
         foreach ($jsonObject as $key => &$val)  {
@@ -356,7 +356,7 @@ class ObjectDatum extends Datum
         $result->setValue($jsonObject);
         return $result;
     }
-    
+
     public function setValue($val) {
         if (!is_array($val)) throw new RqlDriverError("Not an array: " . $val);
         foreach($val as $k => $v) {
@@ -365,19 +365,36 @@ class ObjectDatum extends Datum
         }
         parent::setValue($val);
     }
-    
+
     public function toNative() {
         $native = array();
         foreach ($this->getValue() as $key => $val) {
             $native[$key] = $val->toNative();
         }
+        // Decode BINARY pseudo-type
+        if (isset($native['$reql_type$']) && $native['$reql_type$'] == 'BINARY') {
+            $decodedStr = base64_decode($native['data'], true);
+            if ($decodedStr === FALSE) {
+                throw new RqlDriverError("Failed to Base64 decode r\\binary value '" . $native['data'] . "'");
+            }
+            return $decodedStr;
+        }
         return $native;
     }
-    
+
     public function __toString() {
+        // Handle BINARY pseudo-type
+        $val = $this->getValue();
+        if (isset($val['$reql_type$']) && $val['$reql_type$']->getValue() == 'BINARY') {
+            $decodedStr = base64_decode($val['data']->getValue(), true);
+            if ($decodedStr === FALSE) {
+                return "r\\binary(ERROR)";
+            }
+            return "r\\binary('$decodedStr')";
+        }
         $string = 'array(';
         $first = true;
-        foreach ($this->getValue() as $key => $val) {
+        foreach ($val as $key => $val) {
             if (!$first) {
                 $string .= ", ";
             }
