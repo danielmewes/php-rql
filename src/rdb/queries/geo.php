@@ -179,4 +179,16 @@ class Fill extends ValuedQuery
     }
 }
 
+class PolygonSub extends ValuedQuery
+{
+    public function __construct($p1, $p2) {
+        $this->setPositionalArg(0, nativeToDatum($p1));
+        $this->setPositionalArg(1, nativeToDatum($p2));
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_POLYGON_SUB;
+    }
+}
+
 ?>

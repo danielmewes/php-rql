@@ -43,6 +43,7 @@ class Term_TermType
   const PB_MAKE_OBJ  = 3;
   const PB_VAR  = 10;
   const PB_JAVASCRIPT  = 11;
+  const PB_UUID  = 169;
   const PB_HTTP  = 153;
   const PB_ERROR  = 12;
   const PB_IMPLICIT_VAR  = 13;
@@ -93,6 +94,7 @@ class Term_TermType
   const PB_IS_EMPTY  = 86;
   const PB_UNION  = 44;
   const PB_NTH  = 45;
+  const PB_BRACKET  = 170;
   const PB_INNER_JOIN  = 48;
   const PB_OUTER_JOIN  = 49;
   const PB_EQ_JOIN  = 50;
@@ -119,6 +121,7 @@ class Term_TermType
   const PB_INDEX_LIST  = 77;
   const PB_INDEX_STATUS  = 139;
   const PB_INDEX_WAIT  = 140;
+  const PB_INDEX_RENAME  = 156;
   const PB_FUNCALL  = 64;
   const PB_BRANCH  = 65;
   const PB_ANY  = 66;
@@ -134,6 +137,7 @@ class Term_TermType
   const PB_SAMPLE  = 81;
   const PB_DEFAULT  = 92;
   const PB_JSON  = 98;
+  const PB_TO_JSON  = 172;
   const PB_ISO8601  = 99;
   const PB_TO_ISO8601  = 100;
   const PB_EPOCH_TIME  = 101;
@@ -183,6 +187,7 @@ class Term_TermType
   const PB_RANDOM  = 151;
   const PB_CHANGES  = 152;
   const PB_ARGS  = 154;
+  const PB_BINARY  = 155;
   const PB_GEOJSON  = 157;
   const PB_TO_GEOJSON  = 158;
   const PB_POINT  = 159;
@@ -195,6 +200,7 @@ class Term_TermType
   const PB_GET_INTERSECTING  = 166;
   const PB_FILL  = 167;
   const PB_GET_NEAREST  = 168;
+  const PB_POLYGON_SUB  = 171;
 }
 class Query_QueryType
 {

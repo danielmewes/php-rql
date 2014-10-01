@@ -436,6 +436,9 @@ abstract class ValuedQuery extends Query
     public function fill() {
         return new Fill($this);
     }
+    public function polygonSub($other) {
+        return new PolygonSub($this, $other);
+    }
 }
 
 abstract class Ordering extends Query {

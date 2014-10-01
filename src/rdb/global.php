@@ -259,5 +259,8 @@ function distance($g1, $g2, $opts = null) {
     return new Distance($g1, $g2, $opts);
 }
 
+function uuid() {
+    return new Uuid();
+}
 
 ?>

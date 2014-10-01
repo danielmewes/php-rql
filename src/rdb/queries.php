@@ -11,6 +11,7 @@ require_once("queries/dbs.php");
 require_once("queries/joins.php");
 require_once("queries/manipulation.php");
 require_once("queries/math.php");
+require_once("queries/misc.php");
 require_once("queries/selecting.php");
 require_once("queries/tables.php");
 require_once("queries/index.php");
