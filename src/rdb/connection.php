@@ -328,14 +328,18 @@ class Connection
     }
 
     private function receiveStr($length) {
-        $s = stream_get_contents($this->socket, $length);
-        if ($s === false || strlen($s) < $length) {
-            $metaData = stream_get_meta_data($this->socket);
-            $this->close(false);
-            if ($metaData['timed_out']) {
-                throw new RqlDriverError("Timed out while reading from socket. Disconnected. Call setTimeout(seconds) on the connection to change the timeout.");
+        $s = "";
+        while (strlen($s) < $length) {
+            $partialS = stream_get_contents($this->socket, $length);
+            if ($partialS === false) {
+                $metaData = stream_get_meta_data($this->socket);
+                $this->close(false);
+                if ($metaData['timed_out']) {
+                    throw new RqlDriverError("Timed out while reading from socket. Disconnected. Call setTimeout(seconds) on the connection to change the timeout.");
+                }
+                throw new RqlDriverError("Unable to read from socket. Disconnected.");
             }
-            throw new RqlDriverError("Unable to read from socket. Disconnected.");
+            $s = $s . $partialS;
         }
         return $s;
     }
