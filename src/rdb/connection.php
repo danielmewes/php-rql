@@ -330,7 +330,7 @@ class Connection
     private function receiveStr($length) {
         $s = "";
         while (strlen($s) < $length) {
-            $partialS = stream_get_contents($this->socket, $length);
+            $partialS = stream_get_contents($this->socket, $length - strlen($s));
             if ($partialS === false) {
                 $metaData = stream_get_meta_data($this->socket);
                 $this->close(false);
