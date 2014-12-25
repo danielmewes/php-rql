@@ -55,6 +55,13 @@ class DateTest extends TestCase
         $this->checkQueryResult(r\october(), 10.0);
         $this->checkQueryResult(r\november(), 11.0);
         $this->checkQueryResult(r\december(), 12.0);
+
+        // Test automatic DateTime conversion
+        $datetime = new DateTime('2000-01-02');
+        $this->checkQueryResult(r\expr($datetime)->typeOf(), 'PTYPE<TIME>');
+        $this->checkQueryResult(r\expr($datetime)->year(), 2000.0);
+        $this->checkQueryResult(r\epochTime(111111)->month(), 1.0);
+        $this->checkQueryResult(r\epochTime(111111)->day(), 2.0);
     }
 }
 
