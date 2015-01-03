@@ -67,6 +67,9 @@ function nativeToDatum($v) {
         return new StringDatum($v);
     } else if (is_object($v) && is_subclass_of($v, "\\r\\Query")) {
         return $v;
+    } else if (is_object($v) && is_subclass_of($v, "DateTimeInterface")) {
+        $iso8601 = $v->format(\DateTime::ISO8601);
+        return new Iso8601($iso8601);
     } else {
         throw new RqlDriverError("Unhandled type " . get_class($v));
     }
@@ -378,6 +381,18 @@ class ObjectDatum extends Datum
                 throw new RqlDriverError("Failed to Base64 decode r\\binary value '" . $native['data'] . "'");
             }
             return $decodedStr;
+        }
+        // Convert TIME to DateTime
+        if (isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
+            $time = $native['epoch_time'];
+            $format = (strpos($time, '.') !== false) ? '!U.u' : '!U';
+            $datetime = \DateTime::createFromFormat($format, $time, new \DateTimeZone('UTC'));
+
+            $timezone = new \DateTimeZone($native['timezone']);
+            $datetime->setTimezone($timezone);
+            $datetime->modify($native['timezone']);
+
+            return $datetime;
         }
         return $native;
     }
