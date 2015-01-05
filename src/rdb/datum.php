@@ -67,7 +67,7 @@ function nativeToDatum($v) {
         return new StringDatum($v);
     } else if (is_object($v) && is_subclass_of($v, "\\r\\Query")) {
         return $v;
-    } else if (is_object($v) && is_subclass_of($v, "DateTimeInterface")) {
+    } else if (is_a($v, 'DateTime')) {
         $iso8601 = $v->format(\DateTime::ISO8601);
         return new Iso8601($iso8601);
     } else {
