@@ -382,6 +382,12 @@ class ObjectDatum extends Datum
             }
             return $decodedStr;
         }
+        // Convert TIME to DateTime
+        if (isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
+            $time = $native['epoch_time'];
+            $format = (strpos($time, '.') !== false) ? '!U.u' : '!U';
+            return \DateTime::createFromFormat($format, $time);
+        }
         return $native;
     }
 
