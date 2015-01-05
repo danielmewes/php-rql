@@ -55,8 +55,6 @@ abstract class TestCase
 
         if (is_array($nativeResult) && is_array($expectedResult))
             $equal = $this->compareArrays($nativeResult, $expectedResult);
-        elseif (is_object($nativeResult) && is_object($expectedResult))
-            $equal = $expectedResult == $nativeResult;
         else
             $equal = $expectedResult === $nativeResult;
 
