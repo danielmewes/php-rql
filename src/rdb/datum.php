@@ -386,7 +386,13 @@ class ObjectDatum extends Datum
         if (isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
             $time = $native['epoch_time'];
             $format = (strpos($time, '.') !== false) ? '!U.u' : '!U';
-            return \DateTime::createFromFormat($format, $time);
+            $datetime = \DateTime::createFromFormat($format, $time, new \DateTimeZone('UTC'));
+
+            $timezone = new \DateTimeZone($native['timezone']);
+            $datetime->setTimezone($timezone);
+            $datetime->modify($native['timezone']);
+
+            return $datetime;
         }
         return $native;
     }
