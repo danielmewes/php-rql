@@ -41,7 +41,7 @@ class ConcatMap extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_CONCATMAP;
+        return pb\Term_TermType::PB_CONCAT_MAP;
     }
 }
 
@@ -70,7 +70,7 @@ class OrderBy extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_ORDERBY;
+        return pb\Term_TermType::PB_ORDER_BY;
     }
 }
 

@@ -7,7 +7,7 @@ class TableTest extends TestCase
         // Test management operations
         r\dbCreate('tableTest')->run($this->conn);
         
-        $this->checkQueryResult(r\db('tableTest')->tableCreate('t1', array('durability' => 'soft', 'primary_key' => 'p')), array('created' => 1.0));
+        $this->checkQueryResult(r\db('tableTest')->tableCreate('t1', array('durability' => 'soft', 'primary_key' => 'p'))->pluck('tables_created'), array('tables_created' => 1.0));
         $this->checkQueryResult(r\db('tableTest')->table('t1')->insert(array( 'p' => 'foo')), array('unchanged' => 0, 'skipped' => 0, 'replaced' => 0, 'inserted' => 1, 'errors' => 0, 'deleted' => 0));
         
         $this->checkQueryResult(r\db('tableTest')->tableList(), array('t1'));
@@ -23,7 +23,7 @@ class TableTest extends TestCase
        
         $this->checkQueryResult(r\db('tableTest')->table('t1')->sync(), array('synced' => 1.0));
 
-        $this->checkQueryResult(r\db('tableTest')->tableDrop('t1'), array('dropped' => 1.0));
+        $this->checkQueryResult(r\db('tableTest')->tableDrop('t1')->pluck('tables_dropped'), array('tables_dropped' => 1.0));
         
         r\dbDrop('tableTest')->run($this->conn);
         

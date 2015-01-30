@@ -40,8 +40,8 @@ class ControlTest extends TestCase
         $this->checkQueryResult(r\expr(array(1, 2, 3))->typeOf(), 'ARRAY');
         $this->checkQueryResult(r\expr(array('x' => 1))->typeOf(), 'OBJECT');
         
-        $this->checkQueryResult(r\db('Heroes')->table('marvel')->info(),
-            array('type' => "TABLE", 'primary_key' => 'superhero', 'name' => 'marvel', 'indexes' => array(), 'db' => array('type' => 'DB', 'name' => 'Heroes') ));
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->info()->pluck(array('type', 'name')),
+            array('type' => "TABLE", 'name' => 'marvel'));
             
         $this->checkQueryResult(r\expr(array('a' => 4))->attr('a')->rDefault(5), 4.0);
         $this->checkQueryResult(r\expr(array('a' => 4))->attr('b')->rDefault(5), 5.0);

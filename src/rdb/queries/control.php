@@ -47,7 +47,7 @@ class RForeach extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_FOREACH;
+        return pb\Term_TermType::PB_FOR_EACH;
     }
 }
 
@@ -120,7 +120,7 @@ class TypeOf extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_TYPEOF;
+        return pb\Term_TermType::PB_TYPE_OF;
     }
 }
 
