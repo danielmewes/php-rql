@@ -110,6 +110,7 @@ class Connection
             $response = $this->receiveResponse($token, $query);
 
             if ($response['t'] == pb\Response_ResponseType::PB_SUCCESS_PARTIAL
+                || $response['t'] == pb\Response_ResponseType::PB_SUCCESS_ATOM_FEED
                 || $response['t'] == pb\Response_ResponseType::PB_SUCCESS_FEED) {
                 $this->activeTokens[$token] = true;
             }
@@ -137,6 +138,7 @@ class Connection
         $response = $this->receiveResponse($token);
 
         if ($response['t'] != pb\Response_ResponseType::PB_SUCCESS_PARTIAL
+            && $response['t'] != pb\Response_ResponseType::PB_SUCCESS_ATOM_FEED
             && $response['t'] != pb\Response_ResponseType::PB_SUCCESS_FEED) {
             unset($this->activeTokens[$token]);
         }
