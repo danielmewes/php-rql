@@ -106,13 +106,17 @@ function http($url, $opts = null) {
     return new Http($url, $opts);
 }
 
-function rObject($object)
-{
+function rObject($object) {
     return new RObject($object);
 }
 
-function literal($value) {
-    return new Literal($value);
+// r\literal can accept 0 or 1 arguments
+function literal() {
+    if (func_num_args() == 0) {
+        return new Literal();
+    } else {
+        return new Literal(func_get_arg(0));
+    }
 }
 
 function add($expr1, $expr2) {

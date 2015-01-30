@@ -516,11 +516,14 @@ class Json extends ValuedQuery {
 }
 
 class Literal extends ValuedQuery {
-    public function __construct($value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
-            $value = nativeToDatum($value);
+    public function __construct() {
+        if (func_num_args() > 0) {
+            $value = func_get_arg(0);
+            if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
+                $value = nativeToDatum($value);
+            }
+            $this->setPositionalArg(0, $value);
         }
-        $this->setPositionalArg(0, $value);
     }
 
     protected function getTermType() {
