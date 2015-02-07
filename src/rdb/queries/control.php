@@ -140,4 +140,46 @@ class Http extends ValuedQuery
     }
 }
 
+class Range extends ValuedQuery
+{
+    public function __construct($startOrEndValue = null, $endValue = null) {
+        if (isset($startOrEndValue)) {
+            $this->setPositionalArg(0, nativeToDatum($startOrEndValue));
+            if (isset($endValue))
+                $this->setPositionalArg(1, nativeToDatum($endValue));
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_RANGE;
+    }
+}
+
+class Changes extends ValuedQuery
+{
+    public function __construct(ValuedQuery $src, $opts = null) {
+        $this->setPositionalArg(0, $src);
+        if (isset($opts)) {
+            foreach ($opts as $opt => $val) {
+                $this->setOptionalArg($opt, nativeToDatum($val));
+            }
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_CHANGES;
+    }
+}
+
+class ToJsonString extends ValuedQuery
+{
+    public function __construct(ValuedQuery $val) {
+        $this->setPositionalArg(0, $val);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_TO_JSON_STRING;
+    }
+}
+
 ?>

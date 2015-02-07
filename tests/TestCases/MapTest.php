@@ -21,6 +21,15 @@ class MapTest extends TestCase
         // Regression test for #62
         $this->checkQueryResult(r\expr(array(1,2,3))->map(r\branch(r\expr(true), function ($x) { return $x; }, function ($x) { return $x; })),
             array(1.0, 2.0, 3.0));
+
+        $this->checkQueryResult(r\mapMultiple(array(r\range(1, 4), r\range(2, 5)), function($x, $y) { return $x->add($y); } ),
+            array(3, 5, 7));
+        $this->checkQueryResult(r\range(1, 4)->mapMultiple(array(r\range(2, 5)), function($x, $y) { return $x->add($y); } ),
+            array(3, 5, 7));
+        $this->checkQueryResult(r\range(1, 4)->mapMultiple(r\range(2, 5), function($x, $y) { return $x->add($y); } ),
+            array(3, 5, 7));
+        $this->checkQueryResult(r\range(1, 4)->mapMultiple(array(r\range(2, 5), r\range(1, 4)), function($x, $y, $z) { return $x->add($y)->sub($z); } ),
+            array(2, 3, 4));
     }
 }
 

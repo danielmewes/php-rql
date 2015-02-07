@@ -46,7 +46,13 @@ class ControlTest extends TestCase
         $this->checkQueryResult(r\expr(array('a' => 4))->attr('a')->rDefault(5), 4.0);
         $this->checkQueryResult(r\expr(array('a' => 4))->attr('b')->rDefault(5), 5.0);
         $this->checkQueryResult(r\expr(array('a' => 4))->attr('b')->rDefault(function ($e) { return r\expr(5); } ), 5.0);
-        
+
+        $this->checkQueryResult(r\range()->limit(3), array(0, 1, 2));
+        $this->checkQueryResult(r\range(3), array(0, 1, 2));
+        $this->checkQueryResult(r\range(1, 3), array(1, 2));
+
+        $this->checkQueryResult(r\expr("123")->toJsonString(), "\"123\"");
+
         $this->datasets['Control']->reset();
     }
 }
