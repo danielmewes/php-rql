@@ -22,36 +22,29 @@ The top-level ReQL namespace.
 __Example:__ Set up your top-level namespace.
 
 ```php
-var r = require('rethinkdb');
+require_once('rdb/rdb.php');
 ```
 
 ## [connect](connect/) ##
 
 {% apibody %}
-r\connect(options)
-r\connect(host)
-r\connect(options) &rarr; promise
-r\connect(host) &rarr; promise
+r\connect(host, port=28015[, db[, authKey[, timeout]]]) &rarr; connection
 {% endapibody %}
 
 Create a new connection to the database server.  Accepts the following options:
 
-- `host`: the host to connect to (default `localhost`).
+- `host`: the host to connect to.
 - `port`: the port to connect on (default `28015`).
 - `db`: the default database (default `test`).
 - `authKey`: the authentication key (default none).
-- `timeout`: timeout period in seconds for the connection to be opened (default `20`).
+- `timeout`: timeout period in seconds for after which reads from the network time out.
 
-If the connection cannot be established, a `RqlDriverError` will be passed to the callback instead of a connection.
+If the connection cannot be established, a `RqlDriverError` will be thrown.
 
 __Example:__ Opens a new connection to the database.
 
 ```php
-r\connect(array( 'host' => 'localhost',
-            'port' => 28015,
-            'db' => 'marvel',
-            'authKey' => 'hunter2' ),
-          function($err, $conn) { null })
+$conn = r\connect('localhost', 28015)
 ```
 
 [Read more about this command &rarr;](connect/)
@@ -59,18 +52,15 @@ r\connect(array( 'host' => 'localhost',
 ## [close](close/) ##
 
 {% apibody %}
-conn->close([array('noreplyWait' => true)])
-conn->close([array('noreplyWait' => true)]) &rarr; promise
+conn->close(noreplyWait=true)
 {% endapibody %}
 
 Close an open connection.
 
-If no callback is provided, a promise will be returned.
-
 __Example:__ Close an open connection, waiting for noreply writes to finish.
 
 ```php
-$conn->close(function($err) { if ($err) throw $err; })
+$conn->close()
 ```
 
 [Read more about this command &rarr;](close/)
@@ -78,26 +68,23 @@ $conn->close(function($err) { if ($err) throw $err; })
 ## [reconnect](reconnect/) ##
 
 {% apibody %}
-conn->reconnect([array('noreplyWait' => true)])
-conn->reconnect([array('noreplyWait' => true)]) &rarr; promise
+conn->reconnect(noreplyWait=true)
 {% endapibody %}
 
 Close and reopen a connection.
 
-If no callback is provided, a promise will be returned.
-
 __Example:__ Cancel outstanding requests/queries that are no longer needed.
 
 ```php
-$conn->reconnect(array('noreplyWait' => false), function($error, $connection) { null })
+$conn->reconnect(false)
 ```
 
 [Read more about this command &rarr;](reconnect/)
 
-## [use](use/) ##
+## [useDb](useDb/) ##
 
 {% apibody %}
-conn->use(dbName)
+conn->useDb(dbName)
 {% endapibody %}
 
 Change the default database on this connection.
@@ -106,27 +93,27 @@ __Example:__ Change the default database so that we don't need to
 specify the database when referencing a table.
 
 ```php
-$conn->use('marvel')
-r\table('heroes')->run($conn, null) // refers to r.db('marvel').table('heroes')
+$conn->useDb('marvel')
+r\table('heroes')->run($conn) // refers to r\db('marvel').table('heroes')
 ```
 
 ## [run](run/) ##
 
 {% apibody %}
-query->run(conn[, options])
-query->run(conn[, options]) &rarr; promise
+query->run(conn[, options]) &rarr; cursor
+query->run(conn[, options]) &rarr; datum
 {% endapibody %}
 
 Run a query on a connection. 
 
-The callback will get either an error, a single JSON result, or a
-cursor, depending on the query.
+Returns either a single result or a cursor, depending on the query.
 
 __Example:__ Run a query on the connection `conn` and log each row in
 the result to the console.
 
 ```php
-r\table('marvel')->run($conn, function($err, $cursor) { $cursor->each($console->$log); })
+$cursor = r\table('marvel')->run($conn)
+foreach ($cursor as $x) { print_r($x); }
 ```
 
 [Read more about this command &rarr;](run/)
@@ -135,7 +122,6 @@ r\table('marvel')->run($conn, function($err, $cursor) { $cursor->each($console->
 
 {% apibody %}
 conn->noreplyWait()
-conn->noreplyWait() &rarr; promise
 {% endapibody %}
 
 `noreplyWait` ensures that previous queries with the `noreply` flag have been processed
@@ -145,76 +131,26 @@ __Example:__ We have previously run queries with the `noreply` argument set to `
 wait until the server has processed them.
 
 ```php
-$conn->noreplyWait(function($err) { null })
+$conn->noreplyWait()
 ```
 
 {% endapisection %}
 
 {% apisection Cursors %}
 
-## [next](next/) ##
-
-{% apibody %}
-cursor->next()
-array->next()
-cursor->next() &rarr; promise
-array->next() &rarr; promise
-{% endapibody %}
-
-Get the next element in the cursor.
-
-__Example:__ Retrieve the next element.
-
-```php
-$cursor->next(function($err, $row) {
-    if ($err) throw $err;
-    processRow($row);
-});
-```
-
-[Read more about this command &rarr;](next/)
-
-
-## [each](each/) ##
-
-{% apibody %}
-cursor->each([, onFinishedCallback])
-array->each([, onFinishedCallback])
-feed->each()
-{% endapibody %}
-
-Lazily iterate over the result set one element at a time.
-
-__Example:__ Let's process all the elements!
-
-```php
-$cursor->each(function($err, $row) {
-    if ($err) throw $err;
-    processRow($row);
-});
-```
-
-[Read more about this command &rarr;](each/)
-
 ## [toArray](to_array/) ##
 
 {% apibody %}
-cursor->toArray()
-array->toArray()
-cursor->toArray() &rarr; promise
-array->toArray() &rarr; promise
+cursor->toArray() &rarr; array
 {% endapibody %}
 
-Retrieve all results and pass them as an array to the given callback.
+Retrieve all results and return them as an array.
 
 __Example:__ For small result sets it may be more convenient to process them at once as
 an array.
 
 ```php
-$cursor->toArray(function($err, $results) {
-    if ($err) throw $err;
-    processResults($results);
-});
+$fullResult = $cursor->toArray()
 ```
 
 [Read more about this command &rarr;](to_array/)
@@ -237,23 +173,6 @@ $cursor->close()
 ```
 
 
-## [EventEmitter](event_emitter-cursor/) ##
-
-{% apibody %}
-cursor->addListener(event, listener)
-cursor->on(event, listener)
-cursor->once(event, listener)
-cursor->removeListener(event, listener)
-cursor->removeAllListeners([event])
-cursor->setMaxListeners(n)
-cursor->listeners(event)
-cursor->emit(event, [arg1], [arg2], [null])
-{% endapibody %}
-
-Cursors and feeds implement the same interface as Node's [EventEmitter](http://nodejs.org/api/events.html#events_class_events_eventemitter).
-
-[Read more about this command &rarr;](event_emitter-cursor/)
-
 {% endapisection %}
 
 {% apisection Manipulating databases %}
@@ -268,7 +187,7 @@ Create a database. A RethinkDB database is a collection of tables, similar to
 relational databases.
 
 If successful, the operation returns an object: `{created: 1}`. If a database with the
-same name already exists the operation throws `RqlRuntimeError`.
+same name already exists the operation throws `RqlServerError`.
 
 Note: that you can only use alphanumeric characters and underscores for the database name.
 
@@ -288,7 +207,7 @@ r\dbDrop(dbName) &rarr; object
 Drop a database. The database, all its tables, and corresponding data will be deleted.
 
 If successful, the operation returns the object `{dropped: 1}`. If the specified database
-doesn't exist a `RqlRuntimeError` is thrown.
+doesn't exist a `RqlServerError` is thrown.
 
 __Example:__ Drop a database named 'superheroes'.
 
@@ -425,7 +344,9 @@ r\table('comments')->indexRename('postId', 'messageId')->run($conn)
 ## [indexStatus](index_status/) ##
 
 {% apibody %}
-table->indexStatus([, indexnull]) &rarr; array
+table->indexStatus() &rarr; array
+table->indexStatus(index) &rarr; array
+table->indexStatus(array(index, ...)) &rarr; array
 {% endapibody %}
 
 Get the status of the specified indexes on this table, or the status
@@ -446,7 +367,9 @@ r\table('test')->indexStatus('timestamp')->run($conn)
 ## [indexWait](index_wait/) ##
 
 {% apibody %}
-table->indexWait([, indexnull]) &rarr; array
+table->indexWait() &rarr; array
+table->indexWait(index) &rarr; array
+table->indexWait(array(index, ...)) &rarr; array
 {% endapibody %}
 
 Wait for the specified indexes on this table to be ready, or for all
@@ -467,8 +390,8 @@ r\table('test')->indexWait('timestamp')->run($conn)
 ## [changes](changes/) ##
 
 {% apibody %}
-table->changes(array('squash' => true, 'includeStates' => false)) &rarr; stream
-singleSelection->changes(array('squash' => true, 'includeStates' => false)) &rarr; stream
+table->changes(array('squash' => true, 'include_states' => false)) &rarr; stream
+singleSelection->changes(array('squash' => true, 'include_states' => false)) &rarr; stream
 {% endapibody %}
 
 Return an infinite stream of objects representing changes to a query.
@@ -491,7 +414,7 @@ r\table('games')->changes()->run($conn, function($err, $cursor) {
 ## [insert](insert/) ##
 
 {% apibody %}
-table->insert(json | [json][, array('durability' => "hard", 'returnChanges' => false, 'conflict' => "error")]) &rarr; object
+table->insert(json | array(json, ...)[, array('durability' => "hard", 'return_changes' => false, 'conflict' => "error")]) &rarr; object
 {% endapibody %}
 
 Insert JSON documents into a table. Accepts a single JSON document or an array of
@@ -514,18 +437,18 @@ r\table("posts")->insert(array(
 
 {% apibody %}
 table->update(json | expr
-    [, array('durability' => "hard", 'returnChanges' => false, 'nonAtomic' => false)])
+    [, array('durability' => "hard", 'return_changes' => false, 'non_atomic' => false)])
         &rarr; object
 selection->update(json | expr
-    [, array('durability' => "hard", 'returnChanges' => false, 'nonAtomic' => false)])
+    [, array('durability' => "hard", 'return_changes' => false, 'non_atomic' => false)])
         &rarr; object
 singleSelection->update(json | expr
-    [, array('durability' => "hard", 'returnChanges' => false, 'nonAtomic' => false)])
+    [, array('durability' => "hard", 'return_changes' => false, 'non_atomic' => false)])
         &rarr; object
 {% endapibody %}
 
 Update JSON documents in a table. Accepts a JSON document, a ReQL expression, or a
-combination of the two. You can pass options like `returnChanges` that will return the old
+combination of the two. You can pass options like `return_changes` that will return the old
 and new values of the row you have modified.
 
 __Example:__ Update the status of the post with `id` of `1` to `published`.
@@ -542,13 +465,13 @@ r\table("posts")->get(1)->update(array('status' => "published"))->run($conn)
 
 {% apibody %}
 table->replace(json | expr
-    [, array('durability' => "hard", 'returnChanges' => false, 'nonAtomic' => false)])
+    [, array('durability' => "hard", 'return_changes' => false, 'non_atomic' => false)])
         &rarr; object
 selection->replace(json | expr
-    [, array('durability' => "hard", 'returnChanges' => false, 'nonAtomic' => false)])
+    [, array('durability' => "hard", 'return_changes' => false, 'non_atomic' => false)])
         &rarr; object
 singleSelection->replace(json | expr
-    [, array('durability' => "hard", 'returnChanges' => false, 'nonAtomic' => false)])
+    [, array('durability' => "hard", 'return_changes' => false, 'non_atomic' => false)])
         &rarr; object
 
 {% endapibody %}
@@ -573,11 +496,11 @@ r\table("posts")->get(1)->replace(array(
 ## [delete](delete/) ##
 
 {% apibody %}
-table->delete([array('durability' => "hard", 'returnChanges' => false)])
+table->delete([array('durability' => "hard", 'return_changes' => false)])
     &rarr; object
-selection->delete([array('durability' => "hard", 'returnChanges' => false)])
+selection->delete([array('durability' => "hard", 'return_changes' => false)])
     &rarr; object
-singleSelection->delete([array('durability' => "hard", 'returnChanges' => false)])
+singleSelection->delete([array('durability' => "hard", 'return_changes' => false)])
     &rarr; object
 {% endapibody %}
 
@@ -634,7 +557,7 @@ r\db('heroes')->table('marvel')->run($conn)
 ## [table](table/) ##
 
 {% apibody %}
-db->table(name[, array('useOutdated' => false)]) &rarr; table
+db->table(name[, array('use_outdated' => false)]) &rarr; table
 {% endapibody %}
 
 Select all documents in a table. This command can be chained with other commands to do
@@ -669,10 +592,12 @@ r\table('posts')->get('a9849eef-7176-4411-935b-79a6e3c56a74')->run($conn)
 ## [getAll](get_all/) ##
 
 {% apibody %}
-table->getAll(key[, key2null], [, array('index' =>'id')]) &rarr; selection
+table->getAll(key[, array('index' =>'id')]) &rarr; selection
+table->getMultiple(array(key, ...)[, array('index' =>'id')]) &rarr; selection
 {% endapibody %}
 
 Get all documents where the given value matches the value of the requested index.
+Use `getMultiple` for retrieving documents under multiple keys at once.
 
 __Example:__ Secondary index keys are not guaranteed to be unique so we cannot query via [get](/api/javascript/get/) when using a secondary index.
 
@@ -724,7 +649,7 @@ if a non-existence errors is thrown (when you try to access a field that does no
 in a document), RethinkDB will just ignore the document.
 The `default` value can be changed by passing an object with a `default` field.
 Setting this optional argument to `r.error()` will cause any non-existence errors to
-return a `RqlRuntimeError`.
+return a `RqlServerError`.
 
 __Example:__ Get all the users that are 30 years old.
 
@@ -772,7 +697,7 @@ __Example:__ Return a list of all Marvel heroes, paired with any DC heroes who c
 
 ```php
 r\table('marvel')->outerJoin(r\table('dc'), function($marvelRow, $dcRow) {
-    return marvelRow('strength')->lt(dcRow('strength'))
+    return $marvelRow('strength')->lt(dcRow('strength'));
 })->run($conn)
 ```
 
@@ -821,21 +746,23 @@ These commands are used to transform data in a sequence.
 ## [map](map/) ##
 
 {% apibody %}
-sequence1->map([sequence2, null], mappingFunction) &rarr; stream
-array1->map([sequence2, null], mappingFunction) &rarr; array
-r\map(sequence1[, sequence2, null], mappingFunction) &rarr; stream
-r\map(array1[, array2, null], mappingFunction) &rarr; array
+sequence->map(mappingFunction) &rarr; stream
+array->map(mappingFunction) &rarr; array
+sequence1->mapMultiple(array(sequence2, ...), mappingFunction) &rarr; stream
+array1->mapMultiple(array(array2, ...), mappingFunction) &rarr; array
+r\mapMultiple(array(sequence1, sequence2, ...), mappingFunction) &rarr; stream
+r\mapMultiple(array(array1, array2, ...), mappingFunction) &rarr; array
 {% endapibody %}
 
-Transform each element of one or more sequences by applying a mapping function to them. If `map` is run with two or more sequences, it will iterate for as many items as there are in the shortest sequence.
+Transform each element of one or more sequences by applying a mapping function to them. For mapping over multiple sequences, `mapMultiple` must be used. `mapMultiple` will iterate for as many items as there are in the shortest sequence.
 
 __Example:__ Return the first five squares.
 
 ```php
-r\expr(array(1, 2, 3, 4, 5))->map(function ($val) {
+$result = r\expr(array(1, 2, 3, 4, 5))->map(function ($val) {
     return $val->mul($val);
 })->run($conn);
-// Result passed to callback
+// Result
 array(1, 4, 9, 16, 25)
 ```
 
@@ -844,8 +771,8 @@ array(1, 4, 9, 16, 25)
 ## [withFields](with_fields/) ##
 
 {% apibody %}
-sequence->withFields([selector1, selector2null]) &rarr; stream
-array->withFields([selector1, selector2null]) &rarr; array
+sequence->withFields(selector | array(selector1, selector2...)) &rarr; stream
+array->withFields(selector | array(selector1, selector2...)) &rarr; array
 {% endapibody %}
 
 Plucks one or more attributes from a sequence of objects, filtering out any objects in the sequence that do not have the specified fields. Functionally, this is identical to `hasFields` followed by `pluck` on a sequence.
@@ -853,7 +780,7 @@ Plucks one or more attributes from a sequence of objects, filtering out any obje
 __Example:__ Get a list of users and their posts, excluding any users who have not made any posts.
 
 ```php
-r\table('users')->withFields('id', 'username', 'posts')->run($conn)
+r\table('users')->withFields(array('id', 'username', 'posts'))->run($conn)
 ```
 
 [Read more about this command &rarr;](with_fields/)
@@ -871,7 +798,7 @@ __Example:__ Construct a sequence of all monsters defeated by Marvel heroes. The
 
 ```php
 r\table('marvel')->concatMap(function($hero) {
-    return hero('defeatedMonsters')
+    return $hero('defeatedMonsters');
 })->run($conn)
 ```
 
@@ -880,9 +807,9 @@ r\table('marvel')->concatMap(function($hero) {
 ## [orderBy](order_by/) ##
 
 {% apibody %}
-table->orderBy([key1null], array('index' => index_name)) &rarr; selection<stream>
-selection->orderBy(key1, [key2null]) &rarr; selection<array>
-sequence->orderBy(key1, [key2null]) &rarr; array
+table->orderBy(key2 | array(key2, ...), array('index' => index_name)) &rarr; selection<stream>
+selection->orderBy(key | array(key1, ,,,)) &rarr; selection<array>
+sequence->orderBy(key | array(key1, ...)) &rarr; array
 {% endapibody %}
 
 Sort the sequence by document values of the given key(s). To specify
@@ -950,10 +877,10 @@ r\table('marvel')->orderBy('belovedness')->limit(10)->run($conn)
 ## [slice](slice/) ##
 
 {% apibody %}
-selection->slice(startIndex[, endIndex, array('leftBound' =>'closed', 'rightBound' =>'open')]) &rarr; selection
-stream->slice(startIndex[, endIndex, array('leftBound' =>'closed', 'rightBound' =>'open')]) &rarr; stream
-array->slice(startIndex[, endIndex, array('leftBound' =>'closed', 'rightBound' =>'open')]) &rarr; array
-binary->slice(startIndex[, endIndex, array('leftBound' =>'closed', 'rightBound' =>'open')]) &rarr; binary
+selection->slice(startIndex[, endIndex, array('left_bound' =>'closed', 'right_bound' =>'open')]) &rarr; selection
+stream->slice(startIndex[, endIndex, array('left_bound' =>'closed', 'right_bound' =>'open')]) &rarr; stream
+array->slice(startIndex[, endIndex, array('left_bound' =>'closed', 'right_bound' =>'open')]) &rarr; array
+binary->slice(startIndex[, endIndex, array('left_bound' =>'closed', 'right_bound' =>'open')]) &rarr; binary
 {% endapibody %}
 
 Return the elements of a sequence within the specified range.
@@ -1014,11 +941,11 @@ r\table('marvel')->isEmpty()->run($conn)
 ## [union](union/) ##
 
 {% apibody %}
-stream->union(sequence[, sequence, null]) &rarr; stream
-array->union(sequence[, sequence, null]) &rarr; array
+stream->union(sequence) &rarr; stream
+array->union(sequence) &rarr; array
 {% endapibody %}
 
-Concatenate two or more sequences.
+Concatenate two sequences.
 
 __Example:__ Construct a stream of all heroes.
 
@@ -1054,7 +981,7 @@ These commands are used to compute smaller values from large sequences.
 ## [group](group/) ##
 
 {% apibody %}
-sequence->group(fieldOrFunctionnull, [array('index' => "indexName", 'multi' => false)]) &rarr; grouped_stream
+sequence->group(fieldOrFunction[, array('index' => "indexName", 'multi' => false)]) &rarr; grouped_stream
 {% endapibody %}
 
 Takes a stream and partitions it into multiple groups based on the
@@ -1088,7 +1015,7 @@ player, with the highest scorers first?
 
 ```php
 r\table('games')
-    ->group('player')->max('points')array('points')
+    ->group('player')->max('points')
     ->ungroup()->order_by(r\desc('reduction'))->run($conn)
 ```
 
@@ -1110,9 +1037,9 @@ __Example:__ Return the number of documents in the table `posts.
 
 ```php
 r\table("posts")->map(function($doc) {
-    return 1
+    return 1;
 })->reduce(function($left, $right) {
-    return $left->add($right)
+    return $left->add($right);
 })->run($conn);
 ```
 
@@ -1237,7 +1164,7 @@ __Example:__ Which unique villains have been vanquished by marvel heroes?
 
 ```php
 r\table('marvel')->concatMap(function($hero) {
-    return hero('villainList')
+    return $hero('villainList');
 })->distinct()->run($conn)
 ```
 
@@ -1247,12 +1174,12 @@ r\table('marvel')->concatMap(function($hero) {
 ## [contains](contains/) ##
 
 {% apibody %}
-sequence->contains(value1[, value2null]) &rarr; bool
+sequence->contains(value | function) &rarr; bool
 {% endapibody %}
 
-Returns whether or not a sequence contains all the specified values, or if functions are
-provided instead, returns whether or not a sequence contains values matching all the
-specified functions.
+Returns whether or not a sequence contains the specified value, or if functions are
+provided instead, returns whether or not a sequence contains values matching the
+specified function.
 
 __Example:__ Has Iron Man ever fought Superman?
 
@@ -1272,7 +1199,7 @@ r\table('marvel')->get('ironman')->getField('opponents')->contains('superman')->
 ## [row](row/) ##
 
 {% apibody %}
-r\row &rarr; value
+r\row([field]) &rarr; value
 {% endapibody %}
 
 Returns the currently visited document.
@@ -1289,10 +1216,10 @@ r\table('users')->filter(r\row('age')->gt(5))->run($conn)
 ## [pluck](pluck/) ##
 
 {% apibody %}
-sequence->pluck([selector1, selector2null]) &rarr; stream
-array->pluck([selector1, selector2null]) &rarr; array
-object->pluck([selector1, selector2null]) &rarr; object
-singleSelection->pluck([selector1, selector2null]) &rarr; object
+sequence->pluck(selector | array(selector1, selector2...)) &rarr; stream
+array->pluck(selector | array(selector1, selector2...)) &rarr; array
+object->pluck(selector | array(selector1, selector2...)) &rarr; object
+singleSelection->pluck(selector | array(selector1, selector2...)) &rarr; object
 {% endapibody %}
 
 Plucks out one or more attributes from either an object or a sequence of objects
@@ -1302,7 +1229,7 @@ __Example:__ We just need information about IronMan's reactor and not the rest o
 document.
 
 ```php
-r\table('marvel')->get('IronMan')->pluck('reactorState', 'reactorPower')->run($conn)
+r\table('marvel')->get('IronMan')->pluck(array('reactorState', 'reactorPower'))->run($conn)
 ```
 
 [Read more about this command &rarr;](pluck/)
@@ -1310,10 +1237,10 @@ r\table('marvel')->get('IronMan')->pluck('reactorState', 'reactorPower')->run($c
 ## [without](without/) ##
 
 {% apibody %}
-sequence->without([selector1, selector2null]) &rarr; stream
-array->without([selector1, selector2null]) &rarr; array
-singleSelection->without([selector1, selector2null]) &rarr; object
-object->without([selector1, selector2null]) &rarr; object
+sequence->without(selector | array(selector1, selector2...)) &rarr; stream
+array->without(selector | array(selector1, selector2...)) &rarr; array
+singleSelection->without(selector | array(selector1, selector2...)) &rarr; object
+object->without(selector | array(selector1, selector2...)) &rarr; object
 {% endapibody %}
 
 The opposite of pluck; takes an object or a sequence of objects, and returns them with
@@ -1470,7 +1397,8 @@ Get a single field from an object or a single element from a sequence.
 __Example:__ What was Iron Man's first appearance in a comic?
 
 ```php
-r\table('marvel')->get('IronMan')->getField('firstAppearance')->run($conn)
+$ironMan = r\table('marvel')->get('IronMan');
+$ironMan('firstAppearance')->run($conn)
 ```
 
 [Read more about this command &rarr;](bracket/)
@@ -1478,9 +1406,9 @@ r\table('marvel')->get('IronMan')->getField('firstAppearance')->run($conn)
 ## [getField](get_field/) ##
 
 {% apibody %}
-sequence(attr) &rarr; sequence
-singleSelection(attr) &rarr; value
-object(attr) &rarr; value
+sequence->getField(attr) &rarr; sequence
+singleSelection->getField(attr) &rarr; value
+object->getField(attr) &rarr; value
 {% endapibody %}
 
 Get a single field from an object. If called on a sequence, gets that field from every
@@ -1496,9 +1424,9 @@ r\table('marvel')->get('IronMan')->getField('firstAppearance')->run($conn)
 ## [hasFields](has_fields/) ##
 
 {% apibody %}
-sequence->hasFields([selector1, selector2null]) &rarr; stream
-array->hasFields([selector1, selector2null]) &rarr; array
-object->hasFields([selector1, selector2null]) &rarr; boolean
+sequence->hasFields(selector | array(selector1, selector2...)) &rarr; stream
+array->hasFields(selector | array(selector1, selector2...)) &rarr; array
+object->hasFields(selector | array(selector1, selector2...)) &rarr; boolean
 {% endapibody %}
 
 Test if an object has one or more fields. An object has a field if it has that key and the key has a non-null value. For instance, the object `{'a': 1,'b': 2,'c': null}` has the fields `a` and `b`.
@@ -1606,17 +1534,17 @@ r\table('users')->get(1)->update(array( 'data' => r\literal(array( 'age' => 19, 
 ## [object](object/) ##
 
 {% apibody %}
-r\object([key, value,]null) &rarr; object
+r\object(array(key, value,...)) &rarr; object
 {% endapibody %}
 
 Creates an object from a list of key-value pairs, where the keys must
-be strings.  `r.object(A, B, C, D)` is equivalent to
+be strings.  `r.object(array(A, B, C, D))` is equivalent to
 `r.expr([[A, B], [C, D]]).coerce_to('OBJECT')`.
 
 __Example:__ Create a simple object.
 
 ```php
-r\object('id', 5, 'data', array('foo', 'bar'))->run($conn)
+r\object(r.array('id', 5, 'data', array('foo', 'bar')))->run($conn)
 ```
 
 {% endapisection %}
@@ -1644,7 +1572,7 @@ __Example:__ Get all users whose name starts with "A".
 
 ```php
 r\table('users')->filter(function($doc){
-    return doc('name')->match("^A")
+    return $doc('name')->match("^A");
 })->run($conn)
 ```
 
@@ -1798,39 +1726,39 @@ __Example:__ It's as easy as 2 % 2 = 0.
 r\expr(2)->mod(2)->run($conn)
 ```
 
-## [and](and/) ##
+## [rAnd](rAnd/) ##
 
 {% apibody %}
-bool->and(bool[, bool, null]) &rarr; bool
-r\and(bool[, bool, null]) &rarr; bool
+bool->rAnd(bool) &rarr; bool
+r\rAnd(bool) &rarr; bool
 {% endapibody %}
 
-Compute the logical "and" of two or more values.
+Compute the logical "and" of two values.
 
 __Example:__ Return whether both `a` and `b` evaluate to true.
 
 ```php
 var $a = true, $b = false;
-r\expr($a)->and($b)->run($conn);
+r\expr($a)->rAnd($b)->run($conn);
 // result passed to callback
 false
 ```
 
-## [or](or/) ##
+## [rOr](rOr/) ##
 
 {% apibody %}
-bool->or(bool[, bool, null]) &rarr; bool
-r\or(bool[, bool, null]) &rarr; bool
+bool->rOr(bool) &rarr; bool
+r\rOr(bool) &rarr; bool
 {% endapibody %}
 
 
-Compute the logical "or" of two or more values.
+Compute the logical "or" of two values.
 
 __Example:__ Return whether either `a` or `b` evaluate to true.
 
 ```php
 var $a = true, $b = false;
-r\expr($a)->or($b)->run($conn);
+r\expr($a)->rOr($b)->run($conn);
 // result passed to callback
 true
 ```
@@ -2030,10 +1958,10 @@ r\table("user")->get("John")->update(array('birthdate' => r\epochTime(531360000)
 ## [ISO8601](iso8601/) ##
 
 {% apibody %}
-r\ISO8601(iso8601Date[, array('defaultTimezone' =>'')]) &rarr; time
+r\ISO8601(iso8601Date[, array('default_timezone' =>'')]) &rarr; time
 {% endapibody %}
 
-Create a time object based on an ISO 8601 date-time string (e.g. '2013-01-01T01:01:01+00:00'). We support all valid ISO 8601 formats except for week dates. If you pass an ISO 8601 date-time without a time zone, you must specify the time zone with the `defaultTimezone` argument. Read more about the ISO 8601 format at [Wikipedia](http://en.wikipedia.org/wiki/ISO_8601).
+Create a time object based on an ISO 8601 date-time string (e.g. '2013-01-01T01:01:01+00:00'). We support all valid ISO 8601 formats except for week dates. If you pass an ISO 8601 date-time without a time zone, you must specify the time zone with the `default_timezone` argument. Read more about the ISO 8601 format at [Wikipedia](http://en.wikipedia.org/wiki/ISO_8601).
 
 __Example:__ Update the time of John's birth.
 
@@ -2306,26 +2234,6 @@ r\now()->toEpochTime()
 
 {% apisection Control structures %}
 
-## [args](args/) ##
-
-{% apibody %}
-r\args(array) &rarr; special
-{% endapibody %}
-
-`r.args` is a special term that's used to splice an array of arguments
-into another term.  This is useful when you want to call a variadic
-term such as `getAll` with a set of arguments produced at runtime.
-
-This is analogous to using **apply** in JavaScript.
-
-__Example:__ Get Alice and Bob from the table `people`.
-
-```php
-r\table('people')->getAll('Alice', 'Bob')->run($conn)
-// or
-r\table('people')->getAll(r\args(array('Alice', 'Bob')))->run($conn)
-```
-
 ## [binary](binary/) ##
 
 {% apibody %}
@@ -2337,28 +2245,21 @@ Encapsulate binary data within a query.
 __Example:__ Save an avatar image to a existing user record.
 
 ```php
-var $fs = require('fs');
-$fs->readFile('./defaultAvatar.png', function ($err, $avatarImage) {
-    if ($err) array(
-        // Handle error
-    )
-    else array(
-        r\table('users')->get(100)->update(array(
-            'avatar' => $avatarImage
-        ))
-    )
-});
+$avatarImage = file_get_contents('./defaultAvatar.png');
+r\table('users')->get(100)->update(array(
+    'avatar' => r\binary($avatarImage)
+))->run($conn)
 ```
 
 [Read more about this command &rarr;](binary/)
 
-## [do](do/) ##
+## [rDo](rDo/) ##
 
 {% apibody %}
-any->do(function) &rarr; any
-r\do([args]*, function) &rarr; any
-any->do(expr) &rarr; any
-r\do([args]*, expr) &rarr; any
+any->rDo(function) &rarr; any
+r\rDo(arg | array(arg,...), function) &rarr; any
+any->rDo(expr) &rarr; any
+r\rDo(arg | array(arg,...), expr) &rarr; any
 {% endapibody %}
 
 Evaluate an expression and pass its values as arguments to a function or to an expression.
@@ -2366,9 +2267,9 @@ Evaluate an expression and pass its values as arguments to a function or to an e
  __Example:__ Compute a golfer's net score for a game.
 
 ```php
-r\table('players')->get('f19b5f16-ef14-468f-bd48-e194761df255')->do(
+r\table('players')->get('f19b5f16-ef14-468f-bd48-e194761df255')->rDo(
     function ($player) {
-        return player('gross_score')->sub(player('course_handicap'));
+        return $player('gross_score')->sub($player('course_handicap'));
     }
 )->run($conn);
 ```
@@ -2399,10 +2300,10 @@ r\table('marvel')->map(
 )->run($conn)
 ```
 
-## [forEach](for_each/) ##
+## [rForeach](rForeach/) ##
 
 {% apibody %}
-sequence->forEach(write_query) &rarr; object
+sequence->rForeach(write_query) &rarr; object
 {% endapibody %}
 
 Loop over a sequence, evaluating the given write query for each element.
@@ -2410,8 +2311,8 @@ Loop over a sequence, evaluating the given write query for each element.
 __Example:__ Now that our heroes have defeated their villains, we can safely remove them from the villain table.
 
 ```php
-r\table('marvel')->forEach(function($hero) {
-    return r\table('villains')->get(hero('villainDefeated'))->delete()
+r\table('marvel')->rForeach(function($hero) {
+    return r\table('villains')->get($hero('villainDefeated'))->delete()
 })->run($conn)
 ```
 
@@ -2445,7 +2346,7 @@ __Example:__ Iron Man can't possibly have lost a battle:
 
 ```php
 r\table('marvel')->get('IronMan')->do(function($ironman) {
-    return r\branch(ironman('victories')->lt(ironman('battles')),
+    return r\branch($ironman('victories')->lt($ironman('battles')),
         r\error('impossible code path'),
         $ironman)
 })->run($conn)
@@ -2473,8 +2374,8 @@ In the case where the author field is missing or `null`, we want to retrieve the
 ```php
 r\table("posts")->map( function($post) {
     return array(
-        'title' => post("title"),
-        'author' => post("author")->default("Anonymous")
+        'title' => $post("title"),
+        'author' => $post("author")->default("Anonymous")
     )
 })->run($conn)
 ```
@@ -2492,7 +2393,7 @@ Construct a ReQL JSON object from a native object.
 __Example:__ Objects wrapped with `expr` can then be manipulated by ReQL API functions.
 
 ```php
-r\expr(array('a' =>'b'))->merge(array('b' =>array(1,2,3)))->run($conn)
+r\expr(array('a' => 'b'))->merge(array('b' => array(1,2,3)))->run($conn)
 ```
 
 [Read more about this command &rarr;](expr/)
@@ -2578,20 +2479,19 @@ __Example:__ Send an array to the server.
 r\json("[1,2,3]")->run($conn)
 ```
 
-## [toJsonString, toJSON](to_json_string/) ##
+## [toJsonString](to_json_string/) ##
 
 {% apibody %}
 value->toJsonString() &rarr; string
-value->toJSON() &rarr; string
 {% endapibody %}
 
-Convert a ReQL value or object to a JSON string. You may use either `toJsonString` or `toJSON`.
+Convert a ReQL value or object to a JSON string.
 
 __Example:__ Get a ReQL document as a JSON string.
 
 ```php
-> r\table('hero')->get(1)->toJson()
-// result returned to callback
+> r\table('hero')->get(1)->toJsonString()
+// result
 '{"id": 1, "name": "Batman", "city": "Gotham", "powers": ["martial arts", "cinematic entrances"]}'
 ```
 
@@ -2623,7 +2523,7 @@ __Example:__ Generate a UUID.
 
 ```php
 > r\uuid()->run($conn)
-// result returned to callback
+// result
 27961$a0e-$f4e8-4$eb3-$bf95-$c5203e1d87b9
 ```
 
@@ -2634,8 +2534,8 @@ __Example:__ Generate a UUID.
 ## [circle](circle/) ##
 
 {% apibody %}
-r\circle([longitude, latitude], radius[, array('numVertices' => 32, 'geoSystem' => 'WGS84', 'unit' => 'm', 'fill' => true)]) &rarr; geometry
-r\circle(point, radius[, array('numVertices' => 32, 'geoSystem' => 'WGS84', 'unit' => 'm', 'fill' => true)]) &rarr; geometry
+r\circle(array(longitude, latitude), radius[, array('num_vertices' => 32, 'geo_system' => 'WGS84', 'unit' => 'm', 'fill' => true)]) &rarr; geometry
+r\circle(point, radius[, array('num_vertices' => 32, 'geo_system' => 'WGS84', 'unit' => 'm', 'fill' => true)]) &rarr; geometry
 {% endapibody %}
 
 Construct a circular line or polygon. A circle in RethinkDB is a polygon or line *approximating* a circle of a given radius around a given center, consisting of a specified number of vertices (default 32).
@@ -2655,7 +2555,7 @@ r\table('geo')->insert(array(
 ## [distance](distance/) ##
 
 {% apibody %}
-geometry->distance(geometry[, array('geoSystem' => 'WGS84', 'unit' => 'm')]) &rarr; number
+geometry->distance(geometry[, array('geo_system' => 'WGS84', 'unit' => 'm')]) &rarr; number
 {% endapibody %}
 
 Compute the distance between a point and another geometry object. At least one of the geometry objects specified must be a point.
@@ -2666,7 +2566,7 @@ __Example:__ Compute the distance between two points on the Earth in kilometers.
 var $point1 = r\point(-122.423246,37.779388);
 var $point2 = r\point(-117.220406,32.719464);
 r\distance($point1, $point2, array('unit' => 'km'))->run($conn);
-// result returned to callback 
+// result
 734.1252496021841
 ```
 
@@ -2685,12 +2585,12 @@ __Example:__ Create a line object and then convert it to a polygon.
 ```php
 r\table('geo')->insert(array(
     'id' => 201,
-    'rectangle' => r\line(
+    'rectangle' => r\line(array(
         array(-122.423246,37.779388),
         array(-122.423246,37.329898),
         array(-121.886420,37.329898),
         array(-121.886420,37.779388)
-    )
+    ))
 ))->run($conn);
 
 r\table('geo')->get(201)->update(array(
@@ -2740,7 +2640,7 @@ __Example:__ Convert a ReQL geometry object to a GeoJSON object.
 
 ```php
 r\table($geo)->get('sfo')->getField('location')->$toGeojson->run($conn);
-// result passed to callback
+// result
 array(
     'type' => 'Point',
     'coordinates' => array( -122.423246, 37.779388 )
@@ -2760,7 +2660,7 @@ Get all documents where the given geometry object intersects the geometry object
 __Example:__ Which of the locations in a list of parks intersect `circle1`?
 
 ```php
-var $circle1 = r\circle(array(-117.220406,32.719464), 10, array('unit' => 'mi'));
+$circle1 = r\circle(array(-117.220406,32.719464), 10, array('unit' => 'mi'));
 r\table('parks')->getIntersecting($circle1, array('index' => 'area'))->run($conn);
 ```
 
@@ -2769,7 +2669,7 @@ r\table('parks')->getIntersecting($circle1, array('index' => 'area'))->run($conn
 ## [getNearest](get_nearest/) ##
 
 {% apibody %}
-table->getNearest(point, array('index' => 'indexname'[, 'maxResults' => 100, 'maxDist' => 100000, 'unit' => 'm', 'geoSystem' => 'WGS84'])) &rarr; selection<array>
+table->getNearest(point, array('index' => 'indexname'[, 'maxResults' => 100, 'maxDist' => 100000, 'unit' => 'm', 'geo_system' => 'WGS84'])) &rarr; selection<array>
 {% endapibody %}
 
 Get all documents where the specified geospatial index is within a certain distance of the specified point (default 100 kilometers).
@@ -2777,7 +2677,7 @@ Get all documents where the specified geospatial index is within a certain dista
 __Example:__ Return a list of enemy hideouts within 5000 meters of the secret base.
 
 ```php
-var $secretBase = r\point(-122.422876,37.777128);
+$secretBase = r\point(-122.422876,37.777128);
 r\table('hideouts')->getNearest($secretBase,
     array('index' => 'location', 'maxDist' => 5000)
 )->run($conn)
@@ -2800,7 +2700,7 @@ __Example:__ Is `point2` included within a 2000-meter circle around `point1`?
 var $point1 = r\point(-117.220406,32.719464);
 var $point2 = r\point(-117.206201,32.725186);
 r\circle($point1, 2000)->includes($point2)->run($conn);
-// result returned to callback 
+// result
 true
 ```
 
@@ -2821,7 +2721,7 @@ __Example:__ Is `point2` within a 2000-meter circle around `point1`?
 var $point1 = r\point(-117.220406,32.719464);
 var $point2 = r\point(-117.206201,32.725186);
 r\circle($point1, 2000)->intersects($point2)->run($conn);
-// result returned to callback 
+// result
 true
 ```
 
@@ -2830,8 +2730,8 @@ true
 ## [line](line/) ##
 
 {% apibody %}
-r\line([lon1, lat1], [lon2, lat1], null) &rarr; line
-r\line(point1, point2, null) &rarr; line
+r\line(array(array(lon1, lat1), array(lon2, lat2), ...)) &rarr; line
+r\line(array(point1, point2, ...)) &rarr; line
 {% endapibody %}
 
 Construct a geometry object of type Line. The line can be specified in one of two ways:
@@ -2844,7 +2744,7 @@ __Example:__ Define a line.
 ```php
 r\table('geo')->insert(array(
     'id' => 101,
-    'route' => r\line(array(-122.423246,37.779388), array(-121.886420,37.329898))
+    'route' => r\line(array(array(-122.423246,37.779388), array(-121.886420,37.329898)))
 ))->run($conn);
 ```
 
@@ -2873,8 +2773,8 @@ r\table('geo')->insert(array(
 ## [polygon](polygon/) ##
 
 {% apibody %}
-r\polygon([lon1, lat1], [lon2, lat2], null) &rarr; polygon
-r\polygon(point1, point2, null) &rarr; polygon
+r\polygon(array(array(lon1, lat1), array(lon2, lat2), ...)) &rarr; polygon
+r\polygon(array(point1, point2, ...)) &rarr; polygon
 {% endapibody %}
 
 Construct a geometry object of type Polygon. The Polygon can be specified in one of two ways:
@@ -2887,12 +2787,12 @@ __Example:__ Define a polygon.
 ```php
 r\table('geo')->insert(array(
     'id' => 101,
-    'rectangle' => r\polygon(
+    'rectangle' => r\polygon(array(
         array(-122.423246,37.779388),
         array(-122.423246,37.329898),
         array(-121.886420,37.329898),
         array(-121.886420,37.779388)
-    )
+    ))
 ))->run($conn);
 ```
 
@@ -2910,18 +2810,18 @@ Use `polygon2` to "punch out" a hole in `polygon1`. `polygon2` must be completel
 __Example:__ Define a polygon with a hole punched in it.
 
 ```php
-var $outerPolygon = r\polygon(
+var $outerPolygon = r\polygon(array(
     array(-122.4,37.7),
     array(-122.4,37.3),
     array(-121.8,37.3),
     array(-121.8,37.7)
-);
-var $innerPolygon = r\polygon(
+));
+var $innerPolygon = r\polygon(array(
     array(-122.3,37.4),
     array(-122.3,37.6),
     array(-122.0,37.6),
     array(-122.0,37.4)
-);
+));
 $outerPolygon->polygonSub($innerpolygon)->run($conn);
 ```
 
@@ -2968,8 +2868,8 @@ __Example:__ Rebalance a table.
 ## [reconfigure](reconfigure/) ##
 
 {% apibody %}
-table->reconfigure(array('shards' => <s>, 'replicas' => <r>[, 'primaryReplicaTag' => <t>, 'dryRun' => false)]) &rarr; object
-database->reconfigure(array('shards' => <s>, 'replicas' => <r>[, 'primaryReplicaTag' => <t>, 'dryRun' => false)]) &rarr; object
+table->reconfigure(array('shards' => <s>, 'replicas' => <r>[, 'primary_replica_tag' => <t>, 'dry_run' => false)]) &rarr; object
+database->reconfigure(array('shards' => <s>, 'replicas' => <r>[, 'primary_replica_tag' => <t>, 'dry_run' => false)]) &rarr; object
 {% endapibody %}
 
 Reconfigure a table's sharding and replication.
@@ -3001,9 +2901,9 @@ __Example:__ Get a table's status.
 ## [wait](wait/) ##
 
 {% apibody %}
-table->wait([array('waitFor' => 'ready_for_writes', 'timeout' => <sec>)]) &rarr; object
-database->wait([array('waitFor' => 'ready_for_writes', 'timeout' => <sec>)]) &rarr; object
-r\wait([array('waitFor' => 'ready_for_writes', 'timeout' => <sec>)]) &rarr; object
+table->wait([array('wait_for' => 'ready_for_writes', 'timeout' => <sec>)]) &rarr; object
+database->wait([array('wait_for' => 'ready_for_writes', 'timeout' => <sec>)]) &rarr; object
+r\wait([array('wait_for' => 'ready_for_writes', 'timeout' => <sec>)]) &rarr; object
 {% endapibody %}
 
 Wait for a table or all the tables in a database to be ready. A table may be temporarily unavailable after creation, rebalancing or reconfiguring. The `wait` command blocks until the given table (or database) is fully up to date.

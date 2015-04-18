@@ -18,9 +18,6 @@ function isPunctation($token) {
 }
 
 function convertExample($js, $inApiBody = false) {
-    // Pre-filter: Remove "...". This is often used as a function stub in the examples. We just replace it by null.
-    $js = str_replace("...", "null", $js);
-
     @$tokens = j_token_get_all($js);
     
     // Based on the token_highlight example code
@@ -48,6 +45,8 @@ function convertExample($js, $inApiBody = false) {
 		    else if ($s == ".") {
 		        if ($sp == "r") {
 		            $s = "\\";
+		        } else if ($sp == "." || $sn == ".") {
+		            // Probably part of a ... place holder
 		        } else {
 		            $s = "->";
 		        }
@@ -132,6 +131,22 @@ $output = preg_replace_callback('|^{% apibody %}((.*\n)*?){% endapibody %}|m', f
         return convertExample($imatches[1], true) . $imatches[2];
     }, $matches[1]) . "{% endapibody %}";
 }, $output);
+
+// Replace optarg names, since we use under_score rather than camelCase in PHP-RQL
+$output = str_replace("includeStates", "include_states", $output);
+$output = str_replace("returnChanges", "return_changes", $output);
+$output = str_replace("nonAtomic", "non_atomic", $output);
+$output = str_replace("useOutdated", "use_outdated", $output);
+$output = str_replace("leftBound", "left_bound", $output);
+$output = str_replace("rightBound", "right_bound", $output);
+$output = str_replace("defaultTimezone", "default_timezone", $output);
+$output = str_replace("geoSystem", "geo_system", $output);
+$output = str_replace("numVertices", "num_vertices", $output);
+$output = str_replace("primaryReplicaTag", "primary_replica_tag", $output);
+$output = str_replace("dryRun", "dry_run", $output);
+$output = str_replace("waitFor", "wait_for", $output);
+
+$output = str_replace("RqlRuntimeError", "RqlServerError", $output);
 
 echo $output;
 

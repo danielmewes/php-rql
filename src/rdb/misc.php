@@ -282,8 +282,8 @@ abstract class ValuedQuery extends Query
     public function setDifference($value) {
         return new SetDifference($this, $value);
     }
-    public function __invoke($attribute) {
-        return new GetField($this, $attribute);
+    public function __invoke($attributeOrIndex) {
+        return new Bracket($this, $attributeOrIndex);
     }
     public function getField($attribute) {
         return new GetField($this, $attribute);
