@@ -35,7 +35,6 @@ class EqJoin extends ValuedQuery
         $this->setPositionalArg(0, $sequence);
         $this->setPositionalArg(1, $attribute);
         $this->setPositionalArg(2, $otherSequence);
-        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
         if (isset($opts)) {
             if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
             foreach ($opts as $k => $v) {

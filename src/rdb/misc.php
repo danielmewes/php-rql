@@ -285,10 +285,6 @@ abstract class ValuedQuery extends Query
     public function __invoke($attribute) {
         return new GetField($this, $attribute);
     }
-    // Deprecated as of 1.7.0. Use getField instead.
-    public function attr($attribute) {
-        return new GetField($this, $attribute);
-    }
     public function getField($attribute) {
         return new GetField($this, $attribute);
     }

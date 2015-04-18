@@ -37,13 +37,13 @@ class JoinTest extends TestCase
                 array('left' => array('id' => 2, 'other' => 'a'), 'right' => array('id' => 'a', 'other' => 1 )),
                 array('left' => array('id' => 3, 'other' => 'b'), 'right' => array('id' => 'b', 'other' => 1 ))
             ));
-        $this->checkQueryResult(r\db('Joins')->table('t1')->eqJoin('id', r\db('Joins')->table('t2'), 'other'),
+        $this->checkQueryResult(r\db('Joins')->table('t1')->eqJoin('id', r\db('Joins')->table('t2'), array('index' => 'other')),
             array(
                 array('left' => array('id' => 1, 'other' => 'a'), 'right' => array('id' => 'a', 'other' => 1 )),
                 array('left' => array('id' => 1, 'other' => 'a'), 'right' => array('id' => 'b', 'other' => 1 ))
             ));
             
-        $this->checkQueryResult(r\db('Joins')->table('t1')->eqJoin('id', r\db('Joins')->table('t2'), 'other')->zip(),
+        $this->checkQueryResult(r\db('Joins')->table('t1')->eqJoin('id', r\db('Joins')->table('t2'), array('index' => 'other'))->zip(),
             array(
                 array('id' => 'a', 'other' => 1 ),
                 array('id' => 'b', 'other' => 1 )

@@ -4,7 +4,7 @@ class ManipulationsTest extends TestCase
 {
     public function run()
     {    
-        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => 2)))->filter(r\row()->attr('y')->eq(2))->pluck('x'),
+        $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => 2)))->filter(r\row()->getField('y')->eq(2))->pluck('x'),
             array(array('x' => 1)));
         $this->checkQueryResult(r\expr(array(array('x' => 1, 'y' => 2)))->filter(r\row('y')->eq(2))->pluck('x'),
             array(array('x' => 1)));

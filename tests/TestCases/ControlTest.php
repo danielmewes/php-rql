@@ -15,7 +15,7 @@ class ControlTest extends TestCase
         $this->checkQueryResult(r\branch(r\expr(false), r\expr('true'), r\expr('false')),
             'false');
             
-        $this->checkQueryResult(r\expr(array(1, 2, 3))->rForeach(function($x) { return r\db('Control')->table('t1')->insert(array('x' => $x));})->attr('inserted'),
+        $this->checkQueryResult(r\expr(array(1, 2, 3))->rForeach(function($x) { return r\db('Control')->table('t1')->insert(array('x' => $x));})->getField('inserted'),
             3.0);
         $this->checkQueryResult(r\db('Control')->table('t1')->map(r\row('x')),
             array(1, 2, 3));
@@ -43,9 +43,9 @@ class ControlTest extends TestCase
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->info()->pluck(array('type', 'name')),
             array('type' => "TABLE", 'name' => 'marvel'));
             
-        $this->checkQueryResult(r\expr(array('a' => 4))->attr('a')->rDefault(5), 4.0);
-        $this->checkQueryResult(r\expr(array('a' => 4))->attr('b')->rDefault(5), 5.0);
-        $this->checkQueryResult(r\expr(array('a' => 4))->attr('b')->rDefault(function ($e) { return r\expr(5); } ), 5.0);
+        $this->checkQueryResult(r\expr(array('a' => 4))->getField('a')->rDefault(5), 4.0);
+        $this->checkQueryResult(r\expr(array('a' => 4))->getField('b')->rDefault(5), 5.0);
+        $this->checkQueryResult(r\expr(array('a' => 4))->getField('b')->rDefault(function ($e) { return r\expr(5); } ), 5.0);
 
         $this->checkQueryResult(r\range()->limit(3), array(0, 1, 2));
         $this->checkQueryResult(r\range(3), array(0, 1, 2));

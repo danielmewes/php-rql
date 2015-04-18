@@ -21,7 +21,6 @@ class GetAll extends ValuedQuery
 
         $this->setPositionalArg(0, $table);
         $this->setPositionalArg(1, $key);
-        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
         if (isset($opts)) {
             if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
             foreach ($opts as $k => $v) {
@@ -48,7 +47,6 @@ class GetMultiple extends ValuedQuery
         foreach ($keys as $key) {
             $this->setPositionalArg($i++, $key);
         }
-        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
         if (isset($opts)) {
             if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
             foreach ($opts as $k => $v) {
@@ -71,7 +69,6 @@ class Between extends ValuedQuery
         $this->setPositionalArg(0, $selection);
         $this->setPositionalArg(1, $leftBound);
         $this->setPositionalArg(2, $rightBound);
-        if (isset($opts) && is_string($opts)) $opts = array('index' => $opts); // Backwards-compatibility
         if (isset($opts)) {
             if (!is_array($opts)) throw new RqlDriverError("opts argument must be an array");
             foreach ($opts as $k => $v) {

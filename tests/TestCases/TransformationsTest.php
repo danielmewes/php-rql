@@ -26,9 +26,9 @@ class TransformationsTest extends TestCase
             array('Spiderman', 'Wolverine'));
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->limit(1)->map(r\row('superhero')),
             array('Iron Man'));
-        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->nth(1)->attr('superhero'),
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->nth(1)->getField('superhero'),
             'Spiderman');
-        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->nth(-1)->attr('superhero'),
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->nth(-1)->getField('superhero'),
             'Wolverine');
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->orderBy('superhero')->slice(1)->map(r\row('superhero')),
             array('Spiderman', 'Wolverine'));
