@@ -561,7 +561,7 @@ class Cursor implements \Iterator
     public function current() {
         $this->requestMoreIfNecessary();
         if (!$this->valid()) throw new RqlDriverError("No more data available.");
-        return $this->currentData[$this->currentIndex];
+        return $this->currentData[$this->currentIndex]->toNative($this->toNativeOptions);
     }
 
     public function toArray() {
@@ -570,15 +570,6 @@ class Cursor implements \Iterator
             $result[] = $val;
         }
         return $result;
-    }
-
-    public function toNative() {
-        $vals = $this->toArray();
-        foreach ($vals as &$val) {
-            $val = $val->toNative();
-            unset ($val);
-        }
-        return $vals;
     }
 
     public function close() {
@@ -596,13 +587,19 @@ class Cursor implements \Iterator
         $this->currentSize - $this->currentIndex;
     }
 
+    public function getNotes() {
+        return $this->notes;
+    }
+
     public function __toString() {
         return "Cursor";
     }
 
-    public function __construct(Connection $connection, $initialResponse, $token) {
+    public function __construct(Connection $connection, $initialResponse, $token, $notes, $toNativeOptions) {
         $this->connection = $connection;
         $this->token = $token;
+        $this->notes = $notes;
+        $this->toNativeOptions = $toNativeOptions;
         $this->wasIterated = false;
 
         $this->setBatch($initialResponse);
@@ -648,6 +645,8 @@ class Cursor implements \Iterator
 
     private $token;
     private $connection;
+    private $notes;
+    private $toNativeOptions;
     private $currentData;
     private $currentSize;
     private $currentIndex;

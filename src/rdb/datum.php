@@ -5,7 +5,7 @@ require_once("util.php");
 require_once("function.php");
 
 function nativeToDatum($v) {
-    if (is_array($v) || (is_object($v) && get_class($v) == "stdClass")) {
+    if (is_array($v) || (is_object($v) && in_array(get_class($v), array("stdClass", "ArrayObject")))) {
         $datumArray = array();
         $hasNonNumericKey = false;
         $mustUseMakeTerm = false;
@@ -67,7 +67,8 @@ function nativeToDatum($v) {
         return new StringDatum($v);
     } else if (is_object($v) && is_subclass_of($v, "\\r\\Query")) {
         return $v;
-    } else if (is_object($v) && is_subclass_of($v, "DateTimeInterface")) {
+    } else if (is_object($v) && (is_subclass_of($v, "DateTimeInterface") || is_a($v, "DateTime"))) {
+        // PHP prior to 5.5.0 doens't have DateTimeInterface, so we test for DateTime directly as well ^^^^^
         $iso8601 = $v->format(\DateTime::ISO8601);
         return new Iso8601($iso8601);
     } else {
@@ -175,7 +176,7 @@ abstract class Datum extends ValuedQuery
         return pb\Term_TermType::PB_DATUM;
     }
     
-    public function toNative() {
+    public function toNative($opts) {
         return $this->getValue();
     }
     
@@ -315,10 +316,10 @@ class ArrayDatum extends Datum
         parent::setValue($val);
     }
     
-    public function toNative() {
+    public function toNative($opts) {
         $native = array();
         foreach ($this->getValue() as $val) {
-            $native[] = $val->toNative();
+            $native[] = $val->toNative($opts);
         }
         return $native;
     }
@@ -369,28 +370,38 @@ class ObjectDatum extends Datum
         parent::setValue($val);
     }
 
-    public function toNative() {
-        $native = array();
+    public function toNative($opts) {
+        $native = new \ArrayObject();
         foreach ($this->getValue() as $key => $val) {
-            $native[$key] = $val->toNative();
+            $native[$key] = $val->toNative($opts);
         }
         // Decode BINARY pseudo-type
-        if (isset($native['$reql_type$']) && $native['$reql_type$'] == 'BINARY') {
+        if ((!isset($opts['binaryFormat']) || $opts['binaryFormat'] == "native")
+            && isset($native['$reql_type$']) && $native['$reql_type$'] == 'BINARY') {
             $decodedStr = base64_decode($native['data'], true);
             if ($decodedStr === FALSE) {
                 throw new RqlDriverError("Failed to Base64 decode r\\binary value '" . $native['data'] . "'");
             }
             return $decodedStr;
         }
-        // Convert TIME to DateTime
-        if (isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
+        // Decode TIME pseudo-type to DateTime
+        if ((!isset($opts['timeFormat']) || $opts['timeFormat'] == "native")
+            && isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
             $time = $native['epoch_time'];
-            $format = (strpos($time, '.') !== false) ? '!U.u' : '!U';
-            $datetime = \DateTime::createFromFormat($format, $time, new \DateTimeZone('UTC'));
+            $format = (strpos($time, '.') !== false) ? '!U.u T' : '!U T';
+            $datetime = \DateTime::createFromFormat($format, $time . " " . $native['timezone'], new \DateTimeZone('UTC'));
 
-            $timezone = new \DateTimeZone($native['timezone']);
-            $datetime->setTimezone($timezone);
-            $datetime->modify($native['timezone']);
+            // This is horrible. Just because in PHP 5.3.something parsing "+01:00" as a date interval doesn't work. :(
+            $tzSign = $native['timezone'][0];
+            $tzHours = $native['timezone'][1] . $native['timezone'][2];
+            $tzMinutes = $native['timezone'][4] . $native['timezone'][5];
+            if ($tzSign == "+") {
+                $datetime->add(new \DateInterval("PT" . $tzHours . "H" . $tzMinutes . "M"));
+            } else if ($tzSign == "-") {
+                $datetime->sub(new \DateInterval("PT" . $tzHours . "H" . $tzMinutes . "M"));
+            } else {
+                throw new RqlDriverError("Timezone not understood: " . $native['timezone']);
+            }
 
             return $datetime;
         }

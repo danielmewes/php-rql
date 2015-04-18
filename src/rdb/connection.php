@@ -102,27 +102,34 @@ class Connection
         $jsonQuery = array(pb\Query_QueryType::PB_START, $jsonTerm, (Object)$globalOptargs);
         $this->sendQuery($token, $jsonQuery);
 
+        // Grab PHP-RQL specific options
+        $toNativeOptions = array();
+        foreach (array('binaryFormat', 'timeFormat') as $opt) {
+            if (isset($options) && isset($options[$opt])) {
+                $toNativeOptions[$opt] = $options[$opt];
+                unset($options[$opt]);
+            }
+        }
+
         if (isset($options) && isset($options['noreply']) && $options['noreply'] === true) {
             return null;
-        }
-        else {
+        } else {
             // Await the response
             $response = $this->receiveResponse($token, $query);
 
-            if ($response['t'] == pb\Response_ResponseType::PB_SUCCESS_PARTIAL
-                || $response['t'] == pb\Response_ResponseType::PB_SUCCESS_ATOM_FEED
-                || $response['t'] == pb\Response_ResponseType::PB_SUCCESS_FEED) {
+            if ($response['t'] == pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
                 $this->activeTokens[$token] = true;
             }
 
             if (isset($response['p'])) {
-                $profile = decodedJSONToDatum($response['p']);
+                $profile = decodedJSONToDatum($response['p'])->toNative($toNativeOptions);
             }
 
-            if ($response['t'] == pb\Response_ResponseType::PB_SUCCESS_ATOM)
-                return $this->createDatumFromResponse($response);
-            else
-                return $this->createCursorFromResponse($response, $token);
+            if ($response['t'] == pb\Response_ResponseType::PB_SUCCESS_ATOM) {
+                return $this->createDatumFromResponse($response)->toNative($toNativeOptions);
+            } else {
+                return $this->createCursorFromResponse($response, $token, $response['n'], $toNativeOptions);
+            }
         }
     }
 
@@ -224,8 +231,8 @@ class Connection
         }
     }
 
-    private function createCursorFromResponse($response, $token) {
-        return new Cursor($this, $response, $token);
+    private function createCursorFromResponse($response, $token, $notes, $toNativeOptions) {
+        return new Cursor($this, $response, $token, $notes, $toNativeOptions);
     }
 
     private function createDatumFromResponse($response) {

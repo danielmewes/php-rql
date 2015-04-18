@@ -13,7 +13,7 @@ class CursorTest extends TestCase
         $cursor = r\db('Huge')->table('t5000')->without('id')->run($this->conn);
         $i = 0;
         foreach($cursor as $val) {
-            if (!$this->compareArrays($doc, $val->toNative())) echo "Read wrong value.\n";
+            if (!$this->compareArrays($doc, $val)) echo "Read wrong value.\n";
             if ($i++ >= 100) break;
         }
         unset($cursor);

@@ -1,5 +1,5 @@
 <?php namespace r;
 
-$__PHP_RQL_VERSION = '1.16.0';
+$__PHP_RQL_VERSION = '2.0.0';
 
 ?>
