@@ -219,13 +219,13 @@ class Connection
             $backtrace = null;
             if (isset($response['b']))
                 $backtrace = Backtrace::_fromJSON($response['b']);
-            throw new RqlUserError("Compile error: " . $response['r'][0], $query, $backtrace);
+            throw new RqlServerError("Compile error: " . $response['r'][0], $query, $backtrace);
         }
         else if ($response['t'] == pb\Response_ResponseType::PB_RUNTIME_ERROR) {
             $backtrace = null;
             if (isset($response['b']))
                 $backtrace = Backtrace::_fromJSON($response['b']);
-            throw new RqlUserError("Runtime error: " . $response['r'][0], $query, $backtrace);
+            throw new RqlServerError("Runtime error: " . $response['r'][0], $query, $backtrace);
         }
     }
 

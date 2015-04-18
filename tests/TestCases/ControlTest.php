@@ -23,7 +23,7 @@ class ControlTest extends TestCase
         $errorCaught = false;
         try {
             r\error('ERRRRRR')->run($this->conn);
-        } catch (r\RqlUserError $e) {
+        } catch (r\RqlServerError $e) {
             $errorCaught = true;
         }
         if (!$errorCaught) echo "r\error() did not throw an error.\n";

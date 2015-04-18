@@ -55,11 +55,11 @@ class RqlDriverError extends \Exception
     }
     
     public function __toString() {
-        return "RQL Driver Error:\n  " . $this->getMessage() . "\n";
+        return "RqlDriverError:\n  " . $this->getMessage() . "\n";
     }
 }
 
-class RqlUserError extends \Exception
+class RqlServerError extends \Exception
 {
     public function __construct($message, $query = null, $backtrace = null, $code = 0) {
         $this->query = $query;
@@ -68,7 +68,7 @@ class RqlUserError extends \Exception
     }
     
     public function __toString() {
-        return "RQL User Error:\n  " . $this->getMessage() . "\n" . $this->getBacktraceString();
+        return "RqlServerError:\n  " . $this->getMessage() . "\n" . $this->getBacktraceString();
     }
     
     public function getBacktraceString() {

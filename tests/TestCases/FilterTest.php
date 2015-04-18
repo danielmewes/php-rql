@@ -13,14 +13,14 @@ class FilterTest extends TestCase
         $caught = false;
         try {
             $this->checkQueryResult(r\db('Heroes')->table('marvel')->filter(r\row('foo')->eq('naaa'), r\error())->count(), 0.0);
-        } catch (r\RqlUserError $e) {
+        } catch (r\RqlServerError $e) {
             $caught = true;
         }
         if (!$caught) echo "Filter with default r\error() did not throw.";
         $caught = false;
         try {
             $this->checkQueryResult(r\db('Heroes')->table('marvel')->filter(r\row('foo')->eq('naaa'), r\error('msg'))->count(), 0.0);
-        } catch (r\RqlUserError $e) {
+        } catch (r\RqlServerError $e) {
             $caught = true;
         }
         if (!$caught) echo "Filter with default r\error() did not throw.";

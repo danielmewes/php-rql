@@ -9,7 +9,7 @@ class JsTest extends TestCase
         $t = microtime(true);
         try {
             r\js('while(true) {}', 1.3)->run($this->conn);
-        } catch (r\RqlUserError $e) {}
+        } catch (r\RqlServerError $e) {}
         if (microtime(true) - $t > 2.0 || microtime(true) - $t < 1.3) echo "Js timeout doesn't seem to work\n";
     }
 }

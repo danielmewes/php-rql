@@ -12,7 +12,7 @@ class ConnectionTest extends TestCase
         $triggeredDriverError = false;
         try {
             r\js('while(true) {}', 2.0)->run($this->conn);
-        } catch (r\RqlUserError $e) {
+        } catch (r\RqlServerError $e) {
         } catch (r\RqlDriverError $e) {
             $triggeredDriverError = true;
             $this->conn->reconnect();
@@ -23,7 +23,7 @@ class ConnectionTest extends TestCase
         $triggeredDriverError = false;
         try {
             r\js('while(true) {}', 2.0)->run($this->conn);
-        } catch (r\RqlUserError $e) {
+        } catch (r\RqlServerError $e) {
         } catch (r\RqlDriverError $e) {
             $triggeredDriverError = true;
             $this->conn->reconnect();
