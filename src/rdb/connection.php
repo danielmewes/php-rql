@@ -85,6 +85,15 @@ class Connection
         if (isset($options) && !is_array($options)) throw new RqlDriverError("Options must be an array.");
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
 
+        // Grab PHP-RQL specific options
+        $toNativeOptions = array();
+        foreach (array('binaryFormat', 'timeFormat') as $opt) {
+            if (isset($options) && isset($options[$opt])) {
+                $toNativeOptions[$opt] = $options[$opt];
+                unset($options[$opt]);
+            }
+        }
+
         // Generate a token for the request
         $token = $this->generateToken();
 
@@ -101,15 +110,6 @@ class Connection
         }
         $jsonQuery = array(pb\Query_QueryType::PB_START, $jsonTerm, (Object)$globalOptargs);
         $this->sendQuery($token, $jsonQuery);
-
-        // Grab PHP-RQL specific options
-        $toNativeOptions = array();
-        foreach (array('binaryFormat', 'timeFormat') as $opt) {
-            if (isset($options) && isset($options[$opt])) {
-                $toNativeOptions[$opt] = $options[$opt];
-                unset($options[$opt]);
-            }
-        }
 
         if (isset($options) && isset($options['noreply']) && $options['noreply'] === true) {
             return null;
