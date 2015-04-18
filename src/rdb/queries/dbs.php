@@ -2,8 +2,8 @@
 
 class Db extends Query
 {
-    public function table($tableName, $useOutdated = null) {
-        return new Table($this, $tableName, $useOutdated);
+    public function table($tableName, $useOutdatedOrOpts = null) {
+        return new Table($this, $tableName, $useOutdatedOrOpts);
     }
     public function tableCreate($tableName, $options = null) {
         return new TableCreate($this, $tableName, $options);
@@ -13,6 +13,15 @@ class Db extends Query
     }
     public function tableList() {
         return new TableList($this);
+    }
+    public function wait($opts = null) {
+        return new Wait($this, $opts);
+    }
+    public function reconfigure($opts = null) {
+        return new Reconfigure($this, $opts);
+    }
+    public function rebalance() {
+        return new Rebalance($this);
     }
 
 

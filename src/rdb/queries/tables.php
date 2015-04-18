@@ -109,9 +109,24 @@ class Table extends ValuedQuery
     public function indexWait($indexNames = null) {
         return new IndexWait($this, $indexNames);
     }
+    public function wait($opts = null) {
+        return new Wait($this, $opts);
+    }
+    public function reconfigure($opts = null) {
+        return new Reconfigure($this, $opts);
+    }
+    public function rebalance() {
+        return new Rebalance($this);
+    }
+    public function config() {
+        return new Config($this);
+    }
+    public function status() {
+        return new Status($this);
+    }
     
 
-    public function __construct($database, $tableName, $useOutdated = null) {
+    public function __construct($database, $tableName, $useOutdatedOrOpts = null) {
         if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         $tableName = nativeToDatum($tableName);
         if (isset($useOutdated) && !is_bool($useOutdated)) throw new RqlDriverError("Use outdated must be bool.");
@@ -120,8 +135,14 @@ class Table extends ValuedQuery
         if (isset($database))
             $this->setPositionalArg($i++, $database);
         $this->setPositionalArg($i++, $tableName);
-        if (isset($useOutdated)) {
-            $this->setOptionalArg('use_outdated', new BoolDatum($useOutdated));
+        if (isset($useOutdatedOrOpts)) {
+            if (is_bool($useOutdatedOrOpts)) {
+                $this->setOptionalArg('use_outdated', new BoolDatum($useOutdatedOrOpts));
+            } else {
+                foreach ($useOutdatedOrOpts as $opt => $val) {
+                    $this->setOptionalArg($opt, nativeToDatum($val));
+                }
+            }
         }
     }
     
@@ -130,14 +151,68 @@ class Table extends ValuedQuery
     }
 }
 
-class Changes extends ValuedQuery
+class Wait extends ValuedQuery
 {
-    public function __construct(ValuedQuery $table) {
+    public function __construct(Query $tables, $opts = null) {
+        $this->setPositionalArg(0, $tables);
+        if (isset($opts)) {
+            foreach ($opts as $opt => $val) {
+                $this->setOptionalArg($opt, nativeToDatum($val));
+            }
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_WAIT;
+    }
+}
+
+class Reconfigure extends ValuedQuery
+{
+    public function __construct(Query $tables, $opts = null) {
+        $this->setPositionalArg(0, $tables);
+        if (isset($opts)) {
+            foreach ($opts as $opt => $val) {
+                $this->setOptionalArg($opt, nativeToDatum($val));
+            }
+        }
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_RECONFIGURE;
+    }
+}
+
+class Rebalance extends ValuedQuery
+{
+    public function __construct(Query $tables) {
+        $this->setPositionalArg(0, $tables);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_REBALANCE;
+    }
+}
+
+class Config extends ValuedQuery
+{
+    public function __construct(Table $table) {
         $this->setPositionalArg(0, $table);
     }
 
     protected function getTermType() {
-        return pb\Term_TermType::PB_CHANGES;
+        return pb\Term_TermType::PB_CONFIG;
+    }
+}
+
+class Status extends ValuedQuery
+{
+    public function __construct(Table $table) {
+        $this->setPositionalArg(0, $table);
+    }
+
+    protected function getTermType() {
+        return pb\Term_TermType::PB_STATUS;
     }
 }
 

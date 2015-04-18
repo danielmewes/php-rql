@@ -120,14 +120,17 @@ class Avg extends ValuedQuery
 
 class Min extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $attribute = null) {
-        if (isset($attribute)) {
-            $attribute = nativeToDatumOrFunction($attribute);
-        }
-    
+    public function __construct(ValuedQuery $sequence, $attributeOrOpts = null) {    
         $this->setPositionalArg(0, $sequence);
-        if (isset($attribute)) {
-            $this->setPositionalArg(1, $attribute);
+        if (isset($attributeOrOpts)) {
+            if (is_array($attributeOrOpts)) {
+                foreach ($attributeOrOpts as $opt => $val) {
+                    $this->setOptionalArg($opt, nativeToDatum($val));
+                }
+            } else {
+                $attribute = nativeToDatumOrFunction($attributeOrOpts);
+                $this->setPositionalArg(1, $attribute);
+            }
         }
     }
     
@@ -138,14 +141,17 @@ class Min extends ValuedQuery
 
 class Max extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $attribute = null) {
-        if (isset($attribute)) {
-            $attribute = nativeToDatumOrFunction($attribute);
-        }
-    
+    public function __construct(ValuedQuery $sequence, $attributeOrOpts = null) {
         $this->setPositionalArg(0, $sequence);
-        if (isset($attribute)) {
-            $this->setPositionalArg(1, $attribute);
+        if (isset($attributeOrOpts)) {
+            if (is_array($attributeOrOpts)) {
+                foreach ($attributeOrOpts as $opt => $val) {
+                    $this->setOptionalArg($opt, nativeToDatum($val));
+                }
+            } else {
+                $attribute = nativeToDatumOrFunction($attributeOrOpts);
+                $this->setPositionalArg(1, $attribute);
+            }
         }
     }
     

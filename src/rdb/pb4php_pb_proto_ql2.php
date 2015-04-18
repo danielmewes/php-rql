@@ -32,6 +32,7 @@ class Response_ResponseType
   const PB_SUCCESS_PARTIAL  = 3;
   const PB_SUCCESS_FEED  = 5;
   const PB_WAIT_COMPLETE  = 4;
+  const PB_SUCCESS_ATOM_FEED  = 6;
   const PB_CLIENT_ERROR  = 16;
   const PB_COMPILE_ERROR  = 17;
   const PB_RUNTIME_ERROR  = 18;
@@ -87,8 +88,8 @@ class Term_TermType
   const PB_REDUCE  = 37;
   const PB_MAP  = 38;
   const PB_FILTER  = 39;
-  const PB_CONCATMAP  = 40;
-  const PB_ORDERBY  = 41;
+  const PB_CONCAT_MAP  = 40;
+  const PB_ORDER_BY  = 41;
   const PB_DISTINCT  = 42;
   const PB_COUNT  = 43;
   const PB_IS_EMPTY  = 86;
@@ -99,12 +100,13 @@ class Term_TermType
   const PB_OUTER_JOIN  = 49;
   const PB_EQ_JOIN  = 50;
   const PB_ZIP  = 72;
+  const PB_RANGE  = 173;
   const PB_INSERT_AT  = 82;
   const PB_DELETE_AT  = 83;
   const PB_CHANGE_AT  = 84;
   const PB_SPLICE_AT  = 85;
   const PB_COERCE_TO  = 51;
-  const PB_TYPEOF  = 52;
+  const PB_TYPE_OF  = 52;
   const PB_UPDATE  = 53;
   const PB_DELETE  = 54;
   const PB_REPLACE  = 55;
@@ -115,6 +117,11 @@ class Term_TermType
   const PB_TABLE_CREATE  = 60;
   const PB_TABLE_DROP  = 61;
   const PB_TABLE_LIST  = 62;
+  const PB_CONFIG  = 174;
+  const PB_STATUS  = 175;
+  const PB_WAIT  = 177;
+  const PB_RECONFIGURE  = 176;
+  const PB_REBALANCE  = 179;
   const PB_SYNC  = 138;
   const PB_INDEX_CREATE  = 75;
   const PB_INDEX_DROP  = 76;
@@ -126,7 +133,7 @@ class Term_TermType
   const PB_BRANCH  = 65;
   const PB_ANY  = 66;
   const PB_ALL  = 67;
-  const PB_FOREACH  = 68;
+  const PB_FOR_EACH  = 68;
   const PB_FUNC  = 69;
   const PB_ASC  = 73;
   const PB_DESC  = 74;
@@ -137,7 +144,7 @@ class Term_TermType
   const PB_SAMPLE  = 81;
   const PB_DEFAULT  = 92;
   const PB_JSON  = 98;
-  const PB_TO_JSON  = 172;
+  const PB_TO_JSON_STRING  = 172;
   const PB_ISO8601  = 99;
   const PB_TO_ISO8601  = 100;
   const PB_EPOCH_TIME  = 101;

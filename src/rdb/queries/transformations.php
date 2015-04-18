@@ -31,6 +31,26 @@ class Map extends ValuedQuery
     }
 }
 
+class MapMultiple extends ValuedQuery
+{
+    public function __construct(ValuedQuery $sequence, $moreSequences, $mappingFunction) {
+        if (!is_array($moreSequences))
+            $moreSequences = array($moreSequences);
+        $mappingFunction = nativeToFunction($mappingFunction);
+
+        $this->setPositionalArg(0, $sequence);
+        $i = 1;
+        foreach ($moreSequences as $seq) {
+            $this->setPositionalArg($i++, $seq);
+        }
+        $this->setPositionalArg($i, $mappingFunction);
+    }
+    
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MAP;
+    }
+}
+
 class ConcatMap extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $mappingFunction) {
@@ -41,7 +61,7 @@ class ConcatMap extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_CONCATMAP;
+        return pb\Term_TermType::PB_CONCAT_MAP;
     }
 }
 
@@ -70,7 +90,7 @@ class OrderBy extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_ORDERBY;
+        return pb\Term_TermType::PB_ORDER_BY;
     }
 }
 

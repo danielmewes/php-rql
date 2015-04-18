@@ -30,9 +30,9 @@ function dbList()
     return new DbList();
 }
 
-function table($tableName, $useOutdated = null)
+function table($tableName, $useOutdatedOrOpts = null)
 {
-    return new Table(null, $tableName, $useOutdated);
+    return new Table(null, $tableName, $useOutdatedOrOpts);
 }
 
 function tableCreate($tableName, $options = null) {
@@ -106,13 +106,17 @@ function http($url, $opts = null) {
     return new Http($url, $opts);
 }
 
-function rObject($object)
-{
+function rObject($object) {
     return new RObject($object);
 }
 
-function literal($value) {
-    return new Literal($value);
+// r\literal can accept 0 or 1 arguments
+function literal() {
+    if (func_num_args() == 0) {
+        return new Literal();
+    } else {
+        return new Literal(func_get_arg(0));
+    }
 }
 
 function add($expr1, $expr2) {
@@ -270,6 +274,18 @@ function distance($g1, $g2, $opts = null) {
 
 function uuid() {
     return new Uuid();
+}
+
+function range($startOrEndValue = null, $endValue = null) {
+    return new Range($startOrEndValue, $endValue);
+}
+
+function mapMultiple($sequences, $mappingFunction) {
+    if (!is_array($sequences))
+        $sequences = array($sequences);
+    if (sizeof($sequences) < 1)
+        throw new RqlDriverError("At least one sequence must be passed into r\mapMultiple.");
+    return new MapMultiple($sequences[0], array_slice($sequences, 1), $mappingFunction);
 }
 
 ?>

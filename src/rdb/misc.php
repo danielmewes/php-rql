@@ -187,6 +187,9 @@ abstract class ValuedQuery extends Query
     public function map($mappingFunction) {
         return new Map($this, $mappingFunction);
     }
+    public function mapMultiple($moreSequences, $mappingFunction) {
+        return new MapMultiple($this, $moreSequences, $mappingFunction);
+    }
     public function concatMap($mappingFunction) {
         return new ConcatMap($this, $mappingFunction);
     }
@@ -238,11 +241,11 @@ abstract class ValuedQuery extends Query
     public function sum($attribute = null) {
         return new Sum($this, $attribute);
     }
-    public function min($attribute = null) {
-        return new Min($this, $attribute);
+    public function min($attributeOrOpts = null) {
+        return new Min($this, $attributeOrOpts);
     }
-    public function max($attribute = null) {
-        return new Max($this, $attribute);
+    public function max($attributeOrOpts = null) {
+        return new Max($this, $attributeOrOpts);
     }
     // Note: The API docs suggest that as of 1.6, contains can accept multiple values.
     //  We do not support that for the time being.
@@ -418,8 +421,8 @@ abstract class ValuedQuery extends Query
     public function seconds() {
         return new Seconds($this);
     }
-    public function changes() {
-        return new Changes($this);
+    public function changes($opts = null) {
+        return new Changes($this, $opts);
     }
     public function toGeoJSON() {
         return new ToGeoJSON($this);
@@ -438,6 +441,9 @@ abstract class ValuedQuery extends Query
     }
     public function polygonSub($other) {
         return new PolygonSub($this, $other);
+    }
+    public function toJsonString() {
+        return new ToJsonString($this);
     }
 }
 
@@ -516,11 +522,14 @@ class Json extends ValuedQuery {
 }
 
 class Literal extends ValuedQuery {
-    public function __construct($value) {
-        if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
-            $value = nativeToDatum($value);
+    public function __construct() {
+        if (func_num_args() > 0) {
+            $value = func_get_arg(0);
+            if (!(is_object($value) && is_subclass_of($value, "\\r\\Query"))) {
+                $value = nativeToDatum($value);
+            }
+            $this->setPositionalArg(0, $value);
         }
-        $this->setPositionalArg(0, $value);
     }
 
     protected function getTermType() {

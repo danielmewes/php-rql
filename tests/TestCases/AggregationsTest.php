@@ -55,6 +55,8 @@ class AggregationsTest extends TestCase
          $this->checkQueryResult(r\db('Heroes')->table('marvel')->indexWait('combatPower')->pluck(array('index', 'ready')), array(array('index' => 'combatPower', 'ready' => true)));
          $this->checkQueryResult(r\db('Heroes')->table('marvel')->distinct(array('index' => 'combatPower')),
              array(2.0, 5.0));
+         $this->checkQueryResult(r\db('Heroes')->table('marvel')->max(array('index' => 'combatPower'))->getField("combatPower"), 5.0);
+         $this->checkQueryResult(r\db('Heroes')->table('marvel')->min(array('index' => 'combatPower'))->getField("combatPower"), 2.0);
          $this->datasets['Heroes']->reset();
     }
 }
