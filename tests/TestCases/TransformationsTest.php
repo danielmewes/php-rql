@@ -46,7 +46,7 @@ class TransformationsTest extends TestCase
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->withFields('superhero')->count(), 3.0);
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->withFields(array('superhero' => true))->count(), 3.0);
         
-        $this->checkQueryResult(r\expr(array('a','b','c'))->indexesOf('c'), array(2));
+        $this->checkQueryResult(r\expr(array('a','b','c'))->offsetsOf('c'), array(2));
         
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->isEmpty(), false);
         $this->checkQueryResult(r\expr(new r\ArrayDatum(array()))->isEmpty(), true);

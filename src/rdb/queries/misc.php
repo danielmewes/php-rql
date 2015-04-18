@@ -7,4 +7,18 @@ class Uuid extends ValuedQuery
     }
 }
 
+class Minval extends ValuedQuery
+{
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MINVAL;
+    }
+}
+
+class Maxval extends ValuedQuery
+{
+    protected function getTermType() {
+        return pb\Term_TermType::PB_MAXVAL;
+    }
+}
+
 ?>

@@ -164,7 +164,7 @@ class Nth extends ValuedQuery
     }
 }
 
-class IndexesOf extends ValuedQuery
+class OffsetsOf extends ValuedQuery
 {
     public function __construct(ValuedQuery $sequence, $predicate) {
         $predicate = nativeToDatumOrFunction($predicate);
@@ -174,7 +174,7 @@ class IndexesOf extends ValuedQuery
     }
     
     protected function getTermType() {
-        return pb\Term_TermType::PB_INDEXES_OF;
+        return pb\Term_TermType::PB_OFFSETS_OF;
     }
 }
 

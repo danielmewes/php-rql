@@ -45,12 +45,12 @@ class Mod extends BinaryOp {
 }
 class RAnd extends BinaryOp {
     public function __construct(ValuedQuery $value, $other) {
-        parent::__construct(pb\Term_TermType::PB_ALL, $value, $other);
+        parent::__construct(pb\Term_TermType::PB_AND, $value, $other);
     }
 }
 class ROr extends BinaryOp {
     public function __construct(ValuedQuery $value, $other) {
-        parent::__construct(pb\Term_TermType::PB_ANY, $value, $other);
+        parent::__construct(pb\Term_TermType::PB_OR, $value, $other);
     }
 }
 class Eq extends BinaryOp {

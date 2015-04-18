@@ -144,9 +144,7 @@ class Connection
         // Await the response
         $response = $this->receiveResponse($token);
 
-        if ($response['t'] != pb\Response_ResponseType::PB_SUCCESS_PARTIAL
-            && $response['t'] != pb\Response_ResponseType::PB_SUCCESS_ATOM_FEED
-            && $response['t'] != pb\Response_ResponseType::PB_SUCCESS_FEED) {
+        if ($response['t'] != pb\Response_ResponseType::PB_SUCCESS_PARTIAL) {
             unset($this->activeTokens[$token]);
         }
 

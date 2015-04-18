@@ -276,6 +276,14 @@ function uuid() {
     return new Uuid();
 }
 
+function minval() {
+    return new Minval();
+}
+
+function maxval() {
+    return new Maxval();
+}
+
 function range($startOrEndValue = null, $endValue = null) {
     return new Range($startOrEndValue, $endValue);
 }

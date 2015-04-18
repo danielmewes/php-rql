@@ -208,8 +208,8 @@ abstract class ValuedQuery extends Query
     public function nth($index) {
         return new Nth($this, $index);
     }
-    public function indexesOf($predicate) {
-        return new IndexesOf($this, $predicate);
+    public function offsetsOf($predicate) {
+        return new OffsetsOf($this, $predicate);
     }
     public function isEmpty() {
         return new IsEmpty($this);

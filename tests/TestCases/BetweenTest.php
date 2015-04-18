@@ -15,9 +15,9 @@ class BetweenTest extends TestCase
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->between('A', 'Z')->count(), 3.0);
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->between('I', 'J')->count(), 1.0);
         $this->checkQueryResult(r\db('Heroes')->table('marvel')->between('I', 'I')->count(), 0.0);
-        $this->checkQueryResult(r\db('Heroes')->table('marvel')->between(null, 'J')->count(), 1.0);
-        $this->checkQueryResult(r\db('Heroes')->table('marvel')->between('J', null)->count(), 2.0);
-        $this->checkQueryResult(r\db('Heroes')->table('marvel')->between(null, null)->count(), 3.0);
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->between(r\minval(), 'J')->count(), 1.0);
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->between('J', r\maxval())->count(), 2.0);
+        $this->checkQueryResult(r\db('Heroes')->table('marvel')->between(r\minval(), r\maxval())->count(), 3.0);
         
         r\db('Heroes')->table('marvel')->indexDrop('test')->run($this->conn);
     }

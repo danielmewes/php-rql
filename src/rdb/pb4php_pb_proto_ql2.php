@@ -4,6 +4,7 @@ class VersionDummy_Version
   const PB_V0_1  = 0x3f61ba36;
   const PB_V0_2  = 0x723081e1;
   const PB_V0_3  = 0x5f75e83e;
+  const PB_V0_4  = 0x400c2d20;
 }
 class VersionDummy_Protocol
 {
@@ -30,12 +31,18 @@ class Response_ResponseType
   const PB_SUCCESS_ATOM  = 1;
   const PB_SUCCESS_SEQUENCE  = 2;
   const PB_SUCCESS_PARTIAL  = 3;
-  const PB_SUCCESS_FEED  = 5;
   const PB_WAIT_COMPLETE  = 4;
-  const PB_SUCCESS_ATOM_FEED  = 6;
   const PB_CLIENT_ERROR  = 16;
   const PB_COMPILE_ERROR  = 17;
   const PB_RUNTIME_ERROR  = 18;
+}
+class Response_ResponseNote
+{
+  const PB_SEQUENCE_FEED  = 1;
+  const PB_ATOM_FEED  = 2;
+  const PB_ORDER_BY_LIMIT_FEED  = 3;
+  const PB_UNIONED_FEED  = 4;
+  const PB_INCLUDES_STATES  = 5;
 }
 class Term_TermType
 {
@@ -74,7 +81,7 @@ class Term_TermType
   const PB_SLICE  = 30;
   const PB_SKIP  = 70;
   const PB_LIMIT  = 71;
-  const PB_INDEXES_OF  = 87;
+  const PB_OFFSETS_OF  = 87;
   const PB_CONTAINS  = 93;
   const PB_GET_FIELD  = 31;
   const PB_KEYS  = 94;
@@ -84,7 +91,8 @@ class Term_TermType
   const PB_PLUCK  = 33;
   const PB_WITHOUT  = 34;
   const PB_MERGE  = 35;
-  const PB_BETWEEN  = 36;
+  const PB_BETWEEN_DEPRECATED  = 36;
+  const PB_BETWEEN  = 182;
   const PB_REDUCE  = 37;
   const PB_MAP  = 38;
   const PB_FILTER  = 39;
@@ -131,8 +139,8 @@ class Term_TermType
   const PB_INDEX_RENAME  = 156;
   const PB_FUNCALL  = 64;
   const PB_BRANCH  = 65;
-  const PB_ANY  = 66;
-  const PB_ALL  = 67;
+  const PB_OR  = 66;
+  const PB_AND  = 67;
   const PB_FOR_EACH  = 68;
   const PB_FUNC  = 69;
   const PB_ASC  = 73;
@@ -208,6 +216,8 @@ class Term_TermType
   const PB_FILL  = 167;
   const PB_GET_NEAREST  = 168;
   const PB_POLYGON_SUB  = 171;
+  const PB_MINVAL  = 180;
+  const PB_MAXVAL  = 181;
 }
 class Query_QueryType
 {
