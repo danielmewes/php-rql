@@ -1,0 +1,2433 @@
+<html><head><link rel="stylesheet" type="text/css" href="api.css"></head><body><h1>PHP-RQL API reference</h1><h2 id="Index">Index</h2><ul><li><a href="#Accessing+ReQL">Accessing ReQL</a></li><li><a href="#Cursors">Cursors</a></li><li><a href="#Manipulating+databases">Manipulating databases</a></li><li><a href="#Manipulating+tables">Manipulating tables</a></li><li><a href="#Writing+data">Writing data</a></li><li><a href="#Selecting+data">Selecting data</a></li><li><a href="#Joins">Joins</a></li><li><a href="#Transformations">Transformations</a></li><li><a href="#Aggregation">Aggregation</a></li><li><a href="#Document+manipulation">Document manipulation</a></li><li><a href="#String+manipulation">String manipulation</a></li><li><a href="#Math+and+logic">Math and logic</a></li><li><a href="#Dates+and+times">Dates and times</a></li><li><a href="#Control+structures">Control structures</a></li><li><a href="#Geospatial+commands">Geospatial commands</a></li><li><a href="#Administration">Administration</a></li></ul><p><h2 id="Accessing+ReQL">Accessing ReQL</h2>
+All ReQL queries begin from the top-level module.</p>
+
+<h3>r</h3>
+
+<pre><code class="syntax">r &rarr; r
+</code></pre>
+
+<p>The top-level ReQL namespace.</p>
+
+<p><strong>Example:</strong> Set up your top-level namespace.</p>
+
+<pre><code class="php">var r = require('rethinkdb');
+</code></pre>
+
+<h3>connect</h3>
+
+<pre><code class="syntax">r\connect(options)
+r\connect(host)
+r\connect(options) &rarr; promise
+r\connect(host) &rarr; promise
+</code></pre>
+
+<p>Create a new connection to the database server.  Accepts the following options:</p>
+
+<ul>
+<li><code>host</code>: the host to connect to (default <code>localhost</code>).</li>
+<li><code>port</code>: the port to connect on (default <code>28015</code>).</li>
+<li><code>db</code>: the default database (default <code>test</code>).</li>
+<li><code>authKey</code>: the authentication key (default none).</li>
+<li><code>timeout</code>: timeout period in seconds for the connection to be opened (default <code>20</code>).</li>
+</ul>
+
+<p>If the connection cannot be established, a <code>RqlDriverError</code> will be passed to the callback instead of a connection.</p>
+
+<p><strong>Example:</strong> Opens a new connection to the database.</p>
+
+<pre><code class="php">r\connect(array( 'host' =&gt; 'localhost',
+            'port' =&gt; 28015,
+            'db' =&gt; 'marvel',
+            'authKey' =&gt; 'hunter2' ),
+          function($err, $conn) { null })
+</code></pre>
+
+<h3>close</h3>
+
+<pre><code class="syntax">conn-&gt;close([array('noreplyWait' =&gt; true)])
+conn-&gt;close([array('noreplyWait' =&gt; true)]) &rarr; promise
+</code></pre>
+
+<p>Close an open connection.</p>
+
+<p>If no callback is provided, a promise will be returned.</p>
+
+<p><strong>Example:</strong> Close an open connection, waiting for noreply writes to finish.</p>
+
+<pre><code class="php">$conn-&gt;close(function($err) { if ($err) throw $err; })
+</code></pre>
+
+<h3>reconnect</h3>
+
+<pre><code class="syntax">conn-&gt;reconnect([array('noreplyWait' =&gt; true)])
+conn-&gt;reconnect([array('noreplyWait' =&gt; true)]) &rarr; promise
+</code></pre>
+
+<p>Close and reopen a connection.</p>
+
+<p>If no callback is provided, a promise will be returned.</p>
+
+<p><strong>Example:</strong> Cancel outstanding requests/queries that are no longer needed.</p>
+
+<pre><code class="php">$conn-&gt;reconnect(array('noreplyWait' =&gt; false), function($error, $connection) { null })
+</code></pre>
+
+<h3>use</h3>
+
+<pre><code class="syntax">conn-&gt;use(dbName)
+</code></pre>
+
+<p>Change the default database on this connection.</p>
+
+<p><strong>Example:</strong> Change the default database so that we don't need to
+specify the database when referencing a table.</p>
+
+<pre><code class="php">$conn-&gt;use('marvel')
+r\table('heroes')-&gt;run($conn, null) // refers to r.db('marvel').table('heroes')
+</code></pre>
+
+<h3>run</h3>
+
+<pre><code class="syntax">query-&gt;run(conn[, options])
+query-&gt;run(conn[, options]) &rarr; promise
+</code></pre>
+
+<p>Run a query on a connection.</p>
+
+<p>The callback will get either an error, a single JSON result, or a
+cursor, depending on the query.</p>
+
+<p><strong>Example:</strong> Run a query on the connection <code>conn</code> and log each row in
+the result to the console.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;run($conn, function($err, $cursor) { $cursor-&gt;each($console-&gt;$log); })
+</code></pre>
+
+<h3>noreplyWait</h3>
+
+<pre><code class="syntax">conn-&gt;noreplyWait()
+conn-&gt;noreplyWait() &rarr; promise
+</code></pre>
+
+<p><code>noreplyWait</code> ensures that previous queries with the <code>noreply</code> flag have been processed
+by the server. Note that this guarantee only applies to queries run on the given connection.</p>
+
+<p><strong>Example:</strong> We have previously run queries with the <code>noreply</code> argument set to <code>true</code>. Now
+wait until the server has processed them.</p>
+
+<pre><code class="php">$conn-&gt;noreplyWait(function($err) { null })
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Cursors">Cursors</h2></p>
+
+<h3>next</h3>
+
+<pre><code class="syntax">cursor-&gt;next()
+array-&gt;next()
+cursor-&gt;next() &rarr; promise
+array-&gt;next() &rarr; promise
+</code></pre>
+
+<p>Get the next element in the cursor.</p>
+
+<p><strong>Example:</strong> Retrieve the next element.</p>
+
+<pre><code class="php">$cursor-&gt;next(function($err, $row) {
+    if ($err) throw $err;
+    processRow($row);
+});
+</code></pre>
+
+<h3>each</h3>
+
+<pre><code class="syntax">cursor-&gt;each([, onFinishedCallback])
+array-&gt;each([, onFinishedCallback])
+feed-&gt;each()
+</code></pre>
+
+<p>Lazily iterate over the result set one element at a time.</p>
+
+<p><strong>Example:</strong> Let's process all the elements!</p>
+
+<pre><code class="php">$cursor-&gt;each(function($err, $row) {
+    if ($err) throw $err;
+    processRow($row);
+});
+</code></pre>
+
+<h3>toArray</h3>
+
+<pre><code class="syntax">cursor-&gt;toArray()
+array-&gt;toArray()
+cursor-&gt;toArray() &rarr; promise
+array-&gt;toArray() &rarr; promise
+</code></pre>
+
+<p>Retrieve all results and pass them as an array to the given callback.</p>
+
+<p><strong>Example:</strong> For small result sets it may be more convenient to process them at once as
+an array.</p>
+
+<pre><code class="php">$cursor-&gt;toArray(function($err, $results) {
+    if ($err) throw $err;
+    processResults($results);
+});
+</code></pre>
+
+<h3>close</h3>
+
+<pre><code class="syntax">cursor-&gt;close()
+</code></pre>
+
+<p>Close a cursor. Closing a cursor cancels the corresponding query and frees the memory
+associated with the open request.</p>
+
+<p><strong>Example:</strong> Close a cursor.</p>
+
+<pre><code class="php">$cursor-&gt;close()
+</code></pre>
+
+<h3>EventEmitter</h3>
+
+<pre><code class="syntax">cursor-&gt;addListener(event, listener)
+cursor-&gt;on(event, listener)
+cursor-&gt;once(event, listener)
+cursor-&gt;removeListener(event, listener)
+cursor-&gt;removeAllListeners([event])
+cursor-&gt;setMaxListeners(n)
+cursor-&gt;listeners(event)
+cursor-&gt;emit(event, [arg1], [arg2], [null])
+</code></pre>
+
+<p>Cursors and feeds implement the same interface as Node's <a href="http://nodejs.org/api/events.html#events_class_events_eventemitter">EventEmitter</a>.</p>
+
+<p><hr/></p>
+
+<p><h2 id="Manipulating+databases">Manipulating databases</h2></p>
+
+<h3>dbCreate</h3>
+
+<pre><code class="syntax">r\dbCreate(dbName) &rarr; object
+</code></pre>
+
+<p>Create a database. A RethinkDB database is a collection of tables, similar to
+relational databases.</p>
+
+<p>If successful, the operation returns an object: <code>{created: 1}</code>. If a database with the
+same name already exists the operation throws <code>RqlRuntimeError</code>.</p>
+
+<p>Note: that you can only use alphanumeric characters and underscores for the database name.</p>
+
+<p><strong>Example:</strong> Create a database named 'superheroes'.</p>
+
+<pre><code class="php">r\dbCreate('superheroes')-&gt;run($conn)
+</code></pre>
+
+<h3>dbDrop</h3>
+
+<pre><code class="syntax">r\dbDrop(dbName) &rarr; object
+</code></pre>
+
+<p>Drop a database. The database, all its tables, and corresponding data will be deleted.</p>
+
+<p>If successful, the operation returns the object <code>{dropped: 1}</code>. If the specified database
+doesn't exist a <code>RqlRuntimeError</code> is thrown.</p>
+
+<p><strong>Example:</strong> Drop a database named 'superheroes'.</p>
+
+<pre><code class="php">r\dbDrop('superheroes')-&gt;run($conn)
+</code></pre>
+
+<h3>dbList</h3>
+
+<pre><code class="syntax">r\dbList() &rarr; array
+</code></pre>
+
+<p>List all database names in the system. The result is a list of strings.</p>
+
+<p><strong>Example:</strong> List all databases.</p>
+
+<pre><code class="php">r\dbList()-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Manipulating+tables">Manipulating tables</h2></p>
+
+<h3>tableCreate</h3>
+
+<pre><code class="syntax">db-&gt;tableCreate(tableName[, options]) &rarr; object
+</code></pre>
+
+<p>Create a table. A RethinkDB table is a collection of JSON documents.</p>
+
+<p><strong>Example:</strong> Create a table named 'dc_universe' with the default settings.</p>
+
+<pre><code class="php">r\db('test')-&gt;tableCreate('dc_universe')-&gt;run($conn)
+</code></pre>
+
+<h3>tableDrop</h3>
+
+<pre><code class="syntax">db-&gt;tableDrop(tableName) &rarr; object
+</code></pre>
+
+<p>Drop a table. The table and all its data will be deleted.</p>
+
+<p><strong>Example:</strong> Drop a table named 'dc_universe'.</p>
+
+<pre><code class="php">r\db('test')-&gt;tableDrop('dc_universe')-&gt;run($conn)
+</code></pre>
+
+<h3>tableList</h3>
+
+<pre><code class="syntax">db-&gt;tableList() &rarr; array
+</code></pre>
+
+<p>List all table names in a database. The result is a list of strings.</p>
+
+<p><strong>Example:</strong> List all tables of the 'test' database.</p>
+
+<pre><code class="php">r\db('test')-&gt;tableList()-&gt;run($conn)
+</code></pre>
+
+<h3>indexCreate</h3>
+
+<pre><code class="syntax">table-&gt;indexCreate(indexName[, indexFunction][, array('multi' =&gt; false)]) &rarr; object
+</code></pre>
+
+<p>Create a new secondary index on a table.</p>
+
+<p><strong>Example:</strong> Create a simple index based on the field <code>postId</code>.</p>
+
+<pre><code class="php">r\table('comments')-&gt;indexCreate('postId')-&gt;run($conn)
+</code></pre>
+
+<h3>indexDrop</h3>
+
+<pre><code class="syntax">table-&gt;indexDrop(indexName) &rarr; object
+</code></pre>
+
+<p>Delete a previously created secondary index of this table.</p>
+
+<p><strong>Example:</strong> Drop a secondary index named 'code_name'.</p>
+
+<pre><code class="php">r\table('dc')-&gt;indexDrop('code_name')-&gt;run($conn)
+</code></pre>
+
+<h3>indexList</h3>
+
+<pre><code class="syntax">table-&gt;indexList() &rarr; array
+</code></pre>
+
+<p>List all the secondary indexes of this table.</p>
+
+<p><strong>Example:</strong> List the available secondary indexes for this table.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;indexList()-&gt;run($conn)
+</code></pre>
+
+<h3>indexRename</h3>
+
+<pre><code class="syntax">table-&gt;indexRename(oldIndexName, newIndexName[, array('overwrite' =&gt; false)]) &rarr; object
+</code></pre>
+
+<p>Rename an existing secondary index on a table. If the optional argument <code>overwrite</code> is specified as <code>true</code>, a previously existing index with the new name will be deleted and the index will be renamed. If <code>overwrite</code> is <code>false</code> (the default) an error will be raised if the new index name already exists.</p>
+
+<p><strong>Example:</strong> Rename an index on the comments table.</p>
+
+<pre><code class="php">r\table('comments')-&gt;indexRename('postId', 'messageId')-&gt;run($conn)
+</code></pre>
+
+<h3>indexStatus</h3>
+
+<pre><code class="syntax">table-&gt;indexStatus([, indexnull]) &rarr; array
+</code></pre>
+
+<p>Get the status of the specified indexes on this table, or the status
+of all indexes on this table if no indexes are specified.</p>
+
+<p><strong>Example:</strong> Get the status of all the indexes on <code>test</code>:</p>
+
+<pre><code class="php">r\table('test')-&gt;indexStatus()-&gt;run($conn)
+</code></pre>
+
+<p><strong>Example:</strong> Get the status of the <code>timestamp</code> index:</p>
+
+<pre><code class="php">r\table('test')-&gt;indexStatus('timestamp')-&gt;run($conn)
+</code></pre>
+
+<h3>indexWait</h3>
+
+<pre><code class="syntax">table-&gt;indexWait([, indexnull]) &rarr; array
+</code></pre>
+
+<p>Wait for the specified indexes on this table to be ready, or for all
+indexes on this table to be ready if no indexes are specified.</p>
+
+<p><strong>Example:</strong> Wait for all indexes on the table <code>test</code> to be ready:</p>
+
+<pre><code class="php">r\table('test')-&gt;indexWait()-&gt;run($conn)
+</code></pre>
+
+<p><strong>Example:</strong> Wait for the index <code>timestamp</code> to be ready:</p>
+
+<pre><code class="php">r\table('test')-&gt;indexWait('timestamp')-&gt;run($conn)
+</code></pre>
+
+<h3>changes</h3>
+
+<pre><code class="syntax">table-&gt;changes(array('squash' =&gt; true, 'includeStates' =&gt; false)) &rarr; stream
+singleSelection-&gt;changes(array('squash' =&gt; true, 'includeStates' =&gt; false)) &rarr; stream
+</code></pre>
+
+<p>Return an infinite stream of objects representing changes to a query.</p>
+
+<p><strong>Example:</strong> Subscribe to the changes on a table.</p>
+
+<pre><code class="php">r\table('games')-&gt;changes()-&gt;run($conn, function($err, $cursor) {
+  $cursor-&gt;each($console-&gt;$log)
+})
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Writing+data">Writing data</h2></p>
+
+<h3>insert</h3>
+
+<pre><code class="syntax">table-&gt;insert(json | [json][, array('durability' =&gt; "hard", 'returnChanges' =&gt; false, 'conflict' =&gt; "error")]) &rarr; object
+</code></pre>
+
+<p>Insert JSON documents into a table. Accepts a single JSON document or an array of
+documents.</p>
+
+<p><strong>Example:</strong> Insert a document into the table <code>posts</code>.</p>
+
+<pre><code class="php">r\table("posts")-&gt;insert(array(
+    'id' =&gt; 1,
+    'title' =&gt; "Lorem ipsum",
+    'content' =&gt; "Dolor sit amet"
+))-&gt;run($conn)
+</code></pre>
+
+<h3>update</h3>
+
+<pre><code class="syntax">table-&gt;update(json | expr
+    [, array('durability' =&gt; "hard", 'returnChanges' =&gt; false, 'nonAtomic' =&gt; false)])
+        &rarr; object
+selection-&gt;update(json | expr
+    [, array('durability' =&gt; "hard", 'returnChanges' =&gt; false, 'nonAtomic' =&gt; false)])
+        &rarr; object
+singleSelection-&gt;update(json | expr
+    [, array('durability' =&gt; "hard", 'returnChanges' =&gt; false, 'nonAtomic' =&gt; false)])
+        &rarr; object
+</code></pre>
+
+<p>Update JSON documents in a table. Accepts a JSON document, a ReQL expression, or a
+combination of the two. You can pass options like <code>returnChanges</code> that will return the old
+and new values of the row you have modified.</p>
+
+<p><strong>Example:</strong> Update the status of the post with <code>id</code> of <code>1</code> to <code>published</code>.</p>
+
+<pre><code class="php">r\table("posts")-&gt;get(1)-&gt;update(array('status' =&gt; "published"))-&gt;run($conn)
+</code></pre>
+
+<h3>replace</h3>
+
+<pre><code class="syntax">table-&gt;replace(json | expr
+    [, array('durability' =&gt; "hard", 'returnChanges' =&gt; false, 'nonAtomic' =&gt; false)])
+        &rarr; object
+selection-&gt;replace(json | expr
+    [, array('durability' =&gt; "hard", 'returnChanges' =&gt; false, 'nonAtomic' =&gt; false)])
+        &rarr; object
+singleSelection-&gt;replace(json | expr
+    [, array('durability' =&gt; "hard", 'returnChanges' =&gt; false, 'nonAtomic' =&gt; false)])
+        &rarr; object</p>
+
+<p></code></pre>
+
+<p>Replace documents in a table. Accepts a JSON document or a ReQL expression, and replaces
+the original document with the new one. The new document must have the same primary key
+as the original document.</p>
+
+<p><strong>Example:</strong> Replace the document with the primary key <code>1</code>.</p>
+
+<pre><code class="php">r\table("posts")-&gt;get(1)-&gt;replace(array(
+    'id' =&gt; 1,
+    'title' =&gt; "Lorem ipsum",
+    'content' =&gt; "Aleas jacta est",
+    'status' =&gt; "draft"
+))-&gt;run($conn)
+</code></pre>
+
+<h3>delete</h3>
+
+<pre><code class="syntax">table-&gt;delete([array('durability' =&gt; "hard", 'returnChanges' =&gt; false)])
+    &rarr; object
+selection-&gt;delete([array('durability' =&gt; "hard", 'returnChanges' =&gt; false)])
+    &rarr; object
+singleSelection-&gt;delete([array('durability' =&gt; "hard", 'returnChanges' =&gt; false)])
+    &rarr; object
+</code></pre>
+
+<p>Delete one or more documents from a table.</p>
+
+<p><strong>Example:</strong> Delete a single document from the table <code>comments</code>.</p>
+
+<pre><code class="php">r\table("comments")-&gt;get("7eab9e63-73f1-4f33-8ce4-95cbea626f59")-&gt;delete()-&gt;run($conn)
+</code></pre>
+
+<h3>sync</h3>
+
+<pre><code class="syntax">table-&gt;sync()
+    &rarr; object
+</code></pre>
+
+<p><code>sync</code> ensures that writes on a given table are written to permanent storage. Queries
+that specify soft durability (<code>{durability: 'soft'}</code>) do not give such guarantees, so
+<code>sync</code> can be used to ensure the state of these queries. A call to <code>sync</code> does not return
+until all previous writes to the table are persisted.</p>
+
+<p><strong>Example:</strong> After having updated multiple heroes with soft durability, we now want to wait
+until these changes are persisted.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;sync()-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Selecting+data">Selecting data</h2></p>
+
+<h3>db</h3>
+
+<pre><code class="syntax">r\db(dbName) &rarr; db
+</code></pre>
+
+<p>Reference a database.</p>
+
+<p><strong>Example:</strong> Before we can query a table we have to select the correct database.</p>
+
+<pre><code class="php">r\db('heroes')-&gt;table('marvel')-&gt;run($conn)
+</code></pre>
+
+<h3>table</h3>
+
+<pre><code class="syntax">db-&gt;table(name[, array('useOutdated' =&gt; false)]) &rarr; table
+</code></pre>
+
+<p>Select all documents in a table. This command can be chained with other commands to do
+further processing on the data.</p>
+
+<p><strong>Example:</strong> Return all documents in the table 'marvel' of the default database.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;run($conn)
+</code></pre>
+
+<h3>get</h3>
+
+<pre><code class="syntax">table-&gt;get(key) &rarr; singleRowSelection
+</code></pre>
+
+<p>Get a document by primary key.</p>
+
+<p>If no document exists with that primary key, <code>get</code> will return <code>null</code>.</p>
+
+<p><strong>Example:</strong> Find a document by UUID.</p>
+
+<pre><code class="php">r\table('posts')-&gt;get('a9849eef-7176-4411-935b-79a6e3c56a74')-&gt;run($conn)
+</code></pre>
+
+<h3>getAll</h3>
+
+<pre><code class="syntax">table-&gt;getAll(key[, key2null], [, array('index' =&gt;'id')]) &rarr; selection
+</code></pre>
+
+<p>Get all documents where the given value matches the value of the requested index.</p>
+
+<p><strong>Example:</strong> Secondary index keys are not guaranteed to be unique so we cannot query via <a href="/api/javascript/get/">get</a> when using a secondary index.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;getAll('man_of_steel', array('index' =&gt;'code_name'))-&gt;run($conn)
+</code></pre>
+
+<h3>between</h3>
+
+<pre><code class="syntax">table-&gt;between(lowerKey, upperKey
+    [, array('index' =&gt;'id', 'left_bound' =&gt;'closed', 'right_bound' =&gt;'open')])
+        &rarr; selection
+</code></pre>
+
+<p>Get all documents between two keys. Accepts three optional arguments: <code>index</code>,
+<code>left_bound</code>, and <code>right_bound</code>. If <code>index</code> is set to the name of a secondary index,
+<code>between</code> will return all documents where that index's value is in the specified range
+(it uses the primary key by default). <code>left_bound</code> or <code>right_bound</code> may be set to <code>open</code>
+or <code>closed</code> to indicate whether or not to include that endpoint of the range (by default,
+<code>left_bound</code> is closed and <code>right_bound</code> is open).</p>
+
+<p><strong>Example:</strong> Find all users with primary key >= 10 and &lt; 20 (a normal half-open interval).</p>
+
+<pre><code class="php">r\table('marvel')-&gt;between(10, 20)-&gt;run($conn)
+</code></pre>
+
+<h3>filter</h3>
+
+<pre><code class="syntax">selection-&gt;filter(predicate[, array(default =&gt; false)]) &rarr; selection
+stream-&gt;filter(predicate[, array(default =&gt; false)]) &rarr; stream
+array-&gt;filter(predicate[, array(default =&gt; false)]) &rarr; array
+</code></pre>
+
+<p>Get all the documents for which the given predicate is true.</p>
+
+<p><code>filter</code> can be called on a sequence, selection, or a field containing an array of
+elements. The return type is the same as the type on which the function was called on.</p>
+
+<p>The body of every filter is wrapped in an implicit <code>.default(false)</code>, which means that
+if a non-existence errors is thrown (when you try to access a field that does not exist
+in a document), RethinkDB will just ignore the document.
+The <code>default</code> value can be changed by passing an object with a <code>default</code> field.
+Setting this optional argument to <code>r.error()</code> will cause any non-existence errors to
+return a <code>RqlRuntimeError</code>.</p>
+
+<p><strong>Example:</strong> Get all the users that are 30 years old.</p>
+
+<pre><code class="php">r\table('users')-&gt;filter(array('age' =&gt; 30))-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Joins">Joins</h2>
+These commands allow the combination of multiple sequences into a single sequence</p>
+
+<h3>innerJoin</h3>
+
+<pre><code class="syntax">sequence-&gt;innerJoin(otherSequence, predicate) &rarr; stream
+array-&gt;innerJoin(otherSequence, predicate) &rarr; array
+</code></pre>
+
+<p>Returns an inner join of two sequences.</p>
+
+<p><strong>Example:</strong> Return a list of all matchups between Marvel and DC heroes in which the DC hero could beat the Marvel hero in a fight.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;innerJoin(r\table('dc'), function($marvelRow, $dcRow) {
+    return marvelRow('strength')-&gt;lt(dcRow('strength'))
+})-&gt;zip()-&gt;run($conn)
+</code></pre>
+
+<h3>outerJoin</h3>
+
+<pre><code class="syntax">sequence-&gt;outerJoin(otherSequence, predicate) &rarr; stream
+array-&gt;outerJoin(otherSequence, predicate) &rarr; array
+</code></pre>
+
+<p>Returns a left outer join of two sequences.</p>
+
+<p><strong>Example:</strong> Return a list of all Marvel heroes, paired with any DC heroes who could beat them in a fight.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;outerJoin(r\table('dc'), function($marvelRow, $dcRow) {
+    return marvelRow('strength')-&gt;lt(dcRow('strength'))
+})-&gt;run($conn)
+</code></pre>
+
+<h3>eqJoin</h3>
+
+<pre><code class="syntax">sequence-&gt;eqJoin(leftField, rightTable[, array('index' =&gt;'id')]) &rarr; sequence
+</code></pre>
+
+<p>Join tables using a field on the left-hand sequence matching primary keys or secondary indexes on the right-hand table. <code>eqJoin</code> is more efficient than other ReQL join types, and operates much faster. Documents in the result set consist of pairs of left-hand and right-hand documents, matched when the field on the left-hand side exists and is non-null and an entry with that field's value exists in the specified index on the right-hand side.</p>
+
+<p><strong>Example:</strong> Match players with the games they've played against one another.</p>
+
+<pre><code class="php">r\table('players')-&gt;eqJoin('gameId', r\table('games'))-&gt;run($conn)
+</code></pre>
+
+<h3>zip</h3>
+
+<pre><code class="syntax">stream-&gt;zip() &rarr; stream
+array-&gt;zip() &rarr; array
+</code></pre>
+
+<p>Used to 'zip' up the result of a join by merging the 'right' fields into 'left' fields of each member of the sequence.</p>
+
+<p><strong>Example:</strong> 'zips up' the sequence by merging the left and right fields produced by a join.</p>
+
+<pre><code>r.table('marvel').eqJoin('main_dc_collaborator', r.table('dc'))
+    .zip().run(conn, callback)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Transformations">Transformations</h2>
+These commands are used to transform data in a sequence.</p>
+
+<h3>map</h3>
+
+<pre><code class="syntax">sequence1-&gt;map([sequence2, null], mappingFunction) &rarr; stream
+array1-&gt;map([sequence2, null], mappingFunction) &rarr; array
+r\map(sequence1[, sequence2, null], mappingFunction) &rarr; stream
+r\map(array1[, array2, null], mappingFunction) &rarr; array
+</code></pre>
+
+<p>Transform each element of one or more sequences by applying a mapping function to them. If <code>map</code> is run with two or more sequences, it will iterate for as many items as there are in the shortest sequence.</p>
+
+<p><strong>Example:</strong> Return the first five squares.</p>
+
+<pre><code class="php">r\expr(array(1, 2, 3, 4, 5))-&gt;map(function ($val) {
+    return $val-&gt;mul($val);
+})-&gt;run($conn);
+// Result passed to callback
+array(1, 4, 9, 16, 25)
+</code></pre>
+
+<h3>withFields</h3>
+
+<pre><code class="syntax">sequence-&gt;withFields([selector1, selector2null]) &rarr; stream
+array-&gt;withFields([selector1, selector2null]) &rarr; array
+</code></pre>
+
+<p>Plucks one or more attributes from a sequence of objects, filtering out any objects in the sequence that do not have the specified fields. Functionally, this is identical to <code>hasFields</code> followed by <code>pluck</code> on a sequence.</p>
+
+<p><strong>Example:</strong> Get a list of users and their posts, excluding any users who have not made any posts.</p>
+
+<pre><code class="php">r\table('users')-&gt;withFields('id', 'username', 'posts')-&gt;run($conn)
+</code></pre>
+
+<h3>concatMap</h3>
+
+<pre><code class="syntax">stream-&gt;concatMap(mappingFunction) &rarr; stream
+array-&gt;concatMap(mappingFunction) &rarr; array
+</code></pre>
+
+<p>Concatenate one or more elements into a single sequence using a mapping function.</p>
+
+<p><strong>Example:</strong> Construct a sequence of all monsters defeated by Marvel heroes. The field "defeatedMonsters" is an array of one or more monster names.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;concatMap(function($hero) {
+    return hero('defeatedMonsters')
+})-&gt;run($conn)
+</code></pre>
+
+<h3>orderBy</h3>
+
+<pre><code class="syntax">table-&gt;orderBy([key1null], array('index' =&gt; index_name)) &rarr; selection&lt;stream&gt;
+selection-&gt;orderBy(key1, [key2null]) &rarr; selection&lt;array&gt;
+sequence-&gt;orderBy(key1, [key2null]) &rarr; array
+</code></pre>
+
+<p>Sort the sequence by document values of the given key(s). To specify
+the ordering, wrap the attribute with either <code>r.asc</code> or <code>r.desc</code>
+(defaults to ascending).</p>
+
+<p>Sorting without an index requires the server to hold the sequence in
+memory, and is limited to 100,000 documents (or the setting of the <code>arrayLimit</code> option for <a href="/api/javascript/run">run</a>). Sorting with an index can
+be done on arbitrarily large tables, or after a <code>between</code> command
+using the same index.</p>
+
+<p><strong>Example:</strong> Order all the posts using the index <code>date</code>.</p>
+
+<pre><code class="php">r\table('posts')-&gt;orderBy(array('index' =&gt; 'date'))-&gt;run($conn)
+</code></pre>
+
+<p>The index must have been previously created with <a href="/api/javascript/index_create/">indexCreate</a>.</p>
+
+<pre><code class="php">r\table('posts')-&gt;indexCreate('date')-&gt;run($conn)
+</code></pre>
+
+<p>You can also select a descending ordering:</p>
+
+<pre><code class="php">r\table('posts')-&gt;orderBy(array('index' =&gt; r\desc('date')))-&gt;run($conn)
+</code></pre>
+
+<h3>skip</h3>
+
+<pre><code class="syntax">sequence-&gt;skip(n) &rarr; stream
+array-&gt;skip(n) &rarr; array
+</code></pre>
+
+<p>Skip a number of elements from the head of the sequence.</p>
+
+<p><strong>Example:</strong> Here in conjunction with <code>order_by</code> we choose to ignore the most successful heroes.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;orderBy('successMetric')-&gt;skip(10)-&gt;run($conn)
+</code></pre>
+
+<h3>limit</h3>
+
+<pre><code class="syntax">sequence-&gt;limit(n) &rarr; stream
+array-&gt;limit(n) &rarr; array
+</code></pre>
+
+<p>End the sequence after the given number of elements.</p>
+
+<p><strong>Example:</strong> Only so many can fit in our Pantheon of heroes.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;orderBy('belovedness')-&gt;limit(10)-&gt;run($conn)
+</code></pre>
+
+<h3>slice</h3>
+
+<pre><code class="syntax">selection-&gt;slice(startIndex[, endIndex, array('leftBound' =&gt;'closed', 'rightBound' =&gt;'open')]) &rarr; selection
+stream-&gt;slice(startIndex[, endIndex, array('leftBound' =&gt;'closed', 'rightBound' =&gt;'open')]) &rarr; stream
+array-&gt;slice(startIndex[, endIndex, array('leftBound' =&gt;'closed', 'rightBound' =&gt;'open')]) &rarr; array
+binary-&gt;slice(startIndex[, endIndex, array('leftBound' =&gt;'closed', 'rightBound' =&gt;'open')]) &rarr; binary
+</code></pre>
+
+<p>Return the elements of a sequence within the specified range.</p>
+
+<p><strong>Example:</strong> Return the fourth, fifth and sixth youngest players. (The youngest player is at index 0, so those are elements 3&ndash;5.)</p>
+
+<pre><code class="php">r\table('players')-&gt;orderBy(array('index' =&gt; 'age'))-&gt;slice(3,6)-&gt;run($conn)
+</code></pre>
+
+<h3>nth</h3>
+
+<pre><code class="syntax">sequence-&gt;nth(index) &rarr; object
+selection-&gt;nth(index) &rarr; selection&lt;object&gt;
+</code></pre>
+
+<p>Get the <em>nth</em> element of a sequence, counting from zero. If the argument is negative, count from the last element.</p>
+
+<p><strong>Example:</strong> Select the second element in the array.</p>
+
+<pre><code class="php">r\expr(array(1,2,3))-&gt;nth(1)-&gt;run($conn)
+</code></pre>
+
+<h3>offsetsOf</h3>
+
+<pre><code class="syntax">sequence-&gt;offsetsOf(datum | predicate) &rarr; array
+</code></pre>
+
+<p>Get the indexes of an element in a sequence. If the argument is a predicate, get the indexes of all elements matching it.</p>
+
+<p><strong>Example:</strong> Find the position of the letter 'c'.</p>
+
+<pre><code class="php">r\expr(array('a','b','c'))-&gt;offsetsOf('c')-&gt;run($conn)
+</code></pre>
+
+<h3>isEmpty</h3>
+
+<pre><code class="syntax">sequence-&gt;isEmpty() &rarr; bool
+</code></pre>
+
+<p>Test if a sequence is empty.</p>
+
+<p><strong>Example:</strong> Are there any documents in the marvel table?</p>
+
+<pre><code class="php">r\table('marvel')-&gt;isEmpty()-&gt;run($conn)
+</code></pre>
+
+<h3>union</h3>
+
+<pre><code class="syntax">stream-&gt;union(sequence[, sequence, null]) &rarr; stream
+array-&gt;union(sequence[, sequence, null]) &rarr; array
+</code></pre>
+
+<p>Concatenate two or more sequences.</p>
+
+<p><strong>Example:</strong> Construct a stream of all heroes.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;union(r\table('dc'))-&gt;run($conn);
+</code></pre>
+
+<h3>sample</h3>
+
+<pre><code class="syntax">sequence-&gt;sample(number) &rarr; selection
+stream-&gt;sample(number) &rarr; array
+array-&gt;sample(number) &rarr; array
+</code></pre>
+
+<p>Select a given number of elements from a sequence with uniform random distribution. Selection is done without replacement.</p>
+
+<p><strong>Example:</strong> Select 3 random heroes.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;sample(3)-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Aggregation">Aggregation</h2>
+These commands are used to compute smaller values from large sequences.</p>
+
+<h3>group</h3>
+
+<pre><code class="syntax">sequence-&gt;group(fieldOrFunctionnull, [array('index' =&gt; "indexName", 'multi' =&gt; false)]) &rarr; grouped_stream
+</code></pre>
+
+<p>Takes a stream and partitions it into multiple groups based on the
+fields or functions provided.  Commands chained after <code>group</code> will be
+called on each of these grouped sub-streams, producing grouped data.</p>
+
+<p><strong>Example:</strong> What is each player's best game?</p>
+
+<pre><code class="php">r\table('games')-&gt;group('player')-&gt;max('points')-&gt;run($conn)
+</code></pre>
+
+<h3>ungroup</h3>
+
+<pre><code class="syntax">grouped_stream-&gt;ungroup() &rarr; array
+grouped_data-&gt;ungroup() &rarr; array
+</code></pre>
+
+<p>Takes a grouped stream or grouped data and turns it into an array of
+objects representing the groups.  Any commands chained after <code>ungroup</code>
+will operate on this array, rather than operating on each group
+individually.  This is useful if you want to e.g. order the groups by
+the value of their reduction.</p>
+
+<p><strong>Example:</strong> What is the maximum number of points scored by each
+player, with the highest scorers first?</p>
+
+<pre><code class="php">r\table('games')
+    -&gt;group('player')-&gt;max('points')array('points')
+    -&gt;ungroup()-&gt;order_by(r\desc('reduction'))-&gt;run($conn)
+</code></pre>
+
+<h3>reduce</h3>
+
+<pre><code class="syntax">sequence-&gt;reduce(reductionFunction) &rarr; value
+</code></pre>
+
+<p>Produce a single value from a sequence through repeated application of a reduction
+function.</p>
+
+<p><strong>Example:</strong> Return the number of documents in the table `posts.</p>
+
+<pre><code class="php">r\table("posts")-&gt;map(function($doc) {
+    return 1
+})-&gt;reduce(function($left, $right) {
+    return $left-&gt;add($right)
+})-&gt;run($conn);
+</code></pre>
+
+<h3>count</h3>
+
+<pre><code class="syntax">sequence-&gt;count([filter]) &rarr; number
+binary-&gt;count() &rarr; number
+</code></pre>
+
+<p>Count the number of elements in the sequence. With a single argument, count the number
+of elements equal to it. If the argument is a function, it is equivalent to calling
+filter before count.</p>
+
+<p><strong>Example:</strong> Just how many super heroes are there?</p>
+
+<pre><code class="php">r\table('marvel')-&gt;count()-&gt;add(r\table('dc')-&gt;count())-&gt;run($conn)
+</code></pre>
+
+<h3>sum</h3>
+
+<pre><code class="syntax">sequence-&gt;sum([fieldOrFunction]) &rarr; number
+</code></pre>
+
+<p>Sums all the elements of a sequence.  If called with a field name,
+sums all the values of that field in the sequence, skipping elements
+of the sequence that lack that field.  If called with a function,
+calls that function on every element of the sequence and sums the
+results, skipping elements of the sequence where that function returns
+<code>null</code> or a non-existence error.</p>
+
+<p><strong>Example:</strong> What's 3 + 5 + 7?</p>
+
+<pre><code class="php">r\expr(array(3, 5, 7))-&gt;sum()-&gt;run($conn)
+</code></pre>
+
+<h3>avg</h3>
+
+<pre><code class="syntax">sequence-&gt;avg([fieldOrFunction]) &rarr; number
+</code></pre>
+
+<p>Averages all the elements of a sequence.  If called with a field name,
+averages all the values of that field in the sequence, skipping
+elements of the sequence that lack that field.  If called with a
+function, calls that function on every element of the sequence and
+averages the results, skipping elements of the sequence where that
+function returns <code>null</code> or a non-existence error.</p>
+
+<p><strong>Example:</strong> What's the average of 3, 5, and 7?</p>
+
+<pre><code class="php">r\expr(array(3, 5, 7))-&gt;avg()-&gt;run($conn)
+</code></pre>
+
+<h3>min</h3>
+
+<pre><code class="syntax">sequence-&gt;min(fieldOrFunction) &rarr; element
+sequence-&gt;min(array('index' =&gt; 'index')) &rarr; element
+</code></pre>
+
+<p>Finds the minimum element of a sequence.</p>
+
+<p><strong>Example:</strong> Return the minimum value in the list <code>[3, 5, 7]</code>.</p>
+
+<pre><code class="php">r\expr(array(3, 5, 7))-&gt;min()-&gt;run($conn);
+</code></pre>
+
+<h3>max</h3>
+
+<pre><code class="syntax">sequence-&gt;max(fieldOrFunction) &rarr; element
+sequence-&gt;max(array('index' =&gt; 'index')) &rarr; element
+</code></pre>
+
+<p>Finds the maximum element of a sequence.</p>
+
+<p><strong>Example:</strong> Return the maximum value in the list <code>[3, 5, 7]</code>.</p>
+
+<pre><code class="php">r\expr(array(3, 5, 7))-&gt;max()-&gt;run($conn);
+</code></pre>
+
+<h3>distinct</h3>
+
+<pre><code class="syntax">sequence-&gt;distinct() &rarr; array
+table-&gt;distinct() &rarr; stream
+table-&gt;distinct(array('index' =&gt; &lt;indexname&gt;)) &rarr; stream
+</code></pre>
+
+<p>Remove duplicate elements from the sequence.</p>
+
+<p><strong>Example:</strong> Which unique villains have been vanquished by marvel heroes?</p>
+
+<pre><code class="php">r\table('marvel')-&gt;concatMap(function($hero) {
+    return hero('villainList')
+})-&gt;distinct()-&gt;run($conn)
+</code></pre>
+
+<h3>contains</h3>
+
+<pre><code class="syntax">sequence-&gt;contains(value1[, value2null]) &rarr; bool
+</code></pre>
+
+<p>Returns whether or not a sequence contains all the specified values, or if functions are
+provided instead, returns whether or not a sequence contains values matching all the
+specified functions.</p>
+
+<p><strong>Example:</strong> Has Iron Man ever fought Superman?</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('ironman')-&gt;getField('opponents')-&gt;contains('superman')-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Document+manipulation">Document manipulation</h2></p>
+
+<h3>row</h3>
+
+<pre><code class="syntax">r\row &rarr; value
+</code></pre>
+
+<p>Returns the currently visited document.</p>
+
+<p><strong>Example:</strong> Get all users whose age is greater than 5.</p>
+
+<pre><code class="php">r\table('users')-&gt;filter(r\row('age')-&gt;gt(5))-&gt;run($conn)
+</code></pre>
+
+<h3>pluck</h3>
+
+<pre><code class="syntax">sequence-&gt;pluck([selector1, selector2null]) &rarr; stream
+array-&gt;pluck([selector1, selector2null]) &rarr; array
+object-&gt;pluck([selector1, selector2null]) &rarr; object
+singleSelection-&gt;pluck([selector1, selector2null]) &rarr; object
+</code></pre>
+
+<p>Plucks out one or more attributes from either an object or a sequence of objects
+(projection).</p>
+
+<p><strong>Example:</strong> We just need information about IronMan's reactor and not the rest of the
+document.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;pluck('reactorState', 'reactorPower')-&gt;run($conn)
+</code></pre>
+
+<h3>without</h3>
+
+<pre><code class="syntax">sequence-&gt;without([selector1, selector2null]) &rarr; stream
+array-&gt;without([selector1, selector2null]) &rarr; array
+singleSelection-&gt;without([selector1, selector2null]) &rarr; object
+object-&gt;without([selector1, selector2null]) &rarr; object
+</code></pre>
+
+<p>The opposite of pluck; takes an object or a sequence of objects, and returns them with
+the specified paths removed.</p>
+
+<p><strong>Example:</strong> Since we don't need it for this computation we'll save bandwidth and leave
+out the list of IronMan's romantic conquests.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;without('personalVictoriesList')-&gt;run($conn)
+</code></pre>
+
+<h3>merge</h3>
+
+<pre><code class="syntax">singleSelection-&gt;merge(object) &rarr; object
+object-&gt;merge(object) &rarr; object
+sequence-&gt;merge(object) &rarr; stream
+array-&gt;merge(object) &rarr; array
+</code></pre>
+
+<p>Merge two objects together to construct a new object with properties from both. Gives preference to attributes from other when there is a conflict.</p>
+
+<p><strong>Example:</strong> Equip IronMan for battle.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;merge(
+    r\table('loadouts')-&gt;get('alienInvasionKit')
+)-&gt;run($conn)
+</code></pre>
+
+<h3>append</h3>
+
+<pre><code class="syntax">array-&gt;append(value) &rarr; array
+</code></pre>
+
+<p>Append a value to an array.</p>
+
+<p><strong>Example:</strong> Retrieve Iron Man's equipment list with the addition of some new boots.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;append('newBoots')-&gt;run($conn)
+</code></pre>
+
+<h3>prepend</h3>
+
+<pre><code class="syntax">array-&gt;prepend(value) &rarr; array
+</code></pre>
+
+<p>Prepend a value to an array.</p>
+
+<p><strong>Example:</strong> Retrieve Iron Man's equipment list with the addition of some new boots.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;prepend('newBoots')-&gt;run($conn)
+</code></pre>
+
+<h3>difference</h3>
+
+<pre><code class="syntax">array-&gt;difference(array) &rarr; array
+</code></pre>
+
+<p>Remove the elements of one array from another array.</p>
+
+<p><strong>Example:</strong> Retrieve Iron Man's equipment list without boots.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;difference(array('Boots'))-&gt;run($conn)
+</code></pre>
+
+<h3>setInsert</h3>
+
+<pre><code class="syntax">array-&gt;setInsert(value) &rarr; array
+</code></pre>
+
+<p>Add a value to an array and return it as a set (an array with distinct values).</p>
+
+<p><strong>Example:</strong> Retrieve Iron Man's equipment list with the addition of some new boots.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setInsert('newBoots')-&gt;run($conn)
+</code></pre>
+
+<h3>setUnion</h3>
+
+<pre><code class="syntax">array-&gt;setUnion(array) &rarr; array
+</code></pre>
+
+<p>Add a several values to an array and return it as a set (an array with distinct values).</p>
+
+<p><strong>Example:</strong> Retrieve Iron Man's equipment list with the addition of some new boots and an arc reactor.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setUnion(array('newBoots', 'arc_reactor'))-&gt;run($conn)
+</code></pre>
+
+<h3>setIntersection</h3>
+
+<pre><code class="syntax">array-&gt;setIntersection(array) &rarr; array
+</code></pre>
+
+<p>Intersect two arrays returning values that occur in both of them as a set (an array with
+distinct values).</p>
+
+<p><strong>Example:</strong> Check which pieces of equipment Iron Man has from a fixed list.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setIntersection(array('newBoots', 'arc_reactor'))-&gt;run($conn)
+</code></pre>
+
+<h3>setDifference</h3>
+
+<pre><code class="syntax">array-&gt;setDifference(array) &rarr; array
+</code></pre>
+
+<p>Remove the elements of one array from another and return them as a set (an array with
+distinct values).</p>
+
+<p><strong>Example:</strong> Check which pieces of equipment Iron Man has, excluding a fixed list.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setDifference(array('newBoots', 'arc_reactor'))-&gt;run($conn)
+</code></pre>
+
+<h3>()</h3>
+
+<pre><code class="syntax">sequence(attr) &rarr; sequence
+singleSelection(attr) &rarr; value
+object(attr) &rarr; value
+array(index) &rarr; value
+</code></pre>
+
+<p>Get a single field from an object or a single element from a sequence.</p>
+
+<p><strong>Example:</strong> What was Iron Man's first appearance in a comic?</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('firstAppearance')-&gt;run($conn)
+</code></pre>
+
+<h3>getField</h3>
+
+<pre><code class="syntax">sequence(attr) &rarr; sequence
+singleSelection(attr) &rarr; value
+object(attr) &rarr; value
+</code></pre>
+
+<p>Get a single field from an object. If called on a sequence, gets that field from every
+object in the sequence, skipping objects that lack it.</p>
+
+<p><strong>Example:</strong> What was Iron Man's first appearance in a comic?</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('firstAppearance')-&gt;run($conn)
+</code></pre>
+
+<h3>hasFields</h3>
+
+<pre><code class="syntax">sequence-&gt;hasFields([selector1, selector2null]) &rarr; stream
+array-&gt;hasFields([selector1, selector2null]) &rarr; array
+object-&gt;hasFields([selector1, selector2null]) &rarr; boolean
+</code></pre>
+
+<p>Test if an object has one or more fields. An object has a field if it has that key and the key has a non-null value. For instance, the object <code>{'a': 1,'b': 2,'c': null}</code> has the fields <code>a</code> and <code>b</code>.</p>
+
+<p><strong>Example:</strong> Return the players who have won games.</p>
+
+<pre><code class="php">r\table('players')-&gt;hasFields('games_won')-&gt;run($conn)
+</code></pre>
+
+<h3>insertAt</h3>
+
+<pre><code class="syntax">array-&gt;insertAt(index, value) &rarr; array
+</code></pre>
+
+<p>Insert a value in to an array at a given index. Returns the modified array.</p>
+
+<p><strong>Example:</strong> Hulk decides to join the avengers.</p>
+
+<pre><code class="php">r\expr(array("Iron Man", "Spider-Man"))-&gt;insertAt(1, "Hulk")-&gt;run($conn)
+</code></pre>
+
+<h3>spliceAt</h3>
+
+<pre><code class="syntax">array-&gt;spliceAt(index, array) &rarr; array
+</code></pre>
+
+<p>Insert several values in to an array at a given index. Returns the modified array.</p>
+
+<p><strong>Example:</strong> Hulk and Thor decide to join the avengers.</p>
+
+<pre><code class="php">r\expr(array("Iron Man", "Spider-Man"))-&gt;spliceAt(1, array("Hulk", "Thor"))-&gt;run($conn)
+</code></pre>
+
+<h3>deleteAt</h3>
+
+<pre><code class="syntax">array-&gt;deleteAt(index [,endIndex]) &rarr; array
+</code></pre>
+
+<p>Remove one or more elements from an array at a given index. Returns the modified array.</p>
+
+<p><strong>Example:</strong> Delete the second element of an array.</p>
+
+<pre><code class="php">&gt; r(array('a','b','c','d','e','f'))-&gt;deleteAt(1)-&gt;run($conn)
+// result passed to callback
+array('a', 'c', 'd', 'e', 'f')
+</code></pre>
+
+<h3>changeAt</h3>
+
+<pre><code class="syntax">array-&gt;changeAt(index, value) &rarr; array
+</code></pre>
+
+<p>Change a value in an array at a given index. Returns the modified array.</p>
+
+<p><strong>Example:</strong> Bruce Banner hulks out.</p>
+
+<pre><code class="php">r\expr(array("Iron Man", "Bruce", "Spider-Man"))-&gt;changeAt(1, "Hulk")-&gt;run($conn)
+</code></pre>
+
+<h3>keys</h3>
+
+<pre><code class="syntax">singleSelection-&gt;keys() &rarr; array
+object-&gt;keys() &rarr; array
+</code></pre>
+
+<p>Return an array containing all of the object's keys.</p>
+
+<p><strong>Example:</strong> Get all the keys of a row.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('ironman')-&gt;keys()-&gt;run($conn)
+</code></pre>
+
+<h3>literal</h3>
+
+<pre><code class="syntax">r\literal(object) &rarr; special
+</code></pre>
+
+<p>Replace an object in a field instead of merging it with an existing object in a <code>merge</code> or <code>update</code> operation.</p>
+
+<pre><code class="php">r\table('users')-&gt;get(1)-&gt;update(array( 'data' =&gt; r\literal(array( 'age' =&gt; 19, 'job' =&gt; 'Engineer' )) ))-&gt;run($conn)
+</code></pre>
+
+<h3>object</h3>
+
+<pre><code class="syntax">r\object([key, value,]null) &rarr; object
+</code></pre>
+
+<p>Creates an object from a list of key-value pairs, where the keys must
+be strings.  <code>r.object(A, B, C, D)</code> is equivalent to
+<code>r.expr([[A, B], [C, D]]).coerce_to('OBJECT')</code>.</p>
+
+<p><strong>Example:</strong> Create a simple object.</p>
+
+<pre><code class="php">r\object('id', 5, 'data', array('foo', 'bar'))-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="String+manipulation">String manipulation</h2>
+These commands provide string operators.</p>
+
+<h3>match</h3>
+
+<pre><code class="syntax">string-&gt;match(regexp) &rarr; null/object
+</code></pre>
+
+<p>Matches against a regular expression. If there is a match, returns an object with the fields:</p>
+
+<ul>
+<li><code>str</code>: The matched string</li>
+<li><code>start</code>: The matched string's start</li>
+<li><code>end</code>: The matched string's end</li>
+<li><code>groups</code>: The capture groups defined with parentheses</li>
+</ul>
+
+<p>If no match is found, returns <code>null</code>.</p>
+
+<p><strong>Example:</strong> Get all users whose name starts with "A".</p>
+
+<pre><code class="php">r\table('users')-&gt;filter(function($doc){
+    return doc('name')-&gt;match("^A")
+})-&gt;run($conn)
+</code></pre>
+
+<h3>split</h3>
+
+<pre><code class="syntax">string-&gt;split([separator, [max_splits]]) &rarr; array
+</code></pre>
+
+<p>Splits a string into substrings.  Splits on whitespace when called
+with no arguments.  When called with a separator, splits on that
+separator.  When called with a separator and a maximum number of
+splits, splits on that separator at most <code>max_splits</code> times.  (Can be
+called with <code>null</code> as the separator if you want to split on whitespace
+while still specifying <code>max_splits</code>.)</p>
+
+<p>Mimics the behavior of Python's <code>string.split</code> in edge cases, except
+for splitting on the empty string, which instead produces an array of
+single-character strings.</p>
+
+<p><strong>Example:</strong> Split on whitespace.</p>
+
+<pre><code class="php">r\expr("foo  bar bax")-&gt;split()-&gt;run($conn)
+</code></pre>
+
+<h3>upcase</h3>
+
+<pre><code class="syntax">string-&gt;upcase() &rarr; string
+</code></pre>
+
+<p>Uppercases a string.</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code class="php">r\expr("Sentence about LaTeX.")-&gt;upcase()-&gt;run($conn)
+</code></pre>
+
+<h3>downcase</h3>
+
+<pre><code class="syntax">string-&gt;downcase() &rarr; string
+</code></pre>
+
+<p>Lowercases a string.</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code class="php">r\expr("Sentence about LaTeX.")-&gt;downcase()-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Math+and+logic">Math and logic</h2></p>
+
+<h3>add</h3>
+
+<pre><code class="syntax">number-&gt;add(number) &rarr; number
+string-&gt;add(string) &rarr; string
+array-&gt;add(array) &rarr; array
+time-&gt;add(number) &rarr; time
+</code></pre>
+
+<p>Sum two numbers, concatenate two strings, or concatenate 2 arrays.</p>
+
+<p><strong>Example:</strong> It's as easy as 2 + 2 = 4.</p>
+
+<pre><code class="php">r\expr(2)-&gt;add(2)-&gt;run($conn)
+</code></pre>
+
+<h3>sub</h3>
+
+<pre><code class="syntax">number-&gt;sub(number) &rarr; number
+time-&gt;sub(time) &rarr; number
+time-&gt;sub(number) &rarr; time
+</code></pre>
+
+<p>Subtract two numbers.</p>
+
+<p><strong>Example:</strong> It's as easy as 2 - 2 = 0.</p>
+
+<pre><code class="php">r\expr(2)-&gt;sub(2)-&gt;run($conn)
+</code></pre>
+
+<h3>mul</h3>
+
+<pre><code class="syntax">number-&gt;mul(number) &rarr; number
+array-&gt;mul(number) &rarr; array
+</code></pre>
+
+<p>Multiply two numbers, or make a periodic array.</p>
+
+<p><strong>Example:</strong> It's as easy as 2 * 2 = 4.</p>
+
+<pre><code class="php">r\expr(2)-&gt;mul(2)-&gt;run($conn)
+</code></pre>
+
+<h3>div</h3>
+
+<pre><code class="syntax">number-&gt;div(number) &rarr; number
+</code></pre>
+
+<p>Divide two numbers.</p>
+
+<p><strong>Example:</strong> It's as easy as 2 / 2 = 1.</p>
+
+<pre><code class="php">r\expr(2)-&gt;div(2)-&gt;run($conn)
+</code></pre>
+
+<h3>mod</h3>
+
+<pre><code class="syntax">number-&gt;mod(number) &rarr; number
+</code></pre>
+
+<p>Find the remainder when dividing two numbers.</p>
+
+<p><strong>Example:</strong> It's as easy as 2 % 2 = 0.</p>
+
+<pre><code class="php">r\expr(2)-&gt;mod(2)-&gt;run($conn)
+</code></pre>
+
+<h3>and</h3>
+
+<pre><code class="syntax">bool-&gt;and(bool[, bool, null]) &rarr; bool
+r\and(bool[, bool, null]) &rarr; bool
+</code></pre>
+
+<p>Compute the logical "and" of two or more values.</p>
+
+<p><strong>Example:</strong> Return whether both <code>a</code> and <code>b</code> evaluate to true.</p>
+
+<pre><code class="php">var $a = true, $b = false;
+r\expr($a)-&gt;and($b)-&gt;run($conn);
+// result passed to callback
+false
+</code></pre>
+
+<h3>or</h3>
+
+<pre><code class="syntax">bool-&gt;or(bool[, bool, null]) &rarr; bool
+r\or(bool[, bool, null]) &rarr; bool
+</code></pre>
+
+<p>Compute the logical "or" of two or more values.</p>
+
+<p><strong>Example:</strong> Return whether either <code>a</code> or <code>b</code> evaluate to true.</p>
+
+<pre><code class="php">var $a = true, $b = false;
+r\expr($a)-&gt;or($b)-&gt;run($conn);
+// result passed to callback
+true
+</code></pre>
+
+<h3>eq</h3>
+
+<pre><code class="syntax">value-&gt;eq(value) &rarr; bool
+</code></pre>
+
+<p>Test if two values are equal.</p>
+
+<p><strong>Example:</strong> Does 2 equal 2?</p>
+
+<pre><code class="php">r\expr(2)-&gt;eq(2)-&gt;run($conn)
+</code></pre>
+
+<h3>ne</h3>
+
+<pre><code class="syntax">value-&gt;ne(value) &rarr; bool
+</code></pre>
+
+<p>Test if two values are not equal.</p>
+
+<p><strong>Example:</strong> Does 2 not equal 2?</p>
+
+<pre><code class="php">r\expr(2)-&gt;ne(2)-&gt;run($conn)
+</code></pre>
+
+<h3>gt</h3>
+
+<pre><code class="syntax">value-&gt;gt(value) &rarr; bool
+</code></pre>
+
+<p>Test if the first value is greater than other.</p>
+
+<p><strong>Example:</strong> Is 2 greater than 2?</p>
+
+<pre><code class="php">r\expr(2)-&gt;gt(2)-&gt;run($conn)
+</code></pre>
+
+<h3>ge</h3>
+
+<pre><code class="syntax">value-&gt;ge(value) &rarr; bool
+</code></pre>
+
+<p>Test if the first value is greater than or equal to other.</p>
+
+<p><strong>Example:</strong> Is 2 greater than or equal to 2?</p>
+
+<pre><code class="php">r\expr(2)-&gt;ge(2)-&gt;run($conn)
+</code></pre>
+
+<h3>lt</h3>
+
+<pre><code class="syntax">value-&gt;lt(value) &rarr; bool
+</code></pre>
+
+<p>Test if the first value is less than other.</p>
+
+<p><strong>Example:</strong> Is 2 less than 2?</p>
+
+<pre><code class="php">r\expr(2)-&gt;lt(2)-&gt;run($conn)
+</code></pre>
+
+<h3>le</h3>
+
+<pre><code class="syntax">value-&gt;le(value) &rarr; bool
+</code></pre>
+
+<p>Test if the first value is less than or equal to other.</p>
+
+<p><strong>Example:</strong> Is 2 less than or equal to 2?</p>
+
+<pre><code class="php">r\expr(2)-&gt;le(2)-&gt;run($conn)
+</code></pre>
+
+<h3>not</h3>
+
+<pre><code class="syntax">bool-&gt;not() &rarr; bool
+not(bool) &rarr; bool
+</code></pre>
+
+<p>Compute the logical inverse (not) of an expression.</p>
+
+<p><code>not</code> can be called either via method chaining, immediately after an expression that evaluates as a boolean value, or by passing the expression as a parameter to <code>not</code>.</p>
+
+<p><strong>Example:</strong> Not true is false.</p>
+
+<pre><code class="php">r(true)-&gt;not()-&gt;run($conn)
+r\not(true)-&gt;run($conn)
+</code></pre>
+
+<h3>random</h3>
+
+<pre><code class="syntax">r\random() &rarr; number
+r\random(number[, number], array(float =&gt; true)) &rarr; number
+r\random(integer[, integer]) &rarr; integer
+</code></pre>
+
+<p>Generate a random number between given (or implied) bounds. <code>random</code> takes zero, one or two arguments.</p>
+
+<p><strong>Example:</strong> Generate a random number in the range <code>[0,1)</code></p>
+
+<pre><code class="php">r\random()-&gt;run($conn)
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Dates+and+times">Dates and times</h2></p>
+
+<h3>now</h3>
+
+<pre><code class="syntax">r\now() &rarr; time
+</code></pre>
+
+<p>Return a time object representing the current time in UTC. The command now() is computed once when the server receives the query, so multiple instances of r.now() will always return the same time inside a query.</p>
+
+<p><strong>Example:</strong> Add a new user with the time at which he subscribed.</p>
+
+<pre><code class="php">r\table("users")-&gt;insert(array(
+    'name' =&gt; "John",
+    'subscription_date' =&gt; r\now()
+))-&gt;run($conn)
+</code></pre>
+
+<h3>time</h3>
+
+<pre><code class="syntax">r\time(year, month, day[, hour, minute, second], timezone)
+    &rarr; time
+</code></pre>
+
+<p>Create a time object for a specific time.</p>
+
+<p>A few restrictions exist on the arguments:</p>
+
+<ul>
+<li><code>year</code> is an integer between 1400 and 9,999.</li>
+<li><code>month</code> is an integer between 1 and 12.</li>
+<li><code>day</code> is an integer between 1 and 31.</li>
+<li><code>hour</code> is an integer.</li>
+<li><code>minutes</code> is an integer.</li>
+<li><code>seconds</code> is a double. Its value will be rounded to three decimal places
+(millisecond-precision).</li>
+<li><code>timezone</code> can be <code>'Z'</code> (for UTC) or a string with the format <code>±[hh]:[mm]</code>.</li>
+</ul>
+
+<p><strong>Example:</strong> Update the birthdate of the user "John" to November 3rd, 1986 UTC.</p>
+
+<pre><code class="php">r\table("user")-&gt;get("John")-&gt;update(array('birthdate' =&gt; r\time(1986, 11, 3, 'Z')))
+    -&gt;run($conn)
+</code></pre>
+
+<h3>epochTime</h3>
+
+<pre><code class="syntax">r\epochTime(epochTime) &rarr; time
+</code></pre>
+
+<p>Create a time object based on seconds since epoch. The first argument is a double and
+will be rounded to three decimal places (millisecond-precision).</p>
+
+<p><strong>Example:</strong> Update the birthdate of the user "John" to November 3rd, 1986.</p>
+
+<pre><code class="php">r\table("user")-&gt;get("John")-&gt;update(array('birthdate' =&gt; r\epochTime(531360000)))
+    -&gt;run($conn)
+</code></pre>
+
+<h3>ISO8601</h3>
+
+<pre><code class="syntax">r\ISO8601(iso8601Date[, array('defaultTimezone' =&gt;'')]) &rarr; time
+</code></pre>
+
+<p>Create a time object based on an ISO 8601 date-time string (e.g. '2013-01-01T01:01:01+00:00'). We support all valid ISO 8601 formats except for week dates. If you pass an ISO 8601 date-time without a time zone, you must specify the time zone with the <code>defaultTimezone</code> argument. Read more about the ISO 8601 format at <a href="http://en.wikipedia.org/wiki/ISO_8601">Wikipedia</a>.</p>
+
+<p><strong>Example:</strong> Update the time of John's birth.</p>
+
+<pre><code class="php">r\table("user")-&gt;get("John")-&gt;update(array('birth' =&gt; r\ISO8601('1986-11-03T08:30:00-07:00')))-&gt;run($conn)
+</code></pre>
+
+<h3>inTimezone</h3>
+
+<pre><code class="syntax">time-&gt;inTimezone(timezone) &rarr; time
+</code></pre>
+
+<p>Return a new time object with a different timezone. While the time stays the same, the results returned by methods such as hours() will change since they take the timezone into account. The timezone argument has to be of the ISO 8601 format.</p>
+
+<p><strong>Example:</strong> Hour of the day in San Francisco (UTC/GMT -8, without daylight saving time).</p>
+
+<pre><code class="php">r\now()-&gt;inTimezone('-08:00')-&gt;hours()-&gt;run($conn)
+</code></pre>
+
+<h3>timezone</h3>
+
+<pre><code class="syntax">time-&gt;timezone() &rarr; string
+</code></pre>
+
+<p>Return the timezone of the time object.</p>
+
+<p><strong>Example:</strong> Return all the users in the "-07:00" timezone.</p>
+
+<pre><code class="php">r\table("users")-&gt;filter( function($user) {
+    return user("subscriptionDate")-&gt;timezone()-&gt;eq("-07:00")
+})
+</code></pre>
+
+<h3>during</h3>
+
+<pre><code class="syntax">time-&gt;during(startTime, endTime[, options]) &rarr; bool
+</code></pre>
+
+<p>Return if a time is between two other times (by default, inclusive for the start, exclusive for the end).</p>
+
+<p><strong>Example:</strong> Retrieve all the posts that were posted between December 1st, 2013 (inclusive) and December 10th, 2013 (exclusive).</p>
+
+<pre><code class="php">r\table("posts")-&gt;filter(
+    r\row('date')-&gt;during(r\time(2013, 12, 1), r\time(2013, 12, 10))
+)-&gt;run($conn)
+</code></pre>
+
+<h3>date</h3>
+
+<pre><code class="syntax">time-&gt;date() &rarr; time
+</code></pre>
+
+<p>Return a new time object only based on the day, month and year (ie. the same day at 00:00).</p>
+
+<p><strong>Example:</strong> Retrieve all the users whose birthday is today</p>
+
+<pre><code class="php">r\table("users")-&gt;filter(function($user) {
+    return user("birthdate")-&gt;date()-&gt;eq(r\now()-&gt;date())
+})-&gt;run($conn)
+</code></pre>
+
+<h3>timeOfDay</h3>
+
+<pre><code class="syntax">time-&gt;timeOfDay() &rarr; number
+</code></pre>
+
+<p>Return the number of seconds elapsed since the beginning of the day stored in the time object.</p>
+
+<p><strong>Example:</strong> Retrieve posts that were submitted before noon.</p>
+
+<pre><code class="php">r\table("posts")-&gt;filter(
+    r\row("date")-&gt;timeOfDay()-&gt;le(12*60*60)
+)-&gt;run($conn)
+</code></pre>
+
+<h3>year</h3>
+
+<pre><code class="syntax">time-&gt;year() &rarr; number
+</code></pre>
+
+<p>Return the year of a time object.</p>
+
+<p><strong>Example:</strong> Retrieve all the users born in 1986.</p>
+
+<pre><code class="php">r\table("users")-&gt;filter(function($user) {
+    return user("birthdate")-&gt;year()-&gt;eq(1986)
+})-&gt;run($conn)
+</code></pre>
+
+<h3>month</h3>
+
+<pre><code class="syntax">time-&gt;month() &rarr; number
+</code></pre>
+
+<p>Return the month of a time object as a number between 1 and 12. For your convenience, the terms r.january, r.february etc. are defined and map to the appropriate integer.</p>
+
+<p><strong>Example:</strong> Retrieve all the users who were born in November.</p>
+
+<pre><code class="php">r\table("users")-&gt;filter(
+    r\row("birthdate")-&gt;month()-&gt;eq(11)
+)
+</code></pre>
+
+<h3>day</h3>
+
+<pre><code class="syntax">time-&gt;day() &rarr; number
+</code></pre>
+
+<p>Return the day of a time object as a number between 1 and 31.</p>
+
+<p><strong>Example:</strong> Return the users born on the 24th of any month.</p>
+
+<pre><code class="php">r\table("users")-&gt;filter(
+    r\row("birthdate")-&gt;day()-&gt;eq(24)
+)-&gt;run($conn)
+</code></pre>
+
+<h3>dayOfWeek</h3>
+
+<pre><code class="syntax">time-&gt;dayOfWeek() &rarr; number
+</code></pre>
+
+<p>Return the day of week of a time object as a number between 1 and 7 (following ISO 8601 standard). For your convenience, the terms r.monday, r.tuesday etc. are defined and map to the appropriate integer.</p>
+
+<p><strong>Example:</strong> Return today's day of week.</p>
+
+<pre><code class="php">r\now()-&gt;dayOfWeek()-&gt;run($conn)
+</code></pre>
+
+<h3>dayOfYear</h3>
+
+<pre><code class="syntax">time-&gt;dayOfYear() &rarr; number
+</code></pre>
+
+<p>Return the day of the year of a time object as a number between 1 and 366 (following ISO 8601 standard).</p>
+
+<p><strong>Example:</strong> Retrieve all the users who were born the first day of a year.</p>
+
+<pre><code class="php">r\table("users")-&gt;filter(
+    r\row("birthdate")-&gt;dayOfYear()-&gt;eq(1)
+)
+</code></pre>
+
+<h3>hours</h3>
+
+<pre><code class="syntax">time-&gt;hours() &rarr; number
+</code></pre>
+
+<p>Return the hour in a time object as a number between 0 and 23.</p>
+
+<p><strong>Example:</strong> Return all the posts submitted after midnight and before 4am.</p>
+
+<pre><code class="php">r\table("posts")-&gt;filter(function($post) {
+    return post("date")-&gt;hours()-&gt;lt(4)
+})
+</code></pre>
+
+<h3>minutes</h3>
+
+<pre><code class="syntax">time-&gt;minutes() &rarr; number
+</code></pre>
+
+<p>Return the minute in a time object as a number between 0 and 59.</p>
+
+<p><strong>Example:</strong> Return all the posts submitted during the first 10 minutes of every hour.</p>
+
+<pre><code class="php">r\table("posts")-&gt;filter(function($post) {
+    return post("date")-&gt;minutes()-&gt;lt(10)
+})
+</code></pre>
+
+<h3>seconds</h3>
+
+<pre><code class="syntax">time-&gt;seconds() &rarr; number
+</code></pre>
+
+<p>Return the seconds in a time object as a number between 0 and 59.999 (double precision).</p>
+
+<p><strong>Example:</strong> Return the post submitted during the first 30 seconds of every minute.</p>
+
+<pre><code class="php">r\table("posts")-&gt;filter(function($post) {
+    return post("date")-&gt;seconds()-&gt;lt(30)
+})
+</code></pre>
+
+<h3>toISO8601</h3>
+
+<pre><code class="syntax">time-&gt;toISO8601() &rarr; string
+</code></pre>
+
+<p>Convert a time object to its iso 8601 format.</p>
+
+<p><strong>Example:</strong> Return the current time in an ISO8601 format.</p>
+
+<pre><code class="php">r\now()-&gt;toISO8601()
+</code></pre>
+
+<h3>toEpochTime</h3>
+
+<pre><code class="syntax">time-&gt;toEpochTime() &rarr; number
+</code></pre>
+
+<p>Convert a time object to its epoch time.</p>
+
+<p><strong>Example:</strong> Return the current time in seconds since the Unix Epoch with millisecond-precision.</p>
+
+<pre><code class="php">r\now()-&gt;toEpochTime()
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Control+structures">Control structures</h2></p>
+
+<h3>args</h3>
+
+<pre><code class="syntax">r\args(array) &rarr; special
+</code></pre>
+
+<p><code>r.args</code> is a special term that's used to splice an array of arguments
+into another term.  This is useful when you want to call a variadic
+term such as <code>getAll</code> with a set of arguments produced at runtime.</p>
+
+<p>This is analogous to using <strong>apply</strong> in JavaScript.</p>
+
+<p><strong>Example:</strong> Get Alice and Bob from the table <code>people</code>.</p>
+
+<pre><code class="php">r\table('people')-&gt;getAll('Alice', 'Bob')-&gt;run($conn)
+// or
+r\table('people')-&gt;getAll(r\args(array('Alice', 'Bob')))-&gt;run($conn)
+</code></pre>
+
+<h3>binary</h3>
+
+<pre><code class="syntax">r\binary(data) &rarr; binary
+</code></pre>
+
+<p>Encapsulate binary data within a query.</p>
+
+<p><strong>Example:</strong> Save an avatar image to a existing user record.</p>
+
+<pre><code class="php">var $fs = require('fs');
+$fs-&gt;readFile('./defaultAvatar.png', function ($err, $avatarImage) {
+    if ($err) array(
+        // Handle error
+    )
+    else array(
+        r\table('users')-&gt;get(100)-&gt;update(array(
+            'avatar' =&gt; $avatarImage
+        ))
+    )
+});
+</code></pre>
+
+<h3>do</h3>
+
+<pre><code class="syntax">any-&gt;do(function) &rarr; any
+r\do([args]*, function) &rarr; any
+any-&gt;do(expr) &rarr; any
+r\do([args]*, expr) &rarr; any
+</code></pre>
+
+<p>Evaluate an expression and pass its values as arguments to a function or to an expression.</p>
+
+<p><strong>Example:</strong> Compute a golfer's net score for a game.</p>
+
+<pre><code class="php">r\table('players')-&gt;get('f19b5f16-ef14-468f-bd48-e194761df255')-&gt;do(
+    function ($player) {
+        return player('gross_score')-&gt;sub(player('course_handicap'));
+    }
+)-&gt;run($conn);
+</code></pre>
+
+<h3>branch</h3>
+
+<pre><code class="syntax">r\branch(test, true_branch, false_branch) &rarr; any
+</code></pre>
+
+<p>If the <code>test</code> expression returns <code>false</code> or <code>null</code>, the <code>false_branch</code> will be evaluated.
+Otherwise, the <code>true_branch</code> will be evaluated.</p>
+
+<p>The <code>branch</code> command is effectively an <code>if</code> renamed due to language constraints.
+The type of the result is determined by the type of the branch that gets executed.</p>
+
+<p><strong>Example:</strong> Return heroes and superheroes.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;map(
+    r\branch(
+        r\row('victories')-&gt;gt(100),
+        r\row('name')-&gt;add(' is a superhero'),
+        r\row('name')-&gt;add(' is a hero')
+    )
+)-&gt;run($conn)
+</code></pre>
+
+<h3>forEach</h3>
+
+<pre><code class="syntax">sequence-&gt;forEach(write_query) &rarr; object
+</code></pre>
+
+<p>Loop over a sequence, evaluating the given write query for each element.</p>
+
+<p><strong>Example:</strong> Now that our heroes have defeated their villains, we can safely remove them from the villain table.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;forEach(function($hero) {
+    return r\table('villains')-&gt;get(hero('villainDefeated'))-&gt;delete()
+})-&gt;run($conn)
+</code></pre>
+
+<h3>range</h3>
+
+<pre><code class="syntax">r\range() &rarr; stream
+r\range([startValue, ]endValue) &rarr; stream
+</code></pre>
+
+<p>Generate a stream of sequential integers in a specified range.</p>
+
+<p><strong>Example:</strong> Return a four-element range of <code>[0, 1, 2, 3]</code>.</p>
+
+<pre><code class="php">&gt; r\range(4)-&gt;run($conn)
+
+array(0, 1, 2, 3)
+</code></pre>
+
+<h3>error</h3>
+
+<pre><code class="syntax">r\error(message) &rarr; error
+</code></pre>
+
+<p>Throw a runtime error. If called with no arguments inside the second argument to <code>default</code>, re-throw the current error.</p>
+
+<p><strong>Example:</strong> Iron Man can't possibly have lost a battle:</p>
+
+<pre><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;do(function($ironman) {
+    return r\branch(ironman('victories')-&gt;lt(ironman('battles')),
+        r\error('impossible code path'),
+        $ironman)
+})-&gt;run($conn)
+</code></pre>
+
+<h3>default</h3>
+
+<pre><code class="syntax">value-&gt;default(default_value) &rarr; any
+sequence-&gt;default(default_value) &rarr; any
+</code></pre>
+
+<p>Handle non-existence errors. Tries to evaluate and return its first argument. If an
+error related to the absence of a value is thrown in the process, or if its first
+argument returns <code>null</code>, returns its second argument. (Alternatively, the second argument
+may be a function which will be called with either the text of the non-existence error
+or <code>null</code>.)</p>
+
+<p><strong>Example:</strong> Suppose we want to retrieve the titles and authors of the table <code>posts</code>.
+In the case where the author field is missing or <code>null</code>, we want to retrieve the string
+<code>Anonymous</code>.</p>
+
+<pre><code class="php">r\table("posts")-&gt;map( function($post) {
+    return array(
+        'title' =&gt; post("title"),
+        'author' =&gt; post("author")-&gt;default("Anonymous")
+    )
+})-&gt;run($conn)
+</code></pre>
+
+<h3>expr</h3>
+
+<pre><code class="syntax">r\expr(value) &rarr; value
+</code></pre>
+
+<p>Construct a ReQL JSON object from a native object.</p>
+
+<p><strong>Example:</strong> Objects wrapped with <code>expr</code> can then be manipulated by ReQL API functions.</p>
+
+<pre><code class="php">r\expr(array('a' =&gt;'b'))-&gt;merge(array('b' =&gt;array(1,2,3)))-&gt;run($conn)
+</code></pre>
+
+<h3>js</h3>
+
+<pre><code class="syntax">r\js(jsString[, array('timeout' =&gt; &lt;number&gt;)]) &rarr; value
+</code></pre>
+
+<p>Create a javascript expression.</p>
+
+<p><strong>Example:</strong> Concatenate two strings using JavaScript.</p>
+
+<pre><code class="php">r\js("'str1' + 'str2'")-&gt;run($conn)
+</code></pre>
+
+<h3>coerceTo</h3>
+
+<pre><code class="syntax">sequence-&gt;coerceTo('array') &rarr; array
+value-&gt;coerceTo('string') &rarr; string
+string-&gt;coerceTo('number') &rarr; number
+array-&gt;coerceTo('object') &rarr; object
+object-&gt;coerceTo('array') &rarr; array
+binary-&gt;coerceTo('string') &rarr; string
+</code></pre>
+
+<p>Convert a value of one type into another.</p>
+
+<p><strong>Example:</strong> Coerce a stream to an array.</p>
+
+<pre><code class="php">r\table('posts')-&gt;map(function ($post) {
+    $post-&gt;merge(array( 'comments' =&gt; r\table('comments')-&gt;getAll(post('id'), array('index' =&gt; 'postId'))-&gt;coerceTo('array')));
+})-&gt;run($conn)
+</code></pre>
+
+<h3>typeOf</h3>
+
+<pre><code class="syntax">any-&gt;typeOf() &rarr; string
+</code></pre>
+
+<p>Gets the type of a value.</p>
+
+<p><strong>Example:</strong> Get the type of a string.</p>
+
+<pre><code class="php">r\expr("foo")-&gt;typeOf()-&gt;run($conn)
+</code></pre>
+
+<h3>info</h3>
+
+<pre><code class="syntax">any-&gt;info() &rarr; object
+</code></pre>
+
+<p>Get information about a ReQL value.</p>
+
+<p><strong>Example:</strong> Get information about a table such as primary key, or cache size.</p>
+
+<pre><code class="php">r\table('marvel')-&gt;info()-&gt;run($conn)
+</code></pre>
+
+<h3>json</h3>
+
+<pre><code class="syntax">r\json(json_string) &rarr; value
+</code></pre>
+
+<p>Parse a JSON string on the server.</p>
+
+<p><strong>Example:</strong> Send an array to the server.</p>
+
+<pre><code class="php">r\json("[1,2,3]")-&gt;run($conn)
+</code></pre>
+
+<h3>toJsonString, toJSON</h3>
+
+<pre><code class="syntax">value-&gt;toJsonString() &rarr; string
+value-&gt;toJSON() &rarr; string
+</code></pre>
+
+<p>Convert a ReQL value or object to a JSON string. You may use either <code>toJsonString</code> or <code>toJSON</code>.</p>
+
+<p><strong>Example:</strong> Get a ReQL document as a JSON string.</p>
+
+<pre><code class="php">&gt; r\table('hero')-&gt;get(1)-&gt;toJson()
+// result returned to callback
+'{"id": 1, "name": "Batman", "city": "Gotham", "powers": ["martial arts", "cinematic entrances"]}'
+</code></pre>
+
+<h3>http</h3>
+
+<pre><code class="syntax">r\http(url [, options]) &rarr; value
+</code></pre>
+
+<p>Retrieve data from the specified URL over HTTP.  The return type depends on the <code>resultFormat</code> option, which checks the <code>Content-Type</code> of the response by default.</p>
+
+<p><strong>Example:</strong> Perform a simple HTTP <code>GET</code> request, and store the result in a table.</p>
+
+<pre><code class="php">r\table('posts')-&gt;insert(r\http('http://httpbin.org/get'))-&gt;run($conn)
+</code></pre>
+
+<h3>uuid</h3>
+
+<pre><code class="syntax">r\uuid() &rarr; string
+</code></pre>
+
+<p>Return a UUID (universally unique identifier), a string that can be used as a unique ID.</p>
+
+<p><strong>Example:</strong> Generate a UUID.</p>
+
+<pre><code class="php">&gt; r\uuid()-&gt;run($conn)
+// result returned to callback
+27961$a0e-$f4e8-4$eb3-$bf95-$c5203e1d87b9
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Geospatial+commands">Geospatial commands</h2></p>
+
+<h3>circle</h3>
+
+<pre><code class="syntax">r\circle([longitude, latitude], radius[, array('numVertices' =&gt; 32, 'geoSystem' =&gt; 'WGS84', 'unit' =&gt; 'm', 'fill' =&gt; true)]) &rarr; geometry
+r\circle(point, radius[, array('numVertices' =&gt; 32, 'geoSystem' =&gt; 'WGS84', 'unit' =&gt; 'm', 'fill' =&gt; true)]) &rarr; geometry
+</code></pre>
+
+<p>Construct a circular line or polygon. A circle in RethinkDB is a polygon or line <em>approximating</em> a circle of a given radius around a given center, consisting of a specified number of vertices (default 32).</p>
+
+<p><strong>Example:</strong> Define a circle.</p>
+
+<pre><code class="php">r\table('geo')-&gt;insert(array(
+    'id' =&gt; 300,
+    'name' =&gt; 'Hayes Valley',
+    'neighborhood' =&gt; r\circle(array(-122.423246,37.779388), 1000)
+))-&gt;run($conn);
+</code></pre>
+
+<h3>distance</h3>
+
+<pre><code class="syntax">geometry-&gt;distance(geometry[, array('geoSystem' =&gt; 'WGS84', 'unit' =&gt; 'm')]) &rarr; number
+</code></pre>
+
+<p>Compute the distance between a point and another geometry object. At least one of the geometry objects specified must be a point.</p>
+
+<p><strong>Example:</strong> Compute the distance between two points on the Earth in kilometers.</p>
+
+<pre><code class="php">var $point1 = r\point(-122.423246,37.779388);
+var $point2 = r\point(-117.220406,32.719464);
+r\distance($point1, $point2, array('unit' =&gt; 'km'))-&gt;run($conn);
+// result returned to callback 
+734.1252496021841
+</code></pre>
+
+<h3>fill</h3>
+
+<pre><code class="syntax">line-&gt;fill() &rarr; polygon
+</code></pre>
+
+<p>Convert a Line object into a Polygon object. If the last point does not specify the same coordinates as the first point, <code>polygon</code> will close the polygon by connecting them.</p>
+
+<p><strong>Example:</strong> Create a line object and then convert it to a polygon.</p>
+
+<pre><code class="php">r\table('geo')-&gt;insert(array(
+    'id' =&gt; 201,
+    'rectangle' =&gt; r\line(
+        array(-122.423246,37.779388),
+        array(-122.423246,37.329898),
+        array(-121.886420,37.329898),
+        array(-121.886420,37.779388)
+    )
+))-&gt;run($conn);
+
+r\table('geo')-&gt;get(201)-&gt;update(array(
+    'rectangle' =&gt; r\row('rectangle')-&gt;fill()
+))-&gt;run($conn);
+</code></pre>
+
+<h3>geojson</h3>
+
+<pre><code class="syntax">r\geojson(geojson) &rarr; geometry
+</code></pre>
+
+<p>Convert a <a href="http://geojson.org">GeoJSON</a> object to a ReQL geometry object.</p>
+
+<p><strong>Example:</strong> Convert a GeoJSON object to a ReQL geometry object.</p>
+
+<pre><code class="php">var $geoJson = array(
+    'type' =&gt; 'Point',
+    'coordinates' =&gt; array( -122.423246, 37.779388 )
+);
+r\table('geo')-&gt;insert(array(
+    'id' =&gt; 'sfo',
+    'name' =&gt; 'San Francisco',
+    'location' =&gt; r\geojson($geoJson)
+))-&gt;run($conn);
+</code></pre>
+
+<h3>toGeojson</h3>
+
+<pre><code class="syntax">geometry-&gt;toGeojson() &rarr; object
+</code></pre>
+
+<p>Convert a ReQL geometry object to a <a href="http://geojson.org">GeoJSON</a> object.</p>
+
+<p><strong>Example:</strong> Convert a ReQL geometry object to a GeoJSON object.</p>
+
+<pre><code class="php">r\table($geo)-&gt;get('sfo')-&gt;getField('location')-&gt;$toGeojson-&gt;run($conn);
+// result passed to callback
+array(
+    'type' =&gt; 'Point',
+    'coordinates' =&gt; array( -122.423246, 37.779388 )
+)
+</code></pre>
+
+<h3>getIntersecting</h3>
+
+<pre><code class="syntax">table-&gt;getIntersecting(geometry, array('index' =&gt; 'indexname')) &rarr; selection&lt;array&gt;
+</code></pre>
+
+<p>Get all documents where the given geometry object intersects the geometry object of the requested geospatial index.</p>
+
+<p><strong>Example:</strong> Which of the locations in a list of parks intersect <code>circle1</code>?</p>
+
+<pre><code class="php">var $circle1 = r\circle(array(-117.220406,32.719464), 10, array('unit' =&gt; 'mi'));
+r\table('parks')-&gt;getIntersecting($circle1, array('index' =&gt; 'area'))-&gt;run($conn);
+</code></pre>
+
+<h3>getNearest</h3>
+
+<pre><code class="syntax">table-&gt;getNearest(point, array('index' =&gt; 'indexname'[, 'maxResults' =&gt; 100, 'maxDist' =&gt; 100000, 'unit' =&gt; 'm', 'geoSystem' =&gt; 'WGS84'])) &rarr; selection&lt;array&gt;
+</code></pre>
+
+<p>Get all documents where the specified geospatial index is within a certain distance of the specified point (default 100 kilometers).</p>
+
+<p><strong>Example:</strong> Return a list of enemy hideouts within 5000 meters of the secret base.</p>
+
+<pre><code class="php">var $secretBase = r\point(-122.422876,37.777128);
+r\table('hideouts')-&gt;getNearest($secretBase,
+    array('index' =&gt; 'location', 'maxDist' =&gt; 5000)
+)-&gt;run($conn)
+</code></pre>
+
+<h3>includes</h3>
+
+<pre><code class="syntax">sequence-&gt;includes(geometry) &rarr; sequence
+geometry-&gt;includes(geometry) &rarr; bool
+</code></pre>
+
+<p>Tests whether a geometry object is completely contained within another. When applied to a sequence of geometry objects, <code>includes</code> acts as a <a href="/api/javascript/filter">filter</a>, returning a sequence of objects from the sequence that include the argument.</p>
+
+<p><strong>Example:</strong> Is <code>point2</code> included within a 2000-meter circle around <code>point1</code>?</p>
+
+<pre><code class="php">var $point1 = r\point(-117.220406,32.719464);
+var $point2 = r\point(-117.206201,32.725186);
+r\circle($point1, 2000)-&gt;includes($point2)-&gt;run($conn);
+// result returned to callback 
+true
+</code></pre>
+
+<h3>intersects</h3>
+
+<pre><code class="syntax">sequence-&gt;intersects(geometry) &rarr; sequence
+geometry-&gt;intersects(geometry) &rarr; bool
+</code></pre>
+
+<p>Tests whether two geometry objects intersect with one another. When applied to a sequence of geometry objects, <code>intersects</code> acts as a <a href="/api/javascript/filter">filter</a>, returning a sequence of objects from the sequence that intersect with the argument.</p>
+
+<p><strong>Example:</strong> Is <code>point2</code> within a 2000-meter circle around <code>point1</code>?</p>
+
+<pre><code class="php">var $point1 = r\point(-117.220406,32.719464);
+var $point2 = r\point(-117.206201,32.725186);
+r\circle($point1, 2000)-&gt;intersects($point2)-&gt;run($conn);
+// result returned to callback 
+true
+</code></pre>
+
+<h3>line</h3>
+
+<pre><code class="syntax">r\line([lon1, lat1], [lon2, lat1], null) &rarr; line
+r\line(point1, point2, null) &rarr; line
+</code></pre>
+
+<p>Construct a geometry object of type Line. The line can be specified in one of two ways:</p>
+
+<ul>
+<li>Two or more two-item arrays, specifying longitude and latitude numbers of the line's vertices;</li>
+<li>Two or more <a href="/api/javascript/point">Point</a> objects specifying the line's vertices.</li>
+</ul>
+
+<p><strong>Example:</strong> Define a line.</p>
+
+<pre><code class="php">r\table('geo')-&gt;insert(array(
+    'id' =&gt; 101,
+    'route' =&gt; r\line(array(-122.423246,37.779388), array(-121.886420,37.329898))
+))-&gt;run($conn);
+</code></pre>
+
+<h3>point</h3>
+
+<pre><code class="syntax">r\point(longitude, latitude) &rarr; point
+</code></pre>
+
+<p>Construct a geometry object of type Point. The point is specified by two floating point numbers, the longitude (&minus;180 to 180) and the latitude (&minus;90 to 90) of the point on a perfect sphere.</p>
+
+<p><strong>Example:</strong> Define a point.</p>
+
+<pre><code class="php">r\table('geo')-&gt;insert(array(
+    'id' =&gt; 1,
+    'name' =&gt; 'San Francisco',
+    'location' =&gt; r\point(-122.423246,37.779388)
+))-&gt;run($conn);
+</code></pre>
+
+<h3>polygon</h3>
+
+<pre><code class="syntax">r\polygon([lon1, lat1], [lon2, lat2], null) &rarr; polygon
+r\polygon(point1, point2, null) &rarr; polygon
+</code></pre>
+
+<p>Construct a geometry object of type Polygon. The Polygon can be specified in one of two ways:</p>
+
+<ul>
+<li>Three or more two-item arrays, specifying longitude and latitude numbers of the polygon's vertices;</li>
+<li>Three or more <a href="/api/javascript/point">Point</a> objects specifying the polygon's vertices.</li>
+</ul>
+
+<p><strong>Example:</strong> Define a polygon.</p>
+
+<pre><code class="php">r\table('geo')-&gt;insert(array(
+    'id' =&gt; 101,
+    'rectangle' =&gt; r\polygon(
+        array(-122.423246,37.779388),
+        array(-122.423246,37.329898),
+        array(-121.886420,37.329898),
+        array(-121.886420,37.779388)
+    )
+))-&gt;run($conn);
+</code></pre>
+
+<h3>polygonSub</h3>
+
+<pre><code class="syntax">polygon1-&gt;polygonSub(polygon2) &rarr; polygon
+</code></pre>
+
+<p>Use <code>polygon2</code> to "punch out" a hole in <code>polygon1</code>. <code>polygon2</code> must be completely contained within <code>polygon1</code> and must have no holes itself (it must not be the output of <code>polygonSub</code> itself).</p>
+
+<p><strong>Example:</strong> Define a polygon with a hole punched in it.</p>
+
+<pre><code class="php">var $outerPolygon = r\polygon(
+    array(-122.4,37.7),
+    array(-122.4,37.3),
+    array(-121.8,37.3),
+    array(-121.8,37.7)
+);
+var $innerPolygon = r\polygon(
+    array(-122.3,37.4),
+    array(-122.3,37.6),
+    array(-122.0,37.6),
+    array(-122.0,37.4)
+);
+$outerPolygon-&gt;polygonSub($innerpolygon)-&gt;run($conn);
+</code></pre>
+
+<p><hr/></p>
+
+<p><h2 id="Administration">Administration</h2></p>
+
+<h3>config</h3>
+
+<pre><code class="syntax">table-&gt;config() &rarr; selection&lt;object&gt;
+database-&gt;config() &rarr; selection&lt;object&gt;
+</code></pre>
+
+<p>Query (read and/or update) the configurations for individual tables or databases.</p>
+
+<p><strong>Example:</strong> Get the configuration for the <code>users</code> table.</p>
+
+<pre><code class="php">&gt; r\table('users')-&gt;config()-&gt;run($conn);
+</code></pre>
+
+<h3>rebalance</h3>
+
+<pre><code class="syntax">table-&gt;rebalance() &rarr; object
+database-&gt;rebalance() &rarr; object
+</code></pre>
+
+<p>Rebalances the shards of a table. When called on a database, all the tables in that database will be rebalanced.</p>
+
+<p><strong>Example:</strong> Rebalance a table.</p>
+
+<pre><code class="php">&gt; r\table('superheroes')-&gt;rebalance()-&gt;run($conn);
+</code></pre>
+
+<h3>reconfigure</h3>
+
+<pre><code class="syntax">table-&gt;reconfigure(array('shards' =&gt; &lt;s&gt;, 'replicas' =&gt; &lt;r&gt;[, 'primaryReplicaTag' =&gt; &lt;t&gt;, 'dryRun' =&gt; false)]) &rarr; object
+database-&gt;reconfigure(array('shards' =&gt; &lt;s&gt;, 'replicas' =&gt; &lt;r&gt;[, 'primaryReplicaTag' =&gt; &lt;t&gt;, 'dryRun' =&gt; false)]) &rarr; object
+</code></pre>
+
+<p>Reconfigure a table's sharding and replication.</p>
+
+<p><strong>Example:</strong> Reconfigure a table.</p>
+
+<pre><code class="php">&gt; r\table('superheroes')-&gt;reconfigure(array('shards' =&gt; 2, 'replicas' =&gt; 1))-&gt;run($conn);
+</code></pre>
+
+<h3>status</h3>
+
+<pre><code class="syntax">table-&gt;status() &rarr; selection&lt;object&gt;
+</code></pre>
+
+<p>Return the status of a table.</p>
+
+<p><strong>Example:</strong> Get a table's status.</p>
+
+<pre><code class="php">&gt; r\table('superheroes')-&gt;status()-&gt;run($conn);
+</code></pre>
+
+<h3>wait</h3>
+
+<pre><code class="syntax">table-&gt;wait([array('waitFor' =&gt; 'ready_for_writes', 'timeout' =&gt; &lt;sec&gt;)]) &rarr; object
+database-&gt;wait([array('waitFor' =&gt; 'ready_for_writes', 'timeout' =&gt; &lt;sec&gt;)]) &rarr; object
+r\wait([array('waitFor' =&gt; 'ready_for_writes', 'timeout' =&gt; &lt;sec&gt;)]) &rarr; object
+</code></pre>
+
+<p>Wait for a table or all the tables in a database to be ready. A table may be temporarily unavailable after creation, rebalancing or reconfiguring. The <code>wait</code> command blocks until the given table (or database) is fully up to date.</p>
+
+<p><strong>Example:</strong> Wait for a table to be ready.</p>
+
+<pre><code class="php">&gt; r\table('superheroes')-&gt;wait()-&gt;run($conn);
+</code></pre>
+
+<p><hr/></p>
+</body></html>
