@@ -21,7 +21,7 @@ function convertExample($js, $inApiBody = false) {
     // Pre-filter: Remove "...". This is often used as a function stub in the examples. We just replace it by null.
     $js = str_replace("...", "null", $js);
 
-    $tokens = j_token_get_all($js);
+    @$tokens = j_token_get_all($js);
     
     // Based on the token_highlight example code
     $lines = array('');
