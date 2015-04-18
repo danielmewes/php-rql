@@ -8,7 +8,7 @@ PHP-RQL is licensed under the terms of the Apache License 2.0 http://www.apache.
 Documentation
 ----------------
 
-You can find the API documentation at http://php-rql.dnsalias.net/api.
+Read the PHP-RQL [http://danielmewes.dnsalias.net/~daniel/php-rql-api/](API documentation).
 
 The official [http://rethinkdb.com/api/javascript/](JavaScript driver documentation) has more details on the available terms. Most examples for the JavaScript driver can be translated to PHP-RQL with few changes.
 
