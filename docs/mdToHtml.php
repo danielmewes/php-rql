@@ -13,11 +13,11 @@ $input = preg_replace_callback('|\{% apibody %\}((.*\n)*?)\{% endapibody %\}|m',
 $output = \Michelf\MarkdownExtra::defaultTransform($input);
 $output = str_replace('<h2>', '<h3>', $output);
 $output = str_replace('</h2>', '</h3>', $output);
-$output = preg_replace('|<p>\{% apibody %\}.*\n|', '<pre><code class="syntax">', $output);
-$output = str_replace('{% endapibody %}</p>', '</code></pre>', $output);
+$output = preg_replace_callback('|<p>\{% apibody %\}.*\n((.*\n)*?).*\{% endapibody %\}</p>|', function ($matches) { return '<pre class="syntax"><code class="syntax">' . $matches[1] . '</code></pre>'; }, $output);
+$output = preg_replace_callback('|<pre>(<code class="php">((.*\n)*?).*\</code></pre>)|', function ($matches) { return '<pre class="example">' . $matches[1]; }, $output);
 $sections = array();
 $output = preg_replace_callback('|\{% apisection (.*) %\}|', function($matches) use(&$sections) { $sections[] = $matches[1]; return '<h2 id="' . urlencode($matches[1]) . '">' . $matches[1] . '</h2>'; }, $output);
-$output = str_replace('{% endapisection %}', '<hr/>', $output);
+$output = str_replace('{% endapisection %}', '', $output);
 
 echo '<html><head><link rel="stylesheet" type="text/css" href="api.css"></head><body>';
 echo '<h1>PHP-RQL API reference</h1>';
