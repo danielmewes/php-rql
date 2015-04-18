@@ -36,15 +36,26 @@
 <p>PHP-RQL provides a driver to access <a href="http://rethinkdb.com">RethinkDB</a> databases from PHP code.
 It is licensed under the terms of the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
 
-<p>Documentation is available in our Wiki: <a href="http://php-rql.dnsalias.net/wiki/">http://php-rql.dnsalias.net/wiki/</a></p>
+<p>Read the example below or the <a href="http://danielmewes.dnsalias.net/%7Edaniel/php-rql-api/">API documentation</a> to find out more.</p>
 
 <h2>
 <a id="updates" class="anchor" href="#updates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>04/18/2015 New release: PHP-RQL 2.0.0. PHP-RQL 2.0.0 is <em>not backwards compatible</em> to previous releases of PHP-RQL. Besides full support for <a href="http://rethinkdb.com/blog/2.0-release/">RethinkDB 2.0</a> features, there are a number of important changes in this release:
+
+<ul>
+<li>
+<code>toNative()</code> is no longer necessary nor available. Calling <code>run()</code> on a query that returns a single datum returns native PHP types immediately. If the query returns a cursor, an object of type <code>r\Cursor</code> is returned as in previous version. However iterating over the cursor will give you native PHP types without a need to call <code>toNative()</code>.</li>
+<li>RethinkDB objects are now returned as instances of PHP's <a href="http://php.net/manual/en/class.arrayobject.php">ArrayObject</a>, thanks to a patch by <a href="https://github.com/wojons" class="user-mention">@wojons</a>. While you can use these objects as if they were associative arrays, be careful if you used to check for <code>is_array</code> in your code.</li>
+<li>Date/time objects are now returned as PHP <a href="http://php.net/manual/en/class.datetime.php">DateTime</a> objects, thanks to a patch by <a href="https://github.com/duxet" class="user-mention">@duxet</a>. You can still obtain the raw RethinkDB objects by passing <code>dateFormat =&gt; "raw"</code> as an optional argument to <code>run()</code>.</li>
+<li>The deprecated <code>attr</code> term has been removed. You can use the identical <code>getField</code> instead.</li>
+<li>A deprecated syntax for specifying a secondary index for <code>getAll</code>, <code>between</code>, <code>orderBy</code>, <code>eqJoin</code> and other terms has been removed. Secondary index names must now be specified as an optional <code>index</code> argument, e.g. <code>table-&gt;getAll("key", array("index" =&gt; "indexName"))</code> instead of the old <code>table-&gt;getAll("key", "indexName")</code>.</li>
+<li>The API documentation system has been replaced. The documentation is now again based on RethinkDB's official JavaScript driver documentation, and is available at <a href="http://danielmewes.dnsalias.net/%7Edaniel/php-rql-api/">http://danielmewes.dnsalias.net/~daniel/php-rql-api/</a>.</li>
+</ul>
+</li>
 <li>02/06/2015 New release: PHP-RQL 1.16.0. Support for new features in <a href="http://rethinkdb.com/blog/1.16-release/">RethinkDB 1.16</a>. Introduces a new <code>r\mapMultiple()</code> term to apply a map to multiple streams.</li>
 <li>12/09/2014 New release: PHP-RQL 1.15.1. Fixes an <a href="https://github.com/danielmewes/php-rql/issues/72">issue</a> with HHVM.</li>
-<li>10/01/2014 New release: PHP-RQL 1.15.0. Support for new features in <a href="http://rethinkdb.com/blog/1.15-release/">RethinkDB 1.15</a>. Namely <code>r\uuid()</code> and geospatial terms. In PHP-RQL, you can create a geospatial index through the <code>table-&gt;indexCreateGeo()</code> term. A geospatial multi index can be created through <code>table-&gt;indexCreateMultiGeo()</code>.</li>
 </ul>
 
 <h2>
@@ -52,7 +63,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 1.15</li>
+<li>RethinkDB 2.0</li>
 </ul>
 
 <h2>
@@ -75,50 +86,51 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <h2>
 <a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h2>
 
-<div class="highlight highlight-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-c">// Load the driver</span></span>
-<span class="pl-s2">    <span class="pl-k">require_once</span>(<span class="pl-s1"><span class="pl-pds">"</span>rdb/rdb.php<span class="pl-pds">"</span></span>);</span>
-<span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-c">// Connect to localhost</span></span>
-<span class="pl-s2">    <span class="pl-vo">$conn</span> <span class="pl-k">=</span> <span class="pl-s3">r\</span>connect(<span class="pl-s1"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>);</span>
-<span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-c">// Create a test table</span></span>
-<span class="pl-s2">    <span class="pl-s3">r\</span>db(<span class="pl-s1"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>tableCreate(<span class="pl-s1"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>run(<span class="pl-vo">$conn</span>);</span>
-<span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-c">// Insert a document</span></span>
-<span class="pl-s2">    <span class="pl-vo">$document</span> <span class="pl-k">=</span> <span class="pl-s3">array</span>(<span class="pl-s1"><span class="pl-pds">'</span>someKey<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s1"><span class="pl-pds">'</span>someValue<span class="pl-pds">'</span></span>);</span>
-<span class="pl-s2">    <span class="pl-vo">$result</span> <span class="pl-k">=</span> <span class="pl-s3">r\</span>table(<span class="pl-s1"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>insert(<span class="pl-vo">$document</span>)</span>
-<span class="pl-s2">        <span class="pl-k">-&gt;</span>run(<span class="pl-vo">$conn</span>);</span>
-<span class="pl-s2">    <span class="pl-s3">echo</span> <span class="pl-s1"><span class="pl-pds">"</span>Insert: <span class="pl-vo">$result</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
-<span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-c">// How many documents are in the table?</span></span>
-<span class="pl-s2">    <span class="pl-vo">$result</span> <span class="pl-k">=</span> <span class="pl-s3">r\</span>table(<span class="pl-s1"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>count()<span class="pl-k">-&gt;</span>run(<span class="pl-vo">$conn</span>);</span>
-<span class="pl-s2">    <span class="pl-s3">echo</span> <span class="pl-s1"><span class="pl-pds">"</span>Count: <span class="pl-vo">$result</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
-<span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-c">// List the someKey values of the documents in the table</span></span>
-<span class="pl-s2">    <span class="pl-c">// (using a mapping-function)</span></span>
-<span class="pl-s2">    <span class="pl-vo">$result</span> <span class="pl-k">=</span> <span class="pl-s3">r\</span>table(<span class="pl-s1"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>map(<span class="pl-st">function</span>(<span class="pl-vo">$x</span>) {</span>
-<span class="pl-s2">            <span class="pl-k">return</span> $<span class="pl-vo">x</span>(<span class="pl-s1"><span class="pl-pds">'</span>someKey<span class="pl-pds">'</span></span>);</span>
-<span class="pl-s2">        })<span class="pl-k">-&gt;</span>run(<span class="pl-vo">$conn</span>);</span>
-<span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-k">foreach</span> (<span class="pl-vo">$result</span> <span class="pl-k">as</span> <span class="pl-vo">$doc</span>) {</span>
-<span class="pl-s2">        <span class="pl-s3">echo</span> <span class="pl-s1"><span class="pl-pds">"</span>Doc: <span class="pl-vo">$doc</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
-<span class="pl-s2">    }</span>
-<span class="pl-s2"></span>
-<span class="pl-s2">    <span class="pl-c">// Delete the test table</span></span>
-<span class="pl-s2">    <span class="pl-s3">r\</span>db(<span class="pl-s1"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>tableDrop(<span class="pl-s1"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>run(<span class="pl-vo">$conn</span>);</span>
-<span class="pl-s2"></span><span class="pl-pse"><span class="pl-s2">?</span>&gt;</span></pre></div>
+<div class="highlight highlight-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// Load the driver</span></span>
+<span class="pl-s1">    <span class="pl-k">require_once</span>(<span class="pl-s"><span class="pl-pds">"</span>rdb/rdb.php<span class="pl-pds">"</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// Connect to localhost</span></span>
+<span class="pl-s1">    <span class="pl-smi">$conn</span> <span class="pl-k">=</span> <span class="pl-c1">r\</span>connect(<span class="pl-s"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// Create a test table</span></span>
+<span class="pl-s1">    <span class="pl-c1">r\</span>db(<span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>tableCreate(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// Insert a document</span></span>
+<span class="pl-s1">    <span class="pl-smi">$document</span> <span class="pl-k">=</span> <span class="pl-c1">array</span>(<span class="pl-s"><span class="pl-pds">'</span>someKey<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>someValue<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1">    <span class="pl-smi">$result</span> <span class="pl-k">=</span> <span class="pl-c1">r\</span>table(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>insert(<span class="pl-smi">$document</span>)</span>
+<span class="pl-s1">        <span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Insert: <span class="pl-smi">$result</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// How many documents are in the table?</span></span>
+<span class="pl-s1">    <span class="pl-smi">$result</span> <span class="pl-k">=</span> <span class="pl-c1">r\</span>table(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>count()<span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Count: <span class="pl-smi">$result</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// List the someKey values of the documents in the table</span></span>
+<span class="pl-s1">    <span class="pl-c">// (using a mapping-function)</span></span>
+<span class="pl-s1">    <span class="pl-smi">$result</span> <span class="pl-k">=</span> <span class="pl-c1">r\</span>table(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>map(<span class="pl-k">function</span>(<span class="pl-smi">$x</span>) {</span>
+<span class="pl-s1">            <span class="pl-k">return</span> $<span class="pl-smi">x</span>(<span class="pl-s"><span class="pl-pds">'</span>someKey<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1">        })<span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-k">foreach</span> (<span class="pl-smi">$result</span> <span class="pl-k">as</span> <span class="pl-smi">$doc</span>) {</span>
+<span class="pl-s1">        <span class="pl-c1">print_r</span>(<span class="pl-smi">$doc</span>);</span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-c">// Delete the test table</span></span>
+<span class="pl-s1">    <span class="pl-c1">r\</span>db(<span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>tableDrop(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
+<span class="pl-s1"></span><span class="pl-pse"><span class="pl-s1">?</span>&gt;</span></pre></div>
 
 <h2>
 <a id="attributions" class="anchor" href="#attributions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attributions</h2>
 
 <ul>
-<li>PHP-RQL uses code from <a href="http://code.google.com/p/pb4php/">pb4php</a> by Nikolai Kordulla.</li>
-<li>The documentation system and most of the API documentation (except for PHP-specific parts) are from <a href="http://rethinkdb.com">RethinkDB</a>, as is the protocol specification used.</li>
+<li>PHP-RQL uses pb4php <a href="http://code.google.com/p/pb4php/">http://code.google.com/p/pb4php/</a> by Nikolai Kordulla.</li>
+<li>The API documentation is based on the official RethinkDB API documentation.</li>
+<li>The API documentation is built using jTokenizer by Tim Whitlock (<a href="http://timwhitlock.info">http://timwhitlock.info</a>) and PHP Markdown by Michel Fortin (<a href="https://michelf.ca/">https://michelf.ca/</a>).</li>
 </ul>
       </section>
       <footer>
-        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
