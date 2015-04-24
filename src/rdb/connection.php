@@ -5,9 +5,25 @@ require_once("datum.php");
 
 class Connection
 {
-    public function __construct($host, $port = 28015, $db = null, $apiKey = null, $timeout = null) {
-        if (!isset($host)) throw new RqlDriverError("No host given.");
-        if (!isset($port)) throw new RqlDriverError("No port given.");
+    public function __construct($optsOrHost = null, $port = null, $db = null, $apiKey = null, $timeout = null) {
+        if (is_array($optsOrHost)) {
+            $opts = $optsOrHost;
+            $host = null;
+        } else {
+            $opts = null;
+            $host = $optsOrHost;
+        }
+        $ssl = null;
+        if (isset($opts)) {
+            if (isset($opts['host'])) $host = $opts['host'];
+            if (isset($opts['port'])) $port = $opts['port'];
+            if (isset($opts['db'])) $db = $opts['db'];
+            if (isset($opts['apiKey'])) $apiKey = $opts['apiKey'];
+            if (isset($opts['timeout'])) $timeout = $opts['timeout'];
+            if (isset($opts['ssl'])) $ssl = $opts['ssl'];
+        }
+        if (!isset($host)) $host = "localhost";
+        if (!isset($port)) $port = 28015;
         if (isset($apiKey) && !is_string($apiKey)) throw new RqlDriverError("The API key must be a string.");
 
         $this->host = $host;
@@ -16,6 +32,7 @@ class Connection
             $apiKey = "";
         $this->apiKey = $apiKey;
         $this->timeout = null;
+        $this->ssl = $ssl;
 
         if (isset($db))
             $this->useDb($db);
@@ -32,7 +49,7 @@ class Connection
 
     public function close($noreplyWait = true) {
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
-        
+
         if ($noreplyWait) {
             $this->noreplyWait();
         }
@@ -268,7 +285,16 @@ class Connection
     private function connect() {
         if ($this->isOpen()) throw new RqlDriverError("Already connected");
 
-        $this->socket = stream_socket_client("tcp://" . $this->host . ":" . $this->port, $errno, $errstr);
+        if ($this->ssl) {
+            if(is_array($this->ssl)) {
+                $context = stream_context_create(array("ssl" => $this->ssl));
+            } else {
+                $context = null;
+            }
+            $this->socket = stream_socket_client("ssl://" . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $context);
+        } else {
+            $this->socket = stream_socket_client("tcp://" . $this->host . ":" . $this->port, $errno, $errstr);
+        }
         if ($errno != 0 || $this->socket === false) {
             $this->socket = null;
             throw new RqlDriverError("Unable to connect: " . $errstr);
@@ -359,6 +385,7 @@ class Connection
     private $apiKey;
     private $activeTokens;
     private $timeout;
+    private $ssl;
 }
 
 ?>
