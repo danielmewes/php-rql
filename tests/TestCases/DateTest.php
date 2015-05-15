@@ -67,6 +67,9 @@ class DateTest extends TestCase
         $this->checkQueryResult(r\iso8601("1997-07-16T19:20:30.453+01:00"), new DateTime("1997-07-16T19:20:30.453+01:00"));
         $this->checkQueryResult(r\time(2000, 1, 1, 0, 0, 0, "+00:00"), new DateTime('2000-01-01 -0000'), array("timeFormat" => "native"));
         $this->checkQueryResult(r\time(2000, 1, 1, 0, 0, 0, "+00:00"), array('$reql_type$' => "TIME", 'epoch_time' => 946684800.0, 'timezone' => "+00:00"), array("timeFormat" => "raw"));
+        $this->checkQueryResult(r\time(1969, 1, 1, 0, 0, 0, "+00:00"), new DateTime('1969-01-01 -0000'), array("timeFormat" => "native"));
+        $this->checkQueryResult(r\epochTime(111111.123), new DateTime('1970-01-02 06:51:51.123 -0000'));
+        $this->checkQueryResult(r\time(2000, 1, 1, 5, 45, 32, "-05:00"), new DateTime('2000-01-01 05:45:32 CDT'));
     }
 }
 
