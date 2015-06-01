@@ -1,6 +1,6 @@
 <?php
 
-$phpRqlIncludePath = __DIR__ . "/../src";
+$phpRqlIncludePath = "../src";
 $serverHost = 'localhost';
 $serverPort = 28015;
 $serverKey = null;
@@ -28,15 +28,15 @@ set_include_path($phpRqlIncludePath);
 
 
 require_once('rdb/rdb.php');
-require_once(__DIR__ . '/Dataset.php');
-require_once(__DIR__ . '/TestCase.php');
+require_once('./Dataset.php');
+require_once('./TestCase.php');
 
 
 // Include all data sets
-$datasetTypes = scandir(__DIR__ . '/Datasets');
+$datasetTypes = scandir('./Datasets');
 foreach ($datasetTypes as $datasetType) {
     if ($datasetType[0] == ".") continue;
-    require_once(__DIR__ . '/Datasets/' . $datasetType);
+    require_once('./Datasets/' . $datasetType);
 }
 
 
@@ -45,13 +45,13 @@ $conn = r\connect($serverHost, $serverPort, null, $serverKey);
 
 
 // Include one test case at a time and run it
-$testCaseTypes = scandir(__DIR__ . '/TestCases');
+$testCaseTypes = scandir('./TestCases');
 $currentDatasets = array();
 foreach ($testCaseTypes as $testCaseType) {
     if ($testCaseType[0] == ".") continue;
     $testCaseType = str_replace(".php", "", $testCaseType);
     if ($testCaseSelection && !in_array($testCaseType, $testCaseSelection)) continue;
-    require_once(__DIR__ . '/TestCases/' . $testCaseType . ".php");
+    require_once('./TestCases/' . $testCaseType . ".php");
     $testCase = new $testCaseType($conn, $currentDatasets);
     echo "Running " . $testCaseType . "...";
     $testCase->run();
