@@ -24,7 +24,7 @@ function nativeToDatum($v) {
                 if (!is_subclass_of($subDatum, "\\r\\Datum"))
                     $mustUseMakeTerm = true;
             }
-            if (is_string($key)) {   
+            if (is_string($key)) {
                 $hasNonNumericKey = true;
                 $datumArray[$key] = $subDatum;
             } else {
@@ -143,7 +143,7 @@ class MakeArray extends ValuedQuery
             $this->setPositionalArg($i++, $val);
         }
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_MAKE_ARRAY;
     }
@@ -157,7 +157,7 @@ class MakeObject extends ValuedQuery
             $this->setOptionalArg($key, $val);
         }
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_MAKE_OBJ;
     }
@@ -171,19 +171,19 @@ abstract class Datum extends ValuedQuery
             $this->setValue($value);
         }
     }
-    
+
     protected function getTermType() {
         return pb\Term_TermType::PB_DATUM;
     }
-    
+
     public function toNative($opts) {
         return $this->getValue();
     }
-    
+
     public function __toString() {
         return "" . $this->getValue();
     }
-    
+
     public function _toString(&$backtrace) {
         $result = $this->__toString();
         if (is_null($backtrace)) return $result;
@@ -194,7 +194,7 @@ abstract class Datum extends ValuedQuery
             return str_repeat("~", strlen($result));
         }
     }
-        
+
     public function getValue() {
         return $this->value;
     }
@@ -209,18 +209,18 @@ class NullDatum extends Datum
     public function _getJSONTerm() {
         return null;
     }
-    
+
     static public function _fromJSON($json) {
         $result = new NullDatum();
         $result->setValue(null);
         return $result;
     }
-    
+
     public function setValue($val) {
         if (!is_null($val)) throw new RqlDriverError("Not null: " . $val);
         parent::setValue($val);
     }
-    
+
     public function __toString() {
         return "null";
     }
@@ -231,18 +231,18 @@ class BoolDatum extends Datum
     public function _getJSONTerm() {
         return (bool)$this->getValue();
     }
-    
+
     static public function _fromJSON($json) {
         $result = new BoolDatum();
         $result->setValue((bool)$json);
         return $result;
     }
-    
+
     public function __toString() {
         if ($this->getValue()) return "true";
         else return "false";
     }
-    
+
     public function setValue($val) {
         if (is_numeric($val)) $val = (($val == 0) ? false : true);
         if (!is_bool($val)) throw new RqlDriverError("Not a boolean: " . $val);
@@ -255,13 +255,13 @@ class NumberDatum extends Datum
     public function _getJSONTerm() {
         return (float)$this->getValue();
     }
-    
+
     static public function _fromJSON($json) {
         $result = new NumberDatum();
         $result->setValue((float)$json);
         return $result;
     }
-    
+
     public function setValue($val) {
         if (!is_numeric($val)) throw new RqlDriverError("Not a number: " . $val);
         parent::setValue($val);
@@ -279,12 +279,12 @@ class StringDatum extends Datum
         $result->setValue((string)$json);
         return $result;
     }
-    
+
     public function setValue($val) {
         if (!is_string($val)) throw new RqlDriverError("Not a string");
         parent::setValue($val);
     }
-    
+
     public function __toString() {
         return "'" . $this->getValue() . "'";
     }
@@ -296,7 +296,7 @@ class ArrayDatum extends Datum
         $term = new MakeArray(array_values($this->getValue()));
         return $term->_getJSONTerm();
     }
-    
+
     static public function _fromJSON($json) {
         $jsonArray = array_values((array)$json);
         foreach ($jsonArray as &$val)  {
@@ -307,7 +307,7 @@ class ArrayDatum extends Datum
         $result->setValue($jsonArray);
         return $result;
     }
-    
+
     public function setValue($val) {
         if (!is_array($val)) throw new RqlDriverError("Not an array: " . $val);
         foreach($val as $v) {
@@ -315,7 +315,7 @@ class ArrayDatum extends Datum
         }
         parent::setValue($val);
     }
-    
+
     public function toNative($opts) {
         $native = array();
         foreach ($this->getValue() as $val) {
@@ -323,7 +323,7 @@ class ArrayDatum extends Datum
         }
         return $native;
     }
-    
+
     public function __toString() {
         $string = 'array(';
         $first = true;
@@ -388,20 +388,8 @@ class ObjectDatum extends Datum
         if ((!isset($opts['timeFormat']) || $opts['timeFormat'] == "native")
             && isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
             $time = $native['epoch_time'];
-            $format = (strpos($time, '.') !== false) ? '!U.u T' : '!U T';
-            $datetime = \DateTime::createFromFormat($format, $time . " " . $native['timezone'], new \DateTimeZone('UTC'));
-
-            // This is horrible. Just because in PHP 5.3.something parsing "+01:00" as a date interval doesn't work. :(
-            $tzSign = $native['timezone'][0];
-            $tzHours = $native['timezone'][1] . $native['timezone'][2];
-            $tzMinutes = $native['timezone'][4] . $native['timezone'][5];
-            if ($tzSign == "+") {
-                $datetime->add(new \DateInterval("PT" . $tzHours . "H" . $tzMinutes . "M"));
-            } else if ($tzSign == "-") {
-                $datetime->sub(new \DateInterval("PT" . $tzHours . "H" . $tzMinutes . "M"));
-            } else {
-                throw new RqlDriverError("Timezone not understood: " . $native['timezone']);
-            }
+            $format = (strpos($time, '.') !== false) ? 'Y-m-d H:i:s.u' : 'Y-m-d H:i:s';
+            $datetime = new \DateTime(date($format, $time));
 
             return $datetime;
         }
