@@ -364,7 +364,7 @@ class Connection
         $s = "";
         while (strlen($s) < $length) {
             $partialS = stream_get_contents($this->socket, $length - strlen($s));
-            if ($partialS === false) {
+            if ($partialS === false || feof($this->socket)) {
                 $metaData = stream_get_meta_data($this->socket);
                 $this->close(false);
                 if ($metaData['timed_out']) {
