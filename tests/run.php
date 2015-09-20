@@ -10,8 +10,9 @@ $serverKey = null;
 $testCaseSelection = null;
 if (count($argv) > 1) {
     $testCaseSelection = array();
-    for ($i = 1; $i < count($argv); ++$i)
+    for ($i = 1; $i < count($argv); ++$i) {
         $testCaseSelection[] = $argv[$i];
+    }
 }
 
 
@@ -19,11 +20,11 @@ error_reporting(-1);
 set_exception_handler(function ($e) {
         echo "Exception: " . $e . "\n";
         global $currentDatasets;
-        foreach ($currentDatasets as &$dataset) {
-            $dataset->__destruct();
-            unset ($dataset);
-        }
-    });
+    foreach ($currentDatasets as &$dataset) {
+        $dataset->__destruct();
+        unset($dataset);
+    }
+});
 set_include_path($phpRqlIncludePath);
 
 
@@ -35,7 +36,9 @@ require_once(__DIR__ . '/TestCase.php');
 // Include all data sets
 $datasetTypes = scandir(__DIR__ . '/Datasets');
 foreach ($datasetTypes as $datasetType) {
-    if ($datasetType[0] == ".") continue;
+    if ($datasetType[0] == ".") {
+        continue;
+    }
     require_once(__DIR__ . '/Datasets/' . $datasetType);
 }
 
@@ -48,9 +51,13 @@ $conn = r\connect($serverHost, $serverPort, null, $serverKey);
 $testCaseTypes = scandir(__DIR__ . '/TestCases');
 $currentDatasets = array();
 foreach ($testCaseTypes as $testCaseType) {
-    if ($testCaseType[0] == ".") continue;
+    if ($testCaseType[0] == ".") {
+        continue;
+    }
     $testCaseType = str_replace(".php", "", $testCaseType);
-    if ($testCaseSelection && !in_array($testCaseType, $testCaseSelection)) continue;
+    if ($testCaseSelection && !in_array($testCaseType, $testCaseSelection)) {
+        continue;
+    }
     require_once(__DIR__ . '/TestCases/' . $testCaseType . ".php");
     $testCase = new $testCaseType($conn, $currentDatasets);
     echo "Running " . $testCaseType . "...";
@@ -62,8 +69,6 @@ foreach ($testCaseTypes as $testCaseType) {
 // Clean up
 foreach ($currentDatasets as &$dataset) {
     $dataset->__destruct();
-    unset ($dataset);
+    unset($dataset);
 }
 $conn->close();
-
-?>

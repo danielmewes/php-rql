@@ -14,10 +14,22 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=5.3.0",
+        "phpunit/phpunit": "~4.8"
     },
     "autoload": {
-        "files": ["src/rdb/rdb.php"]
+        "files": ["src/rdb/rdb.php"],
+        "psr-4": {
+            "r\\Tests\\": "tests/"
+        }
     },
-    "include-path": ["src/"]
+    "include-path": ["src/"],
+    "scripts": {
+        "test": "tests/phpunit.sh"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "optimize-autoloader": true,
+        "process-timeout": 300
+    }
 }

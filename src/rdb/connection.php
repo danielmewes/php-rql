@@ -71,6 +71,7 @@ class Connection
 
     public function useDb($dbName) {
         if (!is_string($dbName)) throw new RqlDriverError("Database must be a string.");
+        $this->defaultDbName = $dbName;
         $this->defaultDb = new Db($dbName);
     }
 
@@ -79,7 +80,7 @@ class Connection
         $this->applyTimeout($timeout);
         $this->timeout = $timeout;
     }
-    
+
     public function noreplyWait() {
         if (!$this->isOpen()) throw new RqlDriverError("Not connected.");
 
@@ -183,7 +184,7 @@ class Connection
 
         return $response;
     }
-    
+
     private function generateToken() {
         $tries = 0;
         $maxToken = 1 << 30;
@@ -268,7 +269,7 @@ class Connection
             ini_set("precision", $previousPrecision);
         }
         if ($request === false) throw new RqlDriverError("Failed to encode query as JSON: " . json_last_error());
-    
+
         $requestSize = pack("V", strlen($request));
         $binaryToken = pack("V", $token) . pack("V", 0);
         $this->sendStr($binaryToken . $requestSize . $request);
@@ -382,6 +383,7 @@ class Connection
     private $host;
     private $port;
     private $defaultDb;
+    public $defaultDbName;
     private $apiKey;
     private $activeTokens;
     private $timeout;
