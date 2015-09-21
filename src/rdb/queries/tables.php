@@ -3,7 +3,7 @@
 class TableList extends ValuedQuery
 {
     public function __construct($database) {
-        if (isset($database) && !is_a($database, "\\r\\Db")) throw new RqlDriverError("Database is not a Db object.");
+        if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         if (isset($database))
             $this->setPositionalArg(0, $database);
     }
@@ -16,7 +16,7 @@ class TableList extends ValuedQuery
 class TableCreate extends ValuedQuery
 {
     public function __construct($database, $tableName, $options = null) {
-        if (isset($database) && !is_a($database, "\\r\\Db")) throw new RqlDriverError("Database is not a Db object.");
+        if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         $tableName = nativeToDatum($tableName);
         if (isset($options)) {
             if (!is_array($options)) throw new RqlDriverError("Options must be an array.");
@@ -48,7 +48,7 @@ class TableCreate extends ValuedQuery
 class TableDrop extends ValuedQuery
 {
     public function __construct($database, $tableName) {
-        if (isset($database) && !is_a($database, "\\r\\Db")) throw new RqlDriverError("Database is not a Db object.");
+        if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         $tableName = nativeToDatum($tableName);
 
         $i = 0;
@@ -127,7 +127,7 @@ class Table extends ValuedQuery
     
 
     public function __construct($database, $tableName, $useOutdatedOrOpts = null) {
-        if (isset($database) && !is_a($database, "\\r\\Db")) throw new RqlDriverError("Database is not a Db object.");
+        if (isset($database) && !is_a($database, "\\r\\Db")) throw ("Database is not a Db object.");
         $tableName = nativeToDatum($tableName);
         if (isset($useOutdated) && !is_bool($useOutdated)) throw new RqlDriverError("Use outdated must be bool.");
         
