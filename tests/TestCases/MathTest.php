@@ -175,6 +175,14 @@ class MathTest extends TestCase
             $this->checkQueryResult(r\random(5, 10)->ge(5.0),
                 true);
         }
+        
+        $this->checkQueryResult(r\ceil(1.5), 2.0);
+        $this->checkQueryResult(r\floor(1.5), 1.0);
+        $this->checkQueryResult(r\round(1.5), 2.0);
+        $this->checkQueryResult(r\round(1.4), 1.0);
+        $this->checkQueryResult(r\expr(1.5)->ceil(), 2.0);
+        $this->checkQueryResult(r\expr(1.5)->floor(), 1.0);
+        $this->checkQueryResult(r\expr(1.5)->round(), 2.0);
     }
 }
 

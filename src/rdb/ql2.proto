@@ -296,6 +296,10 @@ message Term {
         DIV = 27; // NUMBER... -> NUMBER
         MOD = 28; // NUMBER, NUMBER -> NUMBER
 
+        FLOOR = 183;    // NUMBER -> NUMBER
+        CEIL = 184;     // NUMBER -> NUMBER
+        ROUND = 185;    // NUMBER -> NUMBER
+
         // DATUM Array Ops
         // Append a single element to the end of an array (like `snoc`).
         APPEND = 29; // ARRAY, DATUM -> ARRAY

@@ -296,4 +296,17 @@ function mapMultiple($sequences, $mappingFunction) {
     return new MapMultiple($sequences[0], array_slice($sequences, 1), $mappingFunction);
 }
 
+function ceil($value) {
+    return new Ceil($value);
+}
+
+function floor($value) {
+    return new Floor($value);
+}
+
+function round($value) {
+    return new Round($value);
+}
+
+
 ?>

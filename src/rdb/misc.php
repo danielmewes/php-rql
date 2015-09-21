@@ -360,6 +360,15 @@ abstract class ValuedQuery extends Query
     public function split($separator = null, $maxSplits = null) {
         return new split($this, $separator, $maxSplits);
     }
+    public function ceil() {
+        return new Ceil($this);
+    }
+    public function floor() {
+        return new Floor($this);
+    }
+    public function round() {
+        return new Round($this);
+    }
     public function rForeach($queryFunction) {
         return new RForeach($this, $queryFunction);
     }

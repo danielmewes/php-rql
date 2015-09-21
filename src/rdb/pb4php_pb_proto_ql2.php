@@ -71,6 +71,9 @@ class Term_TermType
   const PB_MUL  = 26;
   const PB_DIV  = 27;
   const PB_MOD  = 28;
+  const PB_FLOOR  = 183;
+  const PB_CEIL  = 184;
+  const PB_ROUND  = 185;
   const PB_APPEND  = 29;
   const PB_PREPEND  = 80;
   const PB_DIFFERENCE  = 95;
