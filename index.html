@@ -42,6 +42,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a id="updates" class="anchor" href="#updates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>09/20/2015 New release: PHP-RQL 2.1.0. Adds support for the <code>floor</code>, <code>ceil</code> and <code>round</code> terms from <a href="http://rethinkdb.com/blog/2.1-release/">RethinkDB 2.1</a>. Added support for SSL connections. To connect to an SSL host, use <code>r\connect(array("host" =&gt; "&lt;hostname&gt;", "port" =&gt; &lt;port&gt;, "apiKey" =&gt; "&lt;api key&gt;", "ssl" =&gt; array("cafile" =&gt; "&lt;path to ca cert&gt;")))</code>.</li>
 <li>08/04/2015 Bug fix release: PHP-RQL 2.0.1. Fixes an issue that caused PHP-RQL to get caught in an infinite loop if a connection was lost.</li>
 <li>04/18/2015 New release: PHP-RQL 2.0.0. PHP-RQL 2.0.0 is <em>not backwards compatible</em> to previous releases of PHP-RQL. Besides full support for <a href="http://rethinkdb.com/blog/2.0-release/">RethinkDB 2.0</a> features, there are a number of important changes in this release:
 
@@ -55,7 +56,6 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <li>The API documentation system has been replaced. The documentation is now again based on RethinkDB's official JavaScript driver documentation, and is available at <a href="http://danielmewes.dnsalias.net/%7Edaniel/php-rql-api/">http://danielmewes.dnsalias.net/~daniel/php-rql-api/</a>.</li>
 </ul>
 </li>
-<li>02/06/2015 New release: PHP-RQL 1.16.0. Support for new features in <a href="http://rethinkdb.com/blog/1.16-release/">RethinkDB 1.16</a>. Introduces a new <code>r\mapMultiple()</code> term to apply a map to multiple streams.</li>
 </ul>
 
 <h2>
@@ -63,7 +63,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 2.0</li>
+<li>RethinkDB 2.1</li>
 </ul>
 
 <h2>
@@ -86,7 +86,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <h2>
 <a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h2>
 
-<div class="highlight highlight-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s1"></span>
+<div class="highlight highlight-text-html-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s1"></span>
 <span class="pl-s1">    <span class="pl-c">// Load the driver</span></span>
 <span class="pl-s1">    <span class="pl-k">require_once</span>(<span class="pl-s"><span class="pl-pds">"</span>rdb/rdb.php<span class="pl-pds">"</span></span>);</span>
 <span class="pl-s1"></span>
