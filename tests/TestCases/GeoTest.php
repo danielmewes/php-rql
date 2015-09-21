@@ -21,9 +21,9 @@ class GeoTest extends TestCase
 
         // These might fail due to rounding issues, depending on the server's architecture
         $this->checkQueryResult(r\point(0.0, 1.0)->distance(r\point(1.0, 1.0))->coerceTo("STRING"),
-            "111302.64933943081996");
+            "111302.64933943082");
         $this->checkQueryResult(r\point(0.0, 1.0)->distance(r\point(1.0, 1.0), array("unit" => "km"))->coerceTo("STRING"),
-            "111.30264933943082895");
+            "111.30264933943083");
 
         $this->checkQueryResult(r\polygon(array(array(0.0, 0.0), array(0.0, 1.0), array(1.0, 1.0)))->intersects(r\line(array(array(0.0, 0.0), array(2.0, 2.0)))),
             true);

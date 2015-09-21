@@ -137,7 +137,9 @@ class Table extends ValuedQuery
         $this->setPositionalArg($i++, $tableName);
         if (isset($useOutdatedOrOpts)) {
             if (is_bool($useOutdatedOrOpts)) {
-                $this->setOptionalArg('use_outdated', new BoolDatum($useOutdatedOrOpts));
+                if ($useOutdatedOrOpts) {
+                    $this->setOptionalArg('read_mode', new StringDatum("outdated"));
+                }
             } else {
                 foreach ($useOutdatedOrOpts as $opt => $val) {
                     $this->setOptionalArg($opt, nativeToDatum($val));
