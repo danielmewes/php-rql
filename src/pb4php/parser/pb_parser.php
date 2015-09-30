@@ -12,7 +12,7 @@ class PBParser
     var $m_types = array();
     
     // namespace
-    var $namespace = NULL;
+    var $namespace = null;
     var $namespaceStr = "\\";
     
     // different types
@@ -26,7 +26,7 @@ class PBParser
      * pb_proto_[NAME]
      * @param String $protofile - the protofilename with the path
      */
-    public function parse($protofile, $namespace = NULL)
+    public function parse($protofile, $namespace = null)
     {
         $string = file_get_contents($protofile);
         // now take the filename
@@ -42,10 +42,11 @@ class PBParser
         array_pop($name);
         $name = join($name, '.');
         $this->namespace = $namespace;
-        if (isset($namespace))
+        if (isset($namespace)) {
             $this->namespaceStr = "\\$namespace\\";
-        else
+        } else {
             $this->namespaceStr = "\\";
+        }
         $this->_create_class_file('pb_proto_' . $name . '.php');
     }
     
@@ -65,17 +66,13 @@ class PBParser
     private function _create_class_file($filename)
     {
         $string = '';
-        foreach ($this->m_types as $classfile)
-        {
+        foreach ($this->m_types as $classfile) {
             $classname = str_replace(".", "_", $classfile['name']);
             //$classname = $this->toCamelCase($classname);
 
-            if ($classfile['type'] == 'message')
-            {
-                // Nothing to do here in the case of PHP-RQL
-            }
-            else if ($classfile['type'] == 'enum')
-            {
+            if ($classfile['type'] == 'message') {
+            // Nothing to do here in the case of PHP-RQL
+            } elseif ($classfile['type'] == 'enum') {
                 $string .= 'class ' . $classname  . "\n{\n";
                 $this->_create_class_definition($classfile['value'], $string);
                 $string .= "}\n";
@@ -96,9 +93,8 @@ class PBParser
      */
     private function _create_class_definition($classfile, &$string)
     {
-        foreach($classfile as $field)
-        {
-            // Because field names might be PHP keywords, we prefix them with PB_
+        foreach ($classfile as $field) {
+        // Because field names might be PHP keywords, we prefix them with PB_
             $string .= '  const PB_' . $field['0'] . '  = ' . $field['1'] . ";\n";
         }
 
@@ -112,8 +108,9 @@ class PBParser
     {
         $myarray = array();
         $string = trim($string);
-        if ($string == '')
+        if ($string == '') {
             return;
+        }
             
         // TODO (daniel): I think the right behavior would be to perform two passes over the input.
         //   First, all message declarations should be parsed and declared, then the definitions should
@@ -125,11 +122,9 @@ class PBParser
 
         //var_dump($m_name);
 
-        while (strlen($string) > 0)
-        {
+        while (strlen($string) > 0) {
             $next = ($this->_next($string));
-            if (strtolower($next) == 'message')
-            {
+            if (strtolower($next) == 'message') {
                 $string = trim(substr($string, strlen($next)));
                 $name = $this->_next($string);
 
@@ -139,9 +134,7 @@ class PBParser
                 $this->_parse_message_type($content, $name, trim($path . '.' . $name, '.'));
 
                 $string = '' . trim(substr($string, $offset['end']));
-            }
-            else if (strtolower($next) == 'enum')
-            {
+            } elseif (strtolower($next) == 'enum') {
                 $string = trim(substr($string, strlen($next)));
                 $name = $this->_next($string);
                 $offset = $this->_get_begin_end($string, "{", "}");
@@ -152,34 +145,29 @@ class PBParser
                                              'type' => 'enum', 'value' => $this->_parse_enum($content));
                 // removing it from string
                 $string = '' . trim(substr($string, $offset['end']));
-            }
-            else if (strtolower($next) == 'extensions')
-            {
+            } elseif (strtolower($next) == 'extensions') {
                 echo "WARNING: 'extensions' not supported. Ignoring.\n";
                 $string = trim(substr($string, strlen($next)));
 
                 $string = '' . trim(substr($string, strpos($string, ';') + 1));
-            }
-            else
-            {
+            } else {
                 // now a normal field
                 $match = preg_match('/(.*);\s?/', $string, $matches, PREG_OFFSET_CAPTURE);
-                if (!$match)
+                if (!$match) {
                     throw new Exception('Proto file missformed');
+                }
                 $myarray[] = array('type' => 'field', 'value' => $this->_parse_field($matches[0][0], $myarray, $path));
                 $string = trim(substr($string, $matches[0][1] + strlen($matches[0][0])));
             }
         }
 
         // now actually set the value field of the type to myarray
-        foreach ($this->m_types as &$message)
-        {
-            if ($message['name'] == $path)
-            {
+        foreach ($this->m_types as &$message) {
+            if ($message['name'] == $path) {
                 $message['value'] = $myarray;
                 break;
             }
-            unset ($message);
+            unset($message);
         }
     }
 
@@ -193,44 +181,38 @@ class PBParser
 
         // parse the default value
         $match = preg_match('/\[\s?default\s?=\s?([^\[]*)\]\s?;/', $content, $matches, PREG_OFFSET_CAPTURE);
-        if ($match)
-        {
+        if ($match) {
             $myarray['default'] = $matches[1][0];
             $content = trim(substr($content, 0, $matches[0][1])) . ';';
         }
 
         // parse the value
         $match = preg_match('/=\s(.*);/', $content, $matches, PREG_OFFSET_CAPTURE);
-        if ($match)
-        {
+        if ($match) {
             $myarray['value'] = trim($matches[1][0]);
             $content = trim(substr($content, 0, $matches[0][1]));
-        }
-        else
+        } else {
             throw new Exception('Protofile no value at ' . $content);
+        }
 
         // parse all modifier
         $content = trim(trim(trim($content), ';'));
         $typeset = false;
-        while (strlen($content) > 0)
-        {
+        while (strlen($content) > 0) {
             $matches = $this->_next($content, true);
             $name = $matches[0][0];
-            if (strtolower($name) == 'optional')
+            if (strtolower($name) == 'optional') {
                 $myarray['optional'] = true;
-            else if (strtolower($name) == 'required')
+            } elseif (strtolower($name) == 'required') {
                 $myarray['required'] = true;
-            else if (strtolower($name) == 'repeated')
+            } elseif (strtolower($name) == 'repeated') {
                 $myarray['repeated'] = true;
-            else if ($typeset == false)
-            {
-                $type = $this->_check_type($name, $array, $path);
+            } elseif ($typeset == false) {
+                        $type = $this->_check_type($name, $array, $path);
                 $myarray['type'] = $type[0];
                 $myarray['namespace'] = $type[1];
                 $typeset = true;
-            }
-            else
-            {
+            } else {
                 $myarray['name'] = $name;
             }
             $content = trim(substr($content, strlen($name)));
@@ -246,35 +228,31 @@ class PBParser
      */
     private function _check_type($type, $array, $path)
     {
-        if (isset($this->scalar_types[strtolower($type)]))
+        if (isset($this->scalar_types[strtolower($type)])) {
             return array(strtolower($type), '');
+        }
 
         // absolute or relative thing
         // calculate namespace
         $namespace = $type;
 
         $apath = explode(".", $path);
-        if ($apath > 1)
-        {
+        if ($apath > 1) {
             array_pop($apath);
             $namespace = trim(trim(join($apath, '.'), '.') . '.' . $type, '.');
         }
 
         // try the namespace
-        foreach ($this->m_types as $message)
-        {
-            if ($message['name'] == $namespace)
-            {
+        foreach ($this->m_types as $message) {
+            if ($message['name'] == $namespace) {
                 return array($type, $namespace);
             }
         }
 
         // now try one deeper
         $namespace  = trim($path . '.' . $namespace, '.');
-        foreach ($this->m_types as $message)
-        {
-            if ($message['name'] == $namespace)
-            {
+        foreach ($this->m_types as $message) {
+            if ($message['name'] == $namespace) {
                 return array($type, $namespace);
             }
         }
@@ -283,10 +261,8 @@ class PBParser
         //   This is really just a hack to make the RDB protocol file work.
         // try the top level
         // try the namespace
-        foreach ($this->m_types as $message)
-        {
-            if ($message['name'] == $type)
-            {
+        foreach ($this->m_types as $message) {
+            if ($message['name'] == $type) {
                 return array($type, $type);
             }
         }
@@ -303,10 +279,10 @@ class PBParser
     {
         $myarray = array();
         $match = preg_match_all('/(.*);\s?/', $content, $matches);
-        if (!$match)
+        if (!$match) {
             throw new Execption('Semantic error in Enum!');
-        foreach ($matches[1] as $match)
-        {
+        }
+        foreach ($matches[1] as $match) {
             $split = explode("=", $match);
             $myarray[] = array(trim($split[0]), trim($split[1]));
         }
@@ -319,12 +295,14 @@ class PBParser
     private function _next($string, $reg = false)
     {
         $match = preg_match('/([^\s^\{}]*)/', $string, $matches, PREG_OFFSET_CAPTURE);
-        if (!$match)
+        if (!$match) {
             return -1;
-        if (!$reg)
+        }
+        if (!$reg) {
             return (trim($matches[0][0]));
-        else
+        } else {
             return $matches;
+        }
     }
 
     /**
@@ -338,32 +316,30 @@ class PBParser
     {
         $offset_begin = strpos($string, $char);
 
-        if ($offset_begin === false)
+        if ($offset_begin === false) {
             return array('begin' => -1, 'end' => -1);
+        }
 
         $_offset_number = 1;
         $_offset = $offset_begin + 1;
-        while ($_offset_number > 0 && $_offset > 0)
-        {
-            // now search after the end nested { }
+        while ($_offset_number > 0 && $_offset > 0) {
+        // now search after the end nested { }
             $offset_open = strpos($string, $char, $_offset);
             $offset_close = strpos($string, $charend, $_offset);
-            if ($offset_open < $offset_close && !($offset_open === false))
-            {
+            if ($offset_open < $offset_close && !($offset_open === false)) {
                 $_offset = $offset_open+1;
                 $_offset_number++;
-            }
-            else if (!($offset_close === false))
-            {
+            } elseif (!($offset_close === false)) {
                 $_offset = $offset_close+1;
                 $_offset_number--;
-            }
-            else
+            } else {
                 $_offset = -1;
+            }
         }
 
-        if ($_offset == -1)
+        if ($_offset == -1) {
             throw new Exception('Protofile failure: ' . $char . ' not nested');
+        }
 
         return array('begin' => $offset_begin, 'end' => $_offset);
     }
@@ -379,4 +355,3 @@ class PBParser
         $string = preg_replace('/\\r?\\n\s*/', "\n", $string);
     }
 }
-?>

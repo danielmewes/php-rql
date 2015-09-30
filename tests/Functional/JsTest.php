@@ -16,7 +16,7 @@ class JsTest extends TestCase
     public function testJsTimeout()
     {
         $this->setExpectedException(
-            '\r\RqlServerError',
+            '\r\Exceptions\RqlServerError',
             'Runtime error: JavaScript query `while(true) {}` timed out after 1.300 seconds'
         );
 

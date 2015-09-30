@@ -23,6 +23,7 @@
     "autoload": {
         "files": ["src/rdb/rdb.php"],
         "psr-4": {
+            "r\\": "src/",
             "r\\Tests\\": "tests/"
         }
     },

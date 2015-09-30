@@ -1,10 +1,22 @@
-<?php namespace r;
+<?php
 
-require_once("misc.php");
-require_once("util.php");
+namespace r;
+
 require_once("function.php");
 
-function nativeToDatum($v) {
+use r\Datum\NullDatum;
+use r\Datum\BoolDatum;
+use r\Datum\NumberDatum;
+use r\Datum\StringDatum;
+use r\Datum\ArrayDatum;
+use r\Datum\ObjectDatum;
+use r\ValuedQuery\MakeArray;
+use r\ValuedQuery\MakeObject;
+use r\Exceptions\RqlDriverError;
+use r\Queries\Dates\Iso8601;
+
+function nativeToDatum($v)
+{
     if (is_array($v) || (is_object($v) && in_array(get_class($v), array("stdClass", "ArrayObject")))) {
         $datumArray = array();
         $hasNonNumericKey = false;
@@ -14,15 +26,18 @@ function nativeToDatum($v) {
             $hasNonNumericKey = true; // Force conversion into an ObjectDatum
             $v = (array)$v;
         }
-        foreach($v as $key => $val) {
-            if (!is_numeric($key) && !is_string($key)) throw new RqlDriverError("Key must be a string.");
-            if ((is_object($val) && is_subclass_of($val, "\\r\\Query")) && !(is_object($val) && is_subclass_of($val, "\\r\\Datum"))) {
+        foreach ($v as $key => $val) {
+            if (!is_numeric($key) && !is_string($key)) {
+                throw new RqlDriverError("Key must be a string.");
+            }
+            if ((is_object($val) && is_subclass_of($val, "\\r\\Query")) && !(is_object($val) && is_subclass_of($val, '\r\Datum\Datum'))) {
                 $subDatum = $val;
                 $mustUseMakeTerm = true;
             } else {
                 $subDatum = nativeToDatum($val);
-                if (!is_subclass_of($subDatum, "\\r\\Datum"))
+                if (!is_subclass_of($subDatum, '\r\Datum\Datum')) {
                     $mustUseMakeTerm = true;
+                }
             }
             if (is_string($key)) {
                 $hasNonNumericKey = true;
@@ -39,7 +54,7 @@ function nativeToDatum($v) {
         //   into a Datum manually.
         //   We use this behavior because it is consistent to json_encode,
         //   which we sometimes use as a transparent replacement for
-        //   nativeToDatum().
+        //   \r\nativeToDatum().
         if ($hasNonNumericKey) {
             if ($mustUseMakeTerm) {
                 return new MakeObject($datumArray);
@@ -53,21 +68,17 @@ function nativeToDatum($v) {
                 return new ArrayDatum($datumArray);
             }
         }
-    }
-    else if (is_null($v)) {
+    } elseif (is_null($v)) {
         return new NullDatum();
-    }
-    else if (is_bool($v)) {
+    } elseif (is_bool($v)) {
         return new BoolDatum($v);
-    }
-    else if (is_int($v) || is_float($v)) {
+    } elseif (is_int($v) || is_float($v)) {
         return new NumberDatum($v);
-    }
-    else if (is_string($v)) {
+    } elseif (is_string($v)) {
         return new StringDatum($v);
-    } else if (is_object($v) && is_subclass_of($v, "\\r\\Query")) {
+    } elseif (is_object($v) && is_subclass_of($v, "\\r\\Query")) {
         return $v;
-    } else if (is_object($v) && (is_subclass_of($v, "DateTimeInterface") || is_a($v, "DateTime"))) {
+    } elseif (is_object($v) && (is_subclass_of($v, "DateTimeInterface") || is_a($v, "DateTime"))) {
         // PHP prior to 5.5.0 doens't have DateTimeInterface, so we test for DateTime directly as well ^^^^^
         $iso8601 = $v->format(\DateTime::ISO8601);
         return new Iso8601($iso8601);
@@ -77,18 +88,32 @@ function nativeToDatum($v) {
 }
 
 // ------------- Helpers -------------
-function decodedJSONToDatum($json) {
-    if (is_null($json)) return NullDatum::_fromJSON($json);
-    if (is_bool($json)) return BoolDatum::_fromJSON($json);
-    if (is_int($json) || is_float($json)) return NumberDatum::_fromJSON($json);
-    if (is_string($json)) return StringDatum::_fromJSON($json);
-    if (is_array($json)) return ArrayDatum::_fromJSON($json);
-    if (is_object($json)) return ObjectDatum::_fromJSON($json);
+function decodedJSONToDatum($json)
+{
+    if (is_null($json)) {
+        return NullDatum::_fromJSON($json);
+    }
+    if (is_bool($json)) {
+        return BoolDatum::_fromJSON($json);
+    }
+    if (is_int($json) || is_float($json)) {
+        return NumberDatum::_fromJSON($json);
+    }
+    if (is_string($json)) {
+        return StringDatum::_fromJSON($json);
+    }
+    if (is_array($json)) {
+        return ArrayDatum::_fromJSON($json);
+    }
+    if (is_object($json)) {
+        return ObjectDatum::_fromJSON($json);
+    }
 
     throw new RqlDriverError("Unhandled type " . get_class($json));
 }
 
-function tryEncodeAsJson($v) {
+function tryEncodeAsJson($v)
+{
     if (canEncodeAsJson($v)) {
         // PHP by default loses some precision when encoding floats, so we temporarily
         // bump up the `precision` option to avoid this.
@@ -101,323 +126,36 @@ function tryEncodeAsJson($v) {
         if ($previousPrecision !== false) {
             ini_set("precision", $previousPrecision);
         }
-        if ($json === false) throw new RqlDriverError("Failed to encode document as JSON: " . json_last_error());
+        if ($json === false) {
+            throw new RqlDriverError("Failed to encode document as JSON: " . json_last_error());
+        }
         return $json;
     } else {
         return false;
     }
 }
 
-function canEncodeAsJson($v) {
+function canEncodeAsJson($v)
+{
     if (is_array($v)) {
-        foreach($v as $key => $val) {
-            if (!is_numeric($key) && !is_string($key)) return false;
-            if (!canEncodeAsJson($val)) return false;
+        foreach ($v as $key => $val) {
+            if (!is_numeric($key) && !is_string($key)) {
+                return false;
+            }
+            if (!canEncodeAsJson($val)) {
+                return false;
+            }
         }
         return true;
-    }
-    else if (is_null($v)) {
+    } elseif (is_null($v)) {
         return true;
-    }
-    else if (is_bool($v)) {
+    } elseif (is_bool($v)) {
         return true;
-    }
-    else if (is_int($v) || is_float($v)) {
+    } elseif (is_int($v) || is_float($v)) {
         return true;
-    }
-    else if (is_string($v)) {
+    } elseif (is_string($v)) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
-
-// ------------- RethinkDB make queries -------------
-class MakeArray extends ValuedQuery
-{
-    public function __construct($value) {
-        if (!is_array($value)) throw new RqlDriverError("Value must be an array.");
-        $i = 0;
-        foreach($value as $val) {
-            $this->setPositionalArg($i++, $val);
-        }
-    }
-
-    protected function getTermType() {
-        return pb\Term_TermType::PB_MAKE_ARRAY;
-    }
-}
-
-class MakeObject extends ValuedQuery
-{
-    public function __construct($value) {
-        if (!is_array($value)) throw new RqlDriverError("Value must be an array.");
-        foreach($value as $key => $val) {
-            $this->setOptionalArg($key, $val);
-        }
-    }
-
-    protected function getTermType() {
-        return pb\Term_TermType::PB_MAKE_OBJ;
-    }
-}
-
-// ------------- RethinkDB datum types -------------
-abstract class Datum extends ValuedQuery
-{
-    public function __construct($value = null) {
-        if (isset($value)) {
-            $this->setValue($value);
-        }
-    }
-
-    protected function getTermType() {
-        return pb\Term_TermType::PB_DATUM;
-    }
-
-    public function toNative($opts) {
-        return $this->getValue();
-    }
-
-    public function __toString() {
-        return "" . $this->getValue();
-    }
-
-    public function _toString(&$backtrace) {
-        $result = $this->__toString();
-        if (is_null($backtrace)) return $result;
-        else {
-            if ($backtrace === false) return str_repeat(" ", strlen($result));
-            $backtraceFrame = $backtrace->_consumeFrame();
-            if ($backtraceFrame !== false) throw new RqlDriverError("Internal Error: The backtrace says that we should have an argument in a Datum. This is not possible.");
-            return str_repeat("~", strlen($result));
-        }
-    }
-
-    public function getValue() {
-        return $this->value;
-    }
-    public function setValue($val) {
-        $this->value = $val;
-    }
-    private $value;
-}
-
-class NullDatum extends Datum
-{
-    public function _getJSONTerm() {
-        return null;
-    }
-
-    static public function _fromJSON($json) {
-        $result = new NullDatum();
-        $result->setValue(null);
-        return $result;
-    }
-
-    public function setValue($val) {
-        if (!is_null($val)) throw new RqlDriverError("Not null: " . $val);
-        parent::setValue($val);
-    }
-
-    public function __toString() {
-        return "null";
-    }
-}
-
-class BoolDatum extends Datum
-{
-    public function _getJSONTerm() {
-        return (bool)$this->getValue();
-    }
-
-    static public function _fromJSON($json) {
-        $result = new BoolDatum();
-        $result->setValue((bool)$json);
-        return $result;
-    }
-
-    public function __toString() {
-        if ($this->getValue()) return "true";
-        else return "false";
-    }
-
-    public function setValue($val) {
-        if (is_numeric($val)) $val = (($val == 0) ? false : true);
-        if (!is_bool($val)) throw new RqlDriverError("Not a boolean: " . $val);
-        parent::setValue($val);
-    }
-}
-
-class NumberDatum extends Datum
-{
-    public function _getJSONTerm() {
-        return (float)$this->getValue();
-    }
-
-    static public function _fromJSON($json) {
-        $result = new NumberDatum();
-        $result->setValue((float)$json);
-        return $result;
-    }
-
-    public function setValue($val) {
-        if (!is_numeric($val)) throw new RqlDriverError("Not a number: " . $val);
-        parent::setValue($val);
-    }
-}
-
-class StringDatum extends Datum
-{
-    public function _getJSONTerm() {
-        return (string)$this->getValue();
-    }
-
-    static public function _fromJSON($json) {
-        $result = new StringDatum();
-        $result->setValue((string)$json);
-        return $result;
-    }
-
-    public function setValue($val) {
-        if (!is_string($val)) throw new RqlDriverError("Not a string");
-        parent::setValue($val);
-    }
-
-    public function __toString() {
-        return "'" . $this->getValue() . "'";
-    }
-}
-
-class ArrayDatum extends Datum
-{
-    public function _getJSONTerm() {
-        $term = new MakeArray(array_values($this->getValue()));
-        return $term->_getJSONTerm();
-    }
-
-    static public function _fromJSON($json) {
-        $jsonArray = array_values((array)$json);
-        foreach ($jsonArray as &$val)  {
-            $val = decodedJSONToDatum($val);
-            unset($val);
-        }
-        $result = new ArrayDatum();
-        $result->setValue($jsonArray);
-        return $result;
-    }
-
-    public function setValue($val) {
-        if (!is_array($val)) throw new RqlDriverError("Not an array: " . $val);
-        foreach($val as $v) {
-            if (!(is_object($v) && is_subclass_of($v, "\\r\\Query"))) throw new RqlDriverError("Not a Query: " . $v);
-        }
-        parent::setValue($val);
-    }
-
-    public function toNative($opts) {
-        $native = array();
-        foreach ($this->getValue() as $val) {
-            $native[] = $val->toNative($opts);
-        }
-        return $native;
-    }
-
-    public function __toString() {
-        $string = 'array(';
-        $first = true;
-        foreach ($this->getValue() as $val) {
-            if (!$first) {
-                $string .= ", ";
-            }
-            $first = false;
-            $string .= $val;
-        }
-        $string .= ')';
-        return $string;
-    }
-}
-
-class ObjectDatum extends Datum
-{
-    public function _getJSONTerm() {
-        $jsonValue = $this->getValue();
-        foreach ($jsonValue as $key => &$val) {
-            $val = $val->_getJSONTerm();
-            unset($val);
-        }
-        return (Object)$jsonValue;
-    }
-
-    static public function _fromJSON($json) {
-        $jsonObject = (array)$json;
-        foreach ($jsonObject as $key => &$val)  {
-            $val = decodedJSONToDatum($val);
-            unset($val);
-        }
-        $result = new ObjectDatum();
-        $result->setValue($jsonObject);
-        return $result;
-    }
-
-    public function setValue($val) {
-        if (!is_array($val)) throw new RqlDriverError("Not an array: " . $val);
-        foreach($val as $k => $v) {
-            if (!is_string($k) && !is_numeric($k)) throw new RqlDriverError("Not a string or number: " . $k);
-            if (!(is_object($v) && is_subclass_of($v, "\\r\\Query"))) throw new RqlDriverError("Not a Query: " . $v);
-        }
-        parent::setValue($val);
-    }
-
-    public function toNative($opts) {
-        $native = new \ArrayObject();
-        foreach ($this->getValue() as $key => $val) {
-            $native[$key] = $val->toNative($opts);
-        }
-        // Decode BINARY pseudo-type
-        if ((!isset($opts['binaryFormat']) || $opts['binaryFormat'] == "native")
-            && isset($native['$reql_type$']) && $native['$reql_type$'] == 'BINARY') {
-            $decodedStr = base64_decode($native['data'], true);
-            if ($decodedStr === FALSE) {
-                throw new RqlDriverError("Failed to Base64 decode r\\binary value '" . $native['data'] . "'");
-            }
-            return $decodedStr;
-        }
-        // Decode TIME pseudo-type to DateTime
-        if ((!isset($opts['timeFormat']) || $opts['timeFormat'] == "native")
-            && isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
-            $time = $native['epoch_time'];
-            $format = (strpos($time, '.') !== false) ? 'Y-m-d H:i:s.u' : 'Y-m-d H:i:s';
-            $datetime = new \DateTime(date($format, $time));
-
-            return $datetime;
-        }
-        return $native;
-    }
-
-    public function __toString() {
-        // Handle BINARY pseudo-type
-        $val = $this->getValue();
-        if (isset($val['$reql_type$']) && $val['$reql_type$']->getValue() == 'BINARY') {
-            $decodedStr = base64_decode($val['data']->getValue(), true);
-            if ($decodedStr === FALSE) {
-                return "r\\binary(ERROR)";
-            }
-            return "r\\binary('$decodedStr')";
-        }
-        $string = 'array(';
-        $first = true;
-        foreach ($val as $key => $val) {
-            if (!$first) {
-                $string .= ", ";
-            }
-            $first = false;
-            $string .= "'" . $key . "' => " . $val;
-        }
-        $string .= ')';
-        return $string;
-    }
-}
-
-?>

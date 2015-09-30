@@ -28,7 +28,7 @@ class ConnectionTest extends TestCase
     public function testTimeout()
     {
         $this->setExpectedException(
-            '\r\RqlServerError',
+            '\r\Exceptions\RqlServerError',
             'Runtime error: JavaScript query `while(true) {}` timed out after 1.300 seconds'
         );
 
@@ -39,7 +39,7 @@ class ConnectionTest extends TestCase
     {
         $this->conn->setTimeout(1);
         $this->setExpectedException(
-            '\r\RqlServerError',
+            '\r\Exceptions\RqlServerError',
             'Runtime error: JavaScript query `while(true) {}` timed out after 2.000 seconds'
         );
 
@@ -50,7 +50,7 @@ class ConnectionTest extends TestCase
     {
         $this->conn->setTimeout(60);
         $this->setExpectedException(
-            '\r\RqlServerError',
+            '\r\Exceptions\RqlServerError',
             'Runtime error: JavaScript query `while(true) {}` timed out after 2.000 seconds'
         );
 

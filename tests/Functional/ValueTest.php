@@ -3,9 +3,9 @@
 namespace r\Tests\Functional;
 
 use r\Tests\TestCase;
-use r\ArrayDatum;
-use r\ObjectDatum;
-use r\StringDatum;
+use r\Datum\ArrayDatum;
+use r\Datum\ObjectDatum;
+use r\Datum\StringDatum;
 
 // use function \r\expr;
 
