@@ -818,7 +818,7 @@ player, with the highest scorers first?</p>
 
 <pre class="example"><code class="php">r\table('games')
     -&gt;group('player')-&gt;max('points')
-    -&gt;ungroup()-&gt;order_by(r\desc('reduction'))-&gt;run($conn)
+    -&gt;ungroup()-&gt;orderBy(r\desc('reduction'))-&gt;run($conn)
 </code></pre>
 
 <h3>reduce</h3>
