@@ -6,6 +6,7 @@ use r\Queries\Dbs\Db;
 use r\pb\Query_QueryType;
 use r\pb\Response_ResponseType;
 use r\Exceptions\RqlServerError;
+use r\Exceptions\RqlDriverError;
 
 class Connection
 {
