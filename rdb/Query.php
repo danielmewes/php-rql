@@ -13,6 +13,7 @@ abstract class Query extends DatumConverter
     private $positionalArgs = array();
     private $optionalArgs = array();
     private $unwrappedImplicitVar = false;
+    protected $connection;
 
     abstract protected function getTermType();
 
@@ -56,8 +57,18 @@ abstract class Query extends DatumConverter
         return array($this->getTermType(), $args, (object)$optargs);
     }
 
-    public function run(Connection $connection, $options = null)
+    public function run(Connection $connection = null, $options = array())
     {
+        if (!($connection instanceof Connection)) {
+            $options = is_array($connection) ? $connection : $options;
+
+            if (!isset($this->connection)) {
+                throw new RqlDriverError("Connection not set!");
+            }
+
+            $connection = $this->connection;
+        }
+
         return $connection->run($this, $options, $profile);
     }
 

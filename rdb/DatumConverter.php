@@ -160,10 +160,10 @@ class DatumConverter
                 }
             }
             return true;
+
         }
 
         return false;
-
     }
 
     public function wrapImplicitVar(Query $q)
