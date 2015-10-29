@@ -8,11 +8,6 @@ build:
           code: |
             echo "php version $(php --version) running"
             echo "from location $(which php)"
-      - script:
-          name: install composer
-          code: >
-            command -v foo >/dev/null 2>&1
-            || curl -sS https://getcomposer.org/installer | php -- --install-dir=/bin --filename=composer;
             composer --version 
       - script:
           name: remove stale assets
@@ -22,8 +17,7 @@ build:
       - script:
           name: install composer dependencies
           code: >
-            mkdir -p $WERCKER_CACHE_DIR/.composer/cache;
-            composer config cache-dir $WERCKER_CACHE_DIR/.composer/cache;
+            composer config cache-dir $WERCKER_CACHE_DIR/composer;
             composer install --no-interaction
       - script:
           name: phplint

@@ -19,6 +19,9 @@ use r\Tests\TestCase;
 // use function \r\rOr;
 // use function \r\rAnd;
 // use function \r\expr;
+// use function \r\ceil;
+// use function \r\floor;
+// use function \r\round;
 // use function \r\random;
 
 class MathTest extends TestCase
@@ -410,5 +413,36 @@ class MathTest extends TestCase
             $this->assertTrue(\r\random(5, 10)->lt(10)->run($this->conn));
             $this->assertTrue(\r\random(5, 10)->ge(5.0)->run($this->conn));
         }
+    }
+
+    public function testCeil()
+    {
+        $this->assertEquals(2.0, \r\ceil(1.5)->run($this->conn));
+    }
+
+    public function testFloor()
+    {
+        $this->assertEquals(1.0, \r\floor(1.5)->run($this->conn));
+    }
+
+    public function testRound()
+    {
+        $this->assertEquals(1.0, \r\round(1.4)->run($this->conn));
+        $this->assertEquals(2.0, \r\round(1.5)->run($this->conn));
+    }
+
+    public function testExprCeil()
+    {
+        $this->assertEquals(2.0, \r\expr(1.5)->ceil()->run($this->conn));
+    }
+
+    public function testExprFloor()
+    {
+        $this->assertEquals(1.0, \r\expr(1.5)->floor()->run($this->conn));
+    }
+    
+    public function testExprRound()
+    {
+        $this->assertEquals(2.0, \r\expr(1.5)->round()->run($this->conn));
     }
 }
