@@ -27,7 +27,6 @@
             "r\\Tests\\": "tests/"
         }
     },
-    "include-path": ["src/"],
     "scripts": {
         "test": "tests/phpunit.sh"
     },

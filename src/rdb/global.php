@@ -2,8 +2,7 @@
 
 namespace r;
 
-require_once("connection.php");
-
+use r\DatumConverter;
 use r\Exceptions\RqlDriverError;
 use r\Ordering\Asc;
 use r\Ordering\Desc;
@@ -159,7 +158,9 @@ function expr($obj)
     if ((is_object($obj) && is_subclass_of($obj, "\\r\\Query"))) {
         return $obj;
     }
-    return \r\nativeToDatum($obj);
+
+    $dc = new DatumConverter;
+    return $dc->nativeToDatum($obj);
 }
 
 function binary($str)
@@ -169,7 +170,9 @@ function binary($str)
         throw new RqlDriverError("Failed to Base64 encode '" . $str . "'");
     }
     $pseudo = array('$reql_type$' => 'BINARY', 'data' => $encodedStr);
-    return \r\nativeToDatum($pseudo);
+
+    $dc = new DatumConverter;
+    return $dc->nativeToDatum($pseudo);
 }
 
 function desc($attribute)
