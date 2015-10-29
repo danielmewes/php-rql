@@ -5,6 +5,12 @@ A PHP client driver for the RethinkDB query language (ReQL).
 
 PHP-RQL is licensed under the terms of the Apache License 2.0 http://www.apache.org/licenses/LICENSE-2.0
 
+Continuous Integration
+-----------------------
+[![wercker status](https://app.wercker.com/status/e6b7c4ae6360e4ff1191b477d3992170/s/master "wercker status")](https://app.wercker.com/project/bykey/e6b7c4ae6360e4ff1191b477d3992170)
+
+To run the tests at the command line, issue `composer install` and then `composer test` at the package root. This requires `composer` to be available in `$PATH`.
+
 Documentation
 ----------------
 
@@ -62,4 +68,3 @@ Attributions
 * PHP-RQL uses pb4php http://code.google.com/p/pb4php/ by Nikolai Kordulla.
 * The API documentation is based on the official RethinkDB API documentation.
 * The API documentation is built using jTokenizer by Tim Whitlock (http://timwhitlock.info) and PHP Markdown by Michel Fortin (https://michelf.ca/).
-

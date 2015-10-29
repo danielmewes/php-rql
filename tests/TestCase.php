@@ -1,79 +1,77 @@
 <?php
-require_once('rdb/rdb.php');
 
-abstract class TestCase
+namespace r\Tests;
+
+class TestCase extends \PHPUnit_Framework_TestCase
 {
-    public abstract function run();
+    protected $datasets = array();
 
-    protected $conn;
-    protected $datasets;
-    
-    public function __construct(r\Connection $connection, &$datasets)
+    public function setUp()
     {
-        $this->conn = $connection;
-        $this->datasets = &$datasets;
+        $this->conn = $this->getConnection();
     }
-    
-    protected function requireDataset($name)
+
+    // return the current db connection
+    protected function getConnection()
     {
-        if (!isset($this->datasets[$name])) {
-            $this->datasets[$name] = new $name($this->conn);
+        static $connection;
+
+        if (!isset($connection)) {
+            $connection = \r\connect(getenv('RDB_HOST'), getenv('RDB_PORT'), getenv('RDB_DB'));
         }
+
+        return $connection;
     }
-    
-    protected function compareArrays($a1, $a2)
+
+    // enable $this->db(), instead of \rdb('DB_NAME'), in tests
+    protected function db()
     {
-        if (is_a($a1, "ArrayObject")) $a1 = $a1->getArrayCopy();
-        if (is_a($a2, "ArrayObject")) $a2 = $a2->getArrayCopy();
-        if (!is_array($a1) && !is_array($a2)) return $a1 == $a2;
-        else if (!(is_array($a1) && is_array($a2))) return false;
-        if (count($a1) != count($a2)) return false;
-        $equal = true;
-        foreach ($a1 as $k => $left) {
-            if (!$equal) break;
-            $right = null;
-            if (is_numeric($k)) {
-                foreach ($a2 as $r) {
-                    if ($this->compareArrays($left, $r)) {
-                        $right = $r;
-                        break;
-                    }
-                }
-            } else {
-                if (!array_key_exists($k, $a2)) return false;
-                $right = $a2[$k];
-            }
-            $equal = $equal && $this->compareArrays($left, $right);
-        }
-        return $equal;
+        return \r\db(getenv('RDB_DB'));
     }
-    
-    protected function checkQueryResult($query, $expectedResult, $runOptions = array())
+
+    // returns the requested dataset
+    protected function useDataset($name)
     {
-        $result = $query->run($this->conn, $runOptions);
-        if (is_a($result, "r\Cursor")) {
-            $result = $result->toArray();
+        static $datasets;
+
+        if (!isset($datasets[$name])) {
+            $ds = 'r\Tests\Datasets\\' . $name;
+            $datasets[$name] = new $ds($this->conn);
         }
 
-        $equal = false;
+        return $datasets[$name];
+    }
 
-        if ((is_array($result) || is_a($result, "ArrayObject")) && is_array($expectedResult))
-            $equal = $this->compareArrays($result, $expectedResult);
-        elseif (is_object($result) && is_object($expectedResult))
-            $equal = $expectedResult == $result;
-        else
-            $equal = $expectedResult === $result;
+    // test the results status
+    protected function assertObStatus($status, $data)
+    {
+        $statuses =  array(
+            'unchanged',
+            'skipped',
+            'replaced',
+            'inserted',
+            'errors',
+            'deleted'
+        );
 
-        if (!$equal)
-        {
-            echo "Query result does not match.\n";
-            echo "  Was: \n";
-            print_r($result);
-            echo "  Expected: \n";
-            print_r($expectedResult);
-            echo "  In query: " . $query . "\n";
+        foreach ($statuses as $s) {
+            $status[$s] = isset($status[$s]) ? $status[$s] : 0;
         }
+
+
+        $data->setFlags($data::ARRAY_AS_PROPS);
+
+        foreach ($statuses as $s) {
+            $res[$s] = isset($data->$s) ? $data->$s : 0;
+        }
+
+        $this->assertEquals($status, $res);
+    }
+
+    // convert a results objects (usually ArrayObject) to an array
+    // works on multidimensional arrays, too
+    protected function toArray($object)
+    {
+        return json_decode(json_encode($object), true);
     }
 }
-
-?>
