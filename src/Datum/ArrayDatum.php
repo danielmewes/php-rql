@@ -16,7 +16,7 @@ class ArrayDatum extends Datum
         return $term->_getJSONTerm();
     }
 
-    public static function _fromJSON($json)
+    public static function decodeServerResponse($json)
     {
         $jsonArray = array_values((array)$json);
         foreach ($jsonArray as &$val) {

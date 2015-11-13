@@ -4,12 +4,12 @@ namespace r;
 
 class Backtrace
 {
-    public static function _fromJSON($backtrace)
+    public static function decodeServerResponse($backtrace)
     {
         $result = new Backtrace();
         $result->frames = array();
         foreach ($backtrace as $frame) {
-            $result->frames[] = Frame::_fromJSON($frame);
+            $result->frames[] = Frame::decodeServerResponse($frame);
         }
         return $result;
     }

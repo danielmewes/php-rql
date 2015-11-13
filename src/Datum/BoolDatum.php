@@ -11,7 +11,7 @@ class BoolDatum extends Datum
         return (bool)$this->getValue();
     }
 
-    public static function _fromJSON($json)
+    public static function decodeServerResponse($json)
     {
         $result = new BoolDatum();
         $result->setValue((bool)$json);

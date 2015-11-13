@@ -321,13 +321,13 @@ class Connection extends DatumConverter
         if ($response['t'] == ResponseResponseType::PB_COMPILE_ERROR) {
             $backtrace = null;
             if (isset($response['b'])) {
-                $backtrace = Backtrace::_fromJSON($response['b']);
+                $backtrace = Backtrace::decodeServerResponse($response['b']);
             }
             throw new RqlServerError("Compile error: " . $response['r'][0], $query, $backtrace);
         } elseif ($response['t'] == ResponseResponseType::PB_RUNTIME_ERROR) {
             $backtrace = null;
             if (isset($response['b'])) {
-                $backtrace = Backtrace::_fromJSON($response['b']);
+                $backtrace = Backtrace::decodeServerResponse($response['b']);
             }
             throw new RqlServerError("Runtime error: " . $response['r'][0], $query, $backtrace);
         }

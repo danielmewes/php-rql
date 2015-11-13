@@ -11,7 +11,7 @@ class NullDatum extends Datum
         return null;
     }
 
-    public static function _fromJSON($json)
+    public static function decodeServerResponse($json)
     {
         $result = new NullDatum();
         $result->setValue(null);

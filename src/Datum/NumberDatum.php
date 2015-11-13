@@ -11,7 +11,7 @@ class NumberDatum extends Datum
         return (float)$this->getValue();
     }
 
-    public static function _fromJSON($json)
+    public static function decodeServerResponse($json)
     {
         $result = new NumberDatum();
         $result->setValue((float)$json);

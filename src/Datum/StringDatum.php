@@ -11,7 +11,7 @@ class StringDatum extends Datum
         return (string)$this->getValue();
     }
 
-    public static function _fromJSON($json)
+    public static function decodeServerResponse($json)
     {
         $result = new StringDatum();
         $result->setValue((string)$json);

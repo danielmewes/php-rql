@@ -9,7 +9,7 @@ class Frame
     private $optionalArgName = null;
     private $positionalArgPosition = null;
     
-    public static function _fromJSON($frame)
+    public static function decodeServerResponse($frame)
     {
         $result = new Frame();
         if (is_string($frame)) {

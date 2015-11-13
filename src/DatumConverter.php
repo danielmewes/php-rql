@@ -102,22 +102,22 @@ class DatumConverter
     public static function decodedJSONToDatum($json)
     {
         if (is_null($json)) {
-            return NullDatum::_fromJSON($json);
+            return NullDatum::decodeServerResponse($json);
         }
         if (is_bool($json)) {
-            return BoolDatum::_fromJSON($json);
+            return BoolDatum::decodeServerResponse($json);
         }
         if (is_int($json) || is_float($json)) {
-            return NumberDatum::_fromJSON($json);
+            return NumberDatum::decodeServerResponse($json);
         }
         if (is_string($json)) {
-            return StringDatum::_fromJSON($json);
+            return StringDatum::decodeServerResponse($json);
         }
         if (is_array($json)) {
-            return ArrayDatum::_fromJSON($json);
+            return ArrayDatum::decodeServerResponse($json);
         }
         if (is_object($json)) {
-            return ObjectDatum::_fromJSON($json);
+            return ObjectDatum::decodeServerResponse($json);
         }
 
         throw new RqlDriverError("Unhandled type " . get_class($json));

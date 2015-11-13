@@ -17,7 +17,7 @@ class ObjectDatum extends Datum
         return (Object)$jsonValue;
     }
 
-    public static function _fromJSON($json)
+    public static function decodeServerResponse($json)
     {
         $jsonObject = (array)$json;
         foreach ($jsonObject as $key => &$val) {
