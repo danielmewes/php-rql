@@ -32,7 +32,7 @@ abstract class Datum extends ValuedQuery
         return "" . $this->getValue();
     }
 
-    public function _toString(&$backtrace)
+    public function toString(&$backtrace)
     {
         $result = $this->__toString();
         if (is_null($backtrace)) {
@@ -41,9 +41,12 @@ abstract class Datum extends ValuedQuery
             if ($backtrace === false) {
                 return str_repeat(" ", strlen($result));
             }
-            $backtraceFrame = $backtrace->_consumeFrame();
+            $backtraceFrame = $backtrace->consumeFrame();
             if ($backtraceFrame !== false) {
-                throw new RqlDriverError("Internal Error: The backtrace says that we should have an argument in a Datum. This is not possible.");
+                throw new RqlDriverError(
+                    "Internal Error: The backtrace says that we should have an argument in a Datum. "
+                    . "This is not possible."
+                );
             }
             return str_repeat("~", strlen($result));
         }

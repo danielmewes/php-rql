@@ -6,7 +6,7 @@ use r\Datum\Datum;
 
 class BoolDatum extends Datum
 {
-    public function _getJSONTerm()
+    public function encodeServerRequest()
     {
         return (bool)$this->getValue();
     }

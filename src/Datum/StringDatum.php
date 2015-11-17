@@ -6,7 +6,7 @@ use r\Datum\Datum;
 
 class StringDatum extends Datum
 {
-    public function _getJSONTerm()
+    public function encodeServerRequest()
     {
         return (string)$this->getValue();
     }

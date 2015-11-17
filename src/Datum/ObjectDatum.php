@@ -7,11 +7,11 @@ use r\DatumConverter;
 
 class ObjectDatum extends Datum
 {
-    public function _getJSONTerm()
+    public function encodeServerRequest()
     {
         $jsonValue = $this->getValue();
         foreach ($jsonValue as $key => &$val) {
-            $val = $val->_getJSONTerm();
+            $val = $val->encodeServerRequest();
             unset($val);
         }
         return (Object)$jsonValue;

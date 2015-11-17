@@ -159,7 +159,7 @@ class Connection extends DatumConverter
         }
     }
 
-    public function run(Query $query, $options = array(), &$profile)
+    public function run(Query $query, $options, &$profile)
     {
         if (isset($options) && !is_array($options)) {
             throw new RqlDriverError("Options must be an array.");
@@ -183,12 +183,12 @@ class Connection extends DatumConverter
         // Send the request
         $globalOptargs = $this->convertOptions($options);
         if (isset($this->defaultDb) && !isset($options['db'])) {
-            $globalOptargs['db'] = $this->defaultDb->_getJSONTerm();
+            $globalOptargs['db'] = $this->defaultDb->encodeServerRequest();
         }
 
         $jsonQuery = array(
             QueryQueryType::PB_START,
-            $query->_getJSONTerm(),
+            $query->encodeServerRequest(),
             (Object)$globalOptargs
         );
 
@@ -217,7 +217,7 @@ class Connection extends DatumConverter
 
     }
 
-    public function _continueQuery($token)
+    public function continueQuery($token)
     {
         if (!$this->isOpen()) {
             throw new RqlDriverError("Not connected.");
@@ -240,7 +240,7 @@ class Connection extends DatumConverter
         return $response;
     }
 
-    public function _stopQuery($token)
+    public function stopQuery($token)
     {
         if (!$this->isOpen()) {
             throw new RqlDriverError("Not connected.");
@@ -496,11 +496,12 @@ class Connection extends DatumConverter
         return $s;
     }
 
-    private function convertOptions($options) {
+    private function convertOptions($options)
+    {
         $opts = array();
 
         foreach ((array)$options as $key => $value) {
-            $opts[$key] = $this->nativeToDatum($value)->_getJSONTerm();
+            $opts[$key] = $this->nativeToDatum($value)->encodeServerRequest();
         }
         return $opts;
     }

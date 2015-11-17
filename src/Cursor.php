@@ -82,7 +82,7 @@ class Cursor implements Iterator
     {
         if (!$this->isComplete) {
             // Cancel the request
-            $this->connection->_stopQuery($this->token);
+            $this->connection->stopQuery($this->token);
             $this->isComplete = true;
         }
         $this->currentIndex = 0;
@@ -129,7 +129,7 @@ class Cursor implements Iterator
     private function requestNewBatch()
     {
         try {
-            $response = $this->connection->_continueQuery($this->token);
+            $response = $this->connection->continueQuery($this->token);
             $this->setBatch($response);
         } catch (\Exception $e) {
             $this->isComplete = true;

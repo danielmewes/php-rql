@@ -6,7 +6,7 @@ use r\Datum\Datum;
 
 class NullDatum extends Datum
 {
-    public function _getJSONTerm()
+    public function encodeServerRequest()
     {
         return null;
     }

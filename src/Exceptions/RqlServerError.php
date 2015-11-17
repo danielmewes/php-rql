@@ -28,10 +28,10 @@ class RqlServerError extends RqlException
         if (isset($this->query)) {
             $result .= "  Failed query:\n";
             $nullBacktrace = null;
-            $result .= "    " . $this->query->_toString($nullBacktrace) . "\n";
+            $result .= "    " . $this->query->toString($nullBacktrace) . "\n";
             if (isset($this->backtrace)) {
                 $backtraceCopy = $this->backtrace;
-                $result .= "    " . $this->query->_toString($backtraceCopy) . "\n";
+                $result .= "    " . $this->query->toString($backtraceCopy) . "\n";
             }
         }
         return $result;

@@ -15,7 +15,7 @@ class Backtrace
     }
 
     // Returns true if no more frames are available
-    public function _consumeFrame()
+    public function consumeFrame()
     {
         if (\count($this->frames) == 0) {
             return false;

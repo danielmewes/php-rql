@@ -10,10 +10,10 @@ use r\Exceptions\RqlDriverError;
 
 class ArrayDatum extends Datum
 {
-    public function _getJSONTerm()
+    public function encodeServerRequest()
     {
         $term = new MakeArray(array_values($this->getValue()));
-        return $term->_getJSONTerm();
+        return $term->encodeServerRequest();
     }
 
     public static function decodeServerResponse($json)

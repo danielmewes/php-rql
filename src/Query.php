@@ -43,15 +43,15 @@ abstract class Query extends DatumConverter
         return $this->unwrappedImplicitVar;
     }
 
-    public function _getJSONTerm()
+    public function encodeServerRequest()
     {
         $args = array();
         foreach ($this->positionalArgs as $i => $arg) {
-            $args[] = $arg->_getJSONTerm();
+            $args[] = $arg->encodeServerRequest();
         }
         $optargs = array();
         foreach ($this->optionalArgs as $key => $val) {
-            $optargs[$key] = $val->_getJSONTerm();
+            $optargs[$key] = $val->encodeServerRequest();
         }
         return array($this->getTermType(), $args, (object)$optargs);
     }
@@ -83,17 +83,17 @@ abstract class Query extends DatumConverter
     public function __toString()
     {
         $backtrace = null;
-        return $this->_toString($backtrace);
+        return $this->toString($backtrace);
     }
 
-    public function _toString(&$backtrace)
+    public function toString(&$backtrace)
     {
         // TODO (daniel): This kind of printing backtraces is pretty hacky. Overhaul this.
         //  Maybe we could generate a PHP backtrace structure...
 
         $backtraceFrame = null;
         if (isset($backtrace) && $backtrace !== false) {
-            $backtraceFrame = $backtrace->_consumeFrame();
+            $backtraceFrame = $backtrace->consumeFrame();
         }
 
         $types = (new \ReflectionObject(new TermTermType()));
@@ -125,7 +125,7 @@ abstract class Query extends DatumConverter
             ) {
                 $subTrace = $backtrace;
             }
-            $argList .= $arg->_toString($subTrace);
+            $argList .= $arg->toString($subTrace);
         }
 
         $optArgList = "";
@@ -148,9 +148,9 @@ abstract class Query extends DatumConverter
                 $subTrace = $backtrace;
             }
             if (isset($backtrace)) {
-                $optArgList .= str_repeat(" ", strlen($key)) . "    " . $val->_toString($subTrace);
+                $optArgList .= str_repeat(" ", strlen($key)) . "    " . $val->toString($subTrace);
             } else {
-                $optArgList .= $key . " => " . $val->_toString($subTrace);
+                $optArgList .= $key . " => " . $val->toString($subTrace);
             }
         }
 
