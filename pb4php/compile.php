@@ -4,7 +4,7 @@ require_once(__DIR__ . '/parser/pb_parser.php');
 
 $rdbProtocolParser = new \PBParser();
 $rdbProtocolParser->parse(
-    'src/rdb/ql2.proto', // not used
+    __DIR__ . '/ql2.proto',
     'r\ProtocolBuffer', // namespace
-    __DIR__ . '/..//src/rdb/ProtocolBuffer' //destination dir
+    __DIR__ . '/../src/ProtocolBuffer' //destination dir
 );
