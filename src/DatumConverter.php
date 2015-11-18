@@ -19,8 +19,6 @@ use r\ValuedQuery\RVar;
 
 class DatumConverter
 {
-    const PHP_RQL_VERSION = '2.1.0';
-
     public function nativeToDatum($v)
     {
         if (is_array($v) || (is_object($v) && in_array(get_class($v), array("stdClass", "ArrayObject")))) {
@@ -218,10 +216,5 @@ class DatumConverter
             }
         }
         return $this->wrapImplicitVar($f);
-    }
-
-    public function systemInfo()
-    {
-        return "PHP-RQL Version: " . PHP_RQL_VERSION . "\n";
     }
 }
