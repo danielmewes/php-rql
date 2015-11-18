@@ -65,6 +65,13 @@ class Connection extends DatumConverter
         if (isset($apiKey) && !is_string($apiKey)) {
             throw new RqlDriverError("The API key must be a string.");
         }
+        
+        if (!isset($host)) {
+            $host = "localhost";
+        }
+        if (!isset($port)) {
+            $port = 28015;
+        }
 
         $this->host = $host;
         $this->port = $port;
