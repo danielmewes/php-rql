@@ -453,3 +453,8 @@ function round($value)
 {
     return new Round($value);
 }
+
+function systemInfo()
+{
+    return "PHP-RQL Version: " . PHP_RQL_VERSION . "\n";
+}
