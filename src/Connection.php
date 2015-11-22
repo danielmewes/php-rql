@@ -65,7 +65,7 @@ class Connection extends DatumConverter
         if (isset($apiKey) && !is_string($apiKey)) {
             throw new RqlDriverError("The API key must be a string.");
         }
-        
+
         if (!isset($host)) {
             $host = "localhost";
         }
@@ -166,7 +166,7 @@ class Connection extends DatumConverter
         }
     }
 
-    public function run(Query $query, $options, &$profile)
+    public function run(Query $query, $options = array(), &$profile = '')
     {
         if (isset($options) && !is_array($options)) {
             throw new RqlDriverError("Options must be an array.");
