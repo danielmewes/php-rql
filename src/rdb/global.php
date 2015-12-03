@@ -1,7 +1,82 @@
-<?php namespace r;
+<?php
 
-require_once("misc.php");
-require_once("connection.php");
+namespace r;
+
+use r\DatumConverter;
+use r\Exceptions\RqlDriverError;
+use r\Ordering\Asc;
+use r\Ordering\Desc;
+use r\Queries\Control\Branch;
+use r\Queries\Control\Error;
+use r\Queries\Control\Http;
+use r\Queries\Control\Range;
+use r\Queries\Control\RDo;
+use r\Queries\Dates\April;
+use r\Queries\Dates\August;
+use r\Queries\Dates\December;
+use r\Queries\Dates\EpochTime;
+use r\Queries\Dates\February;
+use r\Queries\Dates\Friday;
+use r\Queries\Dates\Iso8601;
+use r\Queries\Dates\January;
+use r\Queries\Dates\July;
+use r\Queries\Dates\June;
+use r\Queries\Dates\March;
+use r\Queries\Dates\May;
+use r\Queries\Dates\Monday;
+use r\Queries\Dates\November;
+use r\Queries\Dates\Now;
+use r\Queries\Dates\October;
+use r\Queries\Dates\Saturday;
+use r\Queries\Dates\September;
+use r\Queries\Dates\Sunday;
+use r\Queries\Dates\Thursday;
+use r\Queries\Dates\Time;
+use r\Queries\Dates\Tuesday;
+use r\Queries\Dates\Wednesday;
+use r\Queries\Dbs\Db;
+use r\Queries\Dbs\DbCreate;
+use r\Queries\Dbs\DbDrop;
+use r\Queries\Dbs\DbList;
+use r\Queries\Geo\Circle;
+use r\Queries\Geo\Distance;
+use r\Queries\Geo\GeoJSON;
+use r\Queries\Geo\Intersects;
+use r\Queries\Geo\Line;
+use r\Queries\Geo\Point;
+use r\Queries\Geo\Polygon;
+use r\Queries\Manipulation\GetField;
+use r\Queries\Math\Add;
+use r\Queries\Math\Ceil;
+use r\Queries\Math\Div;
+use r\Queries\Math\Eq;
+use r\Queries\Math\Floor;
+use r\Queries\Math\Gt;
+use r\Queries\Math\Le;
+use r\Queries\Math\Lt;
+use r\Queries\Math\Mod;
+use r\Queries\Math\Mul;
+use r\Queries\Math\Ne;
+use r\Queries\Math\Not;
+use r\Queries\Math\RAnd;
+use r\Queries\Math\ROr;
+use r\Queries\Math\Random;
+use r\Queries\Math\Round;
+use r\Queries\Math\Sub;
+use r\Queries\Misc\Maxval;
+use r\Queries\Misc\Minval;
+use r\Queries\Misc\Uuid;
+use r\Queries\Math\Ge;
+use r\Queries\Tables\Table;
+use r\Queries\Tables\TableCreate;
+use r\Queries\Tables\TableDrop;
+use r\Queries\Tables\TableList;
+use r\Queries\Transformations\MapMultiple;
+use r\ValuedQuery\ImplicitVar;
+use r\Queries\Control\Js;
+use r\ValuedQuery\Json;
+use r\ValuedQuery\Literal;
+use r\ValuedQuery\RObject;
 
 // ------------- Global functions in namespace r -------------
 
@@ -35,13 +110,16 @@ function table($tableName, $useOutdatedOrOpts = null)
     return new Table(null, $tableName, $useOutdatedOrOpts);
 }
 
-function tableCreate($tableName, $options = null) {
+function tableCreate($tableName, $options = null)
+{
     return new TableCreate(null, $tableName, $options);
 }
-function tableDrop($tableName) {
+function tableDrop($tableName)
+{
     return new TableDrop(null, $tableName);
 }
-function tableList() {
+function tableList()
+{
     return new TableList(null);
 }
 
@@ -75,43 +153,56 @@ function error($message = null)
     return new Error($message);
 }
 
-function expr($obj) {
-    if ((is_object($obj) && is_subclass_of($obj, "\\r\\Query")))
+function expr($obj)
+{
+    if ((is_object($obj) && is_subclass_of($obj, "\\r\\Query"))) {
         return $obj;
-    return nativeToDatum($obj);
+    }
+
+    $dc = new DatumConverter;
+    return $dc->nativeToDatum($obj);
 }
 
-function binary($str) {
+function binary($str)
+{
     $encodedStr = base64_encode($str);
-    if ($encodedStr === FALSE) {
+    if ($encodedStr === false) {
         throw new RqlDriverError("Failed to Base64 encode '" . $str . "'");
     }
     $pseudo = array('$reql_type$' => 'BINARY', 'data' => $encodedStr);
-    return nativeToDatum($pseudo);
+
+    $dc = new DatumConverter;
+    return $dc->nativeToDatum($pseudo);
 }
 
-function desc($attribute) {
+function desc($attribute)
+{
     return new Desc($attribute);
 }
 
-function asc($attribute) {
+function asc($attribute)
+{
     return new Asc($attribute);
 }
 
-function json($json) {
+function json($json)
+{
     return new Json($json);
 }
 
-function http($url, $opts = null) {
+function http($url, $opts = null)
+{
     return new Http($url, $opts);
 }
 
-function rObject($object) {
+function rObject($object)
+{
     return new RObject($object);
 }
 
 // r\literal can accept 0 or 1 arguments
-function literal() {
+function literal()
+{
     if (func_num_args() == 0) {
         return new Literal();
     } else {
@@ -119,194 +210,251 @@ function literal() {
     }
 }
 
-function add($expr1, $expr2) {
+function add($expr1, $expr2)
+{
     return new Add($expr1, $expr2);
 }
-function sub($expr1, $expr2) {
+function sub($expr1, $expr2)
+{
     return new Sub($expr1, $expr2);
 }
-function mul($expr1, $expr2) {
+function mul($expr1, $expr2)
+{
     return new Mul($expr1, $expr2);
 }
-function div($expr1, $expr2) {
+function div($expr1, $expr2)
+{
     return new Div($expr1, $expr2);
 }
-function mod($expr1, $expr2) {
+function mod($expr1, $expr2)
+{
     return new Mod($expr1, $expr2);
 }
 
-function rAnd($expr1, $expr2) {
+function rAnd($expr1, $expr2)
+{
     return new RAnd($expr1, $expr2);
 }
-function rOr($expr1, $expr2) {
+function rOr($expr1, $expr2)
+{
     return new ROr($expr1, $expr2);
 }
 
-function eq($expr1, $expr2) {
+function eq($expr1, $expr2)
+{
     return new Eq($expr1, $expr2);
 }
-function ne($expr1, $expr2) {
+function ne($expr1, $expr2)
+{
     return new Ne($expr1, $expr2);
 }
-function gt($expr1, $expr2) {
+function gt($expr1, $expr2)
+{
     return new Gt($expr1, $expr2);
 }
-function ge($expr1, $expr2) {
+function ge($expr1, $expr2)
+{
     return new Ge($expr1, $expr2);
 }
-function lt($expr1, $expr2) {
+function lt($expr1, $expr2)
+{
     return new Lt($expr1, $expr2);
 }
-function le($expr1, $expr2) {
+function le($expr1, $expr2)
+{
     return new Le($expr1, $expr2);
 }
 
-function not($expr) {
+function not($expr)
+{
     return new Not($expr);
 }
 
-function random($left = null, $right = null, $opts = null) {
+function random($left = null, $right = null, $opts = null)
+{
     return new Random($left, $right, $opts);
 }
 
-function now() {
+function now()
+{
     return new Now();
 }
 
-function time($year, $month, $day, $hourOrTimezone = null, $minute = null, $second = null, $timezone = null) {
+function time($year, $month, $day, $hourOrTimezone = null, $minute = null, $second = null, $timezone = null)
+{
     return new Time($year, $month, $day, $hourOrTimezone, $minute, $second, $timezone);
 }
 
-function epochTime($epochTime) {
+function epochTime($epochTime)
+{
     return new EpochTime($epochTime);
 }
 
-function iso8601($iso8601Date, $opts = null) {
+function iso8601($iso8601Date, $opts = null)
+{
     return new Iso8601($iso8601Date, $opts);
 }
 
-function monday() {
+function monday()
+{
     return new Monday();
 }
-function tuesday() {
+function tuesday()
+{
     return new Tuesday();
 }
-function wednesday() {
+function wednesday()
+{
     return new Wednesday();
 }
-function thursday() {
+function thursday()
+{
     return new Thursday();
 }
-function friday() {
+function friday()
+{
     return new Friday();
 }
-function saturday() {
+function saturday()
+{
     return new Saturday();
 }
-function sunday() {
+function sunday()
+{
     return new Sunday();
 }
 
-function january() {
+function january()
+{
     return new January();
 }
-function february() {
+function february()
+{
     return new February();
 }
-function march() {
+function march()
+{
     return new March();
 }
-function april() {
+function april()
+{
     return new April();
 }
-function may() {
+function may()
+{
     return new May();
 }
-function june() {
+function june()
+{
     return new June();
 }
-function july() {
+function july()
+{
     return new July();
 }
-function august() {
+function august()
+{
     return new August();
 }
-function september() {
+function september()
+{
     return new September();
 }
-function october() {
+function october()
+{
     return new October();
 }
-function november() {
+function november()
+{
     return new November();
 }
-function december() {
+function december()
+{
     return new December();
 }
 
-function geoJSON($geojson) {
+function geoJSON($geojson)
+{
     return new GeoJSON($geojson);
 }
 
-function point($lat, $lon) {
+function point($lat, $lon)
+{
     return new Point($lat, $lon);
 }
 
-function line($points) {
+function line($points)
+{
     return new Line($points);
 }
 
-function polygon($points) {
+function polygon($points)
+{
     return new Polygon($points);
 }
 
-function circle($center, $radius, $opts = null) {
+function circle($center, $radius, $opts = null)
+{
     return new Circle($center, $radius, $opts);
 }
 
-function intersects($g1, $g2) {
+function intersects($g1, $g2)
+{
     return new Intersects($g1, $g2);
 }
 
-function distance($g1, $g2, $opts = null) {
+function distance($g1, $g2, $opts = null)
+{
     return new Distance($g1, $g2, $opts);
 }
 
-function uuid() {
+function uuid()
+{
     return new Uuid();
 }
 
-function minval() {
+function minval()
+{
     return new Minval();
 }
 
-function maxval() {
+function maxval()
+{
     return new Maxval();
 }
 
-function range($startOrEndValue = null, $endValue = null) {
+function range($startOrEndValue = null, $endValue = null)
+{
     return new Range($startOrEndValue, $endValue);
 }
 
-function mapMultiple($sequences, $mappingFunction) {
-    if (!is_array($sequences))
+function mapMultiple($sequences, $mappingFunction)
+{
+    if (!is_array($sequences)) {
         $sequences = array($sequences);
-    if (sizeof($sequences) < 1)
+    }
+    if (sizeof($sequences) < 1) {
         throw new RqlDriverError("At least one sequence must be passed into r\mapMultiple.");
+    }
     return new MapMultiple($sequences[0], array_slice($sequences, 1), $mappingFunction);
 }
 
-function ceil($value) {
+function ceil($value)
+{
     return new Ceil($value);
 }
 
-function floor($value) {
+function floor($value)
+{
     return new Floor($value);
 }
 
-function round($value) {
+function round($value)
+{
     return new Round($value);
 }
 
-
-?>
+function systemInfo()
+{
+    return "PHP-RQL Version: " . PHP_RQL_VERSION . "\n";
+}

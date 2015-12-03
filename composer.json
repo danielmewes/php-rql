@@ -23,10 +23,10 @@
     "autoload": {
         "files": ["src/rdb/rdb.php"],
         "psr-4": {
+            "r\\": "src/",
             "r\\Tests\\": "tests/"
         }
     },
-    "include-path": ["src/"],
     "scripts": {
         "test": "tests/phpunit.sh"
     },

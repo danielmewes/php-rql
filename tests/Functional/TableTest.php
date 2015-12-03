@@ -94,7 +94,7 @@ class TableTest extends TestCase
 
     public function testTableList()
     {
-        // it's hard to the name of the table crated in testCreateTable(),
+        // it's hard to know the name of the table crated in testCreateTable(),
         // instead, we assert the array length and the known table
 
         $res = $this->db()->tableList()->run($this->conn);

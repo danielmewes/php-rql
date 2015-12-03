@@ -3,7 +3,7 @@
 namespace r\Tests\Functional;
 
 use r\Tests\TestCase;
-use r\ArrayDatum;
+use r\Datum\ArrayDatum;
 
 // use function \r\row;
 // use function \r\Desc;

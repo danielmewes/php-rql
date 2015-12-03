@@ -7,7 +7,7 @@ $db = getenv('RDB_DB');
 $res = r\dbCreate($db)->run($conn);
 
 if ($res['dbs_created'] !== 1.0) {
-    echo 'Error crating DB' . PHP_EOL;
+    echo 'Error creating DB' . PHP_EOL;
     exit;
 }
 

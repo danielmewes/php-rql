@@ -3,7 +3,7 @@
 namespace r\Tests\Functional;
 
 use r\Tests\TestCase;
-use r\RqlServerError;
+use r\Exceptions\RqlServerError;
 
 // use function db;
 // use function \r\dbCreate;
