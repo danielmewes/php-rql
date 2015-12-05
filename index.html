@@ -42,20 +42,9 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <a id="updates" class="anchor" href="#updates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>12/04/2015 New release: PHP-RQL 2.2.0. Adds support for the <code>values</code> term, the <code>$conn-&gt;server()</code> command, and the optional <code>r\uuid</code> string argument from <a href="http://rethinkdb.com/blog/2.2-release/">RethinkDB 2.2</a>. PHP-RQL now conforms to PSR2 and PSR4, thanks to a major refactoring by <a href="https://github.com/mbrevda" class="user-mention">@mbrevda</a>. The testing system is now based on PHPUnit.</li>
 <li>09/20/2015 New release: PHP-RQL 2.1.0. Adds support for the <code>floor</code>, <code>ceil</code> and <code>round</code> terms from <a href="http://rethinkdb.com/blog/2.1-release/">RethinkDB 2.1</a>. Added support for SSL connections. To connect to an SSL host, use <code>r\connect(array("host" =&gt; "&lt;hostname&gt;", "port" =&gt; &lt;port&gt;, "apiKey" =&gt; "&lt;api key&gt;", "ssl" =&gt; array("cafile" =&gt; "&lt;path to ca cert&gt;")))</code>.</li>
 <li>08/04/2015 Bug fix release: PHP-RQL 2.0.1. Fixes an issue that caused PHP-RQL to get caught in an infinite loop if a connection was lost.</li>
-<li>04/18/2015 New release: PHP-RQL 2.0.0. PHP-RQL 2.0.0 is <em>not backwards compatible</em> to previous releases of PHP-RQL. Besides full support for <a href="http://rethinkdb.com/blog/2.0-release/">RethinkDB 2.0</a> features, there are a number of important changes in this release:
-
-<ul>
-<li>
-<code>toNative()</code> is no longer necessary nor available. Calling <code>run()</code> on a query that returns a single datum returns native PHP types immediately. If the query returns a cursor, an object of type <code>r\Cursor</code> is returned as in previous version. However iterating over the cursor will give you native PHP types without a need to call <code>toNative()</code>.</li>
-<li>RethinkDB objects are now returned as instances of PHP's <a href="http://php.net/manual/en/class.arrayobject.php">ArrayObject</a>, thanks to a patch by <a href="https://github.com/wojons" class="user-mention">@wojons</a>. While you can use these objects as if they were associative arrays, be careful if you used to check for <code>is_array</code> in your code.</li>
-<li>Date/time objects are now returned as PHP <a href="http://php.net/manual/en/class.datetime.php">DateTime</a> objects, thanks to a patch by <a href="https://github.com/duxet" class="user-mention">@duxet</a>. You can still obtain the raw RethinkDB objects by passing <code>dateFormat =&gt; "raw"</code> as an optional argument to <code>run()</code>.</li>
-<li>The deprecated <code>attr</code> term has been removed. You can use the identical <code>getField</code> instead.</li>
-<li>A deprecated syntax for specifying a secondary index for <code>getAll</code>, <code>between</code>, <code>orderBy</code>, <code>eqJoin</code> and other terms has been removed. Secondary index names must now be specified as an optional <code>index</code> argument, e.g. <code>table-&gt;getAll("key", array("index" =&gt; "indexName"))</code> instead of the old <code>table-&gt;getAll("key", "indexName")</code>.</li>
-<li>The API documentation system has been replaced. The documentation is now again based on RethinkDB's official JavaScript driver documentation, and is available at <a href="http://danielmewes.dnsalias.net/%7Edaniel/php-rql-api/">http://danielmewes.dnsalias.net/~daniel/php-rql-api/</a>.</li>
-</ul>
-</li>
 </ul>
 
 <h2>
@@ -63,7 +52,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 2.1</li>
+<li>RethinkDB 2.2</li>
 </ul>
 
 <h2>
@@ -78,7 +67,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <ol>
 <li>Download the ZIP file of this repository or clone it using git.</li>
 <li>Unpack it.</li>
-<li>Copy the <code>src/rdb</code> directory into the path of your PHP project, or your system's PHP path (e.g. <code>/usr/share/php</code>).</li>
+<li>Copy the <code>rdb</code> directory into the path of your PHP project, or your system's PHP path (e.g. <code>/usr/share/php</code>).</li>
 </ol>
 </li>
 </ul>
