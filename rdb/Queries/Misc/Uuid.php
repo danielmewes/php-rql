@@ -9,8 +9,7 @@ class Uuid extends ValuedQuery
 {
     public function __construct($str = null)
     {
-        if (isset($str))
-        {
+        if (isset($str)) {
             $this->setPositionalArg(0, $this->nativeToDatum($str));
         }
     }
