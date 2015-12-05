@@ -9,87 +9,110 @@
 < r\connect(host) &rarr; promise
 ---
 > r\connect(host, port=28015[, db[, authKey[, timeout]]]) &rarr; connection
-39c36
-< - `host`: the host to connect to (default `localhost`).
+42,52c39
+< r\connect(array(
+<     'db' => 'marvel'
+< ), function($err, $conn) {
+<     // ...
+< });
+< ```
+< 
+< If no callback is provided, a promise will be returned.
+< 
+< ```php
+< var $promise = r\connect(array('db' => 'marvel'));
 ---
-> - `host`: the host to connect to.
-43c40
-< - `timeout`: timeout period in seconds for the connection to be opened (default `20`).
----
-> - `timeout`: timeout period in seconds for after which reads from the network time out.
-45c42
-< If the connection cannot be established, a `RqlDriverError` will be passed to the callback instead of a connection.
----
-> If the connection cannot be established, a `RqlDriverError` will be thrown.
-50,54c47
-< r\connect(array( 'host' => 'localhost',
-<             'port' => 28015,
-<             'db' => 'marvel',
-<             'authKey' => 'hunter2' ),
-<           function($err, $conn) { ... })
----
-> $conn = r\connect('localhost', 28015)
-62,63c55
+> $conn = r\connect('localhost', 28015, "myDb")
+60,61c47
 < conn->close([array('noreplyWait' => true)])
 < conn->close([array('noreplyWait' => true)]) &rarr; promise
 ---
 > conn->close(noreplyWait=true)
-68,69d59
+66,67d51
 < If no callback is provided, a promise will be returned.
 < 
-73c63
+71c55
 < $conn->close(function($err) { if ($err) throw $err; })
 ---
 > $conn->close()
-81,82c71
+79,80c63
 < conn->reconnect([array('noreplyWait' => true)])
 < conn->reconnect([array('noreplyWait' => true)]) &rarr; promise
 ---
 > conn->reconnect(noreplyWait=true)
-87,88d75
+85,86d67
 < If no callback is provided, a promise will be returned.
 < 
-92c79
+90c71
 < $conn->reconnect(array('noreplyWait' => false), function($error, $connection) { ... })
 ---
 > $conn->reconnect(false)
-97c84
+95c76
 < ## [use](use/) ##
 ---
 > ## [useDb](useDb/) ##
-100c87
+98c79
 < conn->use(dbName)
 ---
 > conn->useDb(dbName)
-109,110c96,97
+107,108c88,89
 < $conn->use('marvel')
 < r\table('heroes')->run($conn, ...) // refers to r.db('marvel').table('heroes')
 ---
 > $conn->useDb('marvel')
 > r\table('heroes')->run($conn) // refers to r\db('marvel').table('heroes')
-116,117c103,104
+114,115c95,96
 < query->run(conn[, options])
 < query->run(conn[, options]) &rarr; promise
 ---
 > query->run(conn[, options]) &rarr; cursor
 > query->run(conn[, options]) &rarr; datum
-122,123c109
+120,121c101
 < The callback will get either an error, a single JSON result, or a
 < cursor, depending on the query.
 ---
 > Returns either a single result or a cursor, depending on the query.
-129c115,116
+127c107,108
 < r\table('marvel')->run($conn, function($err, $cursor) { $cursor->each($console->$log); })
 ---
 > $cursor = r\table('marvel')->run($conn)
 > foreach ($cursor as $x) { print_r($x); }
-138d124
+136d116
 < conn->noreplyWait() &rarr; promise
-148c134
+146c126
 < $conn->noreplyWait(function($err) { ... })
 ---
 > $conn->noreplyWait()
-155,198d140
+163c143
+< // Result passed to callback
+---
+> // Result
+167,260d146
+< If no callback is provided, a promise will be returned.
+< 
+< 
+< ## [EventEmitter (connection)](event_emitter/) ##
+< 
+< {% apibody %}
+< connection->addListener(event, listener)
+< connection->on(event, listener)
+< connection->once(event, listener)
+< connection->removeListener(event, listener)
+< connection->removeAllListeners([event])
+< connection->setMaxListeners(n)
+< connection->listeners(event)
+< connection->emit(event, [arg1], [arg2], [...])
+< {% endapibody %}
+< 
+< Connections implement the same interface as Node's [EventEmitter](http://nodejs.org/api/events.html#events_class_events_eventemitter).
+< This allows you to listen for changes in connection state.
+< 
+< [Read more about this command &rarr;](event_emitter/)
+< 
+< {% endapisection %}
+< 
+< {% apisection Cursors %}
+< 
 < ## [next](next/) ##
 < 
 < {% apibody %}
@@ -134,74 +157,112 @@
 < 
 < [Read more about this command &rarr;](each/)
 < 
-202,205c144
+< 
+< ## [eachAsync](each_async/) ##
+< 
+< {% apibody %}
+< cursor->eachAsync(function) &rarr; promise
+< array->eachAsync(function) &rarr; promise
+< feed->eachAsync(function) &rarr; promise
+< {% endapibody %}
+< 
+< Lazily iterate over a result set one element at a time in an identical fashion to [each](/api/javascript/each/), returning a Promise that will be resolved once all rows are returned.
+< 
+< __Example:__ Process all the elements in a stream.
+< 
+< ```php
+< $cursor->eachAsync(function($row) {
+<     // if a Promise is returned, it will be processed before the cursor
+<     // continues iteration.
+<     return asyncRowHandler($row);
+< })->then(function () {
+<     $console->log("done processing"); 
+< });
+< ```
+< 
+< [Read more about this command &rarr;](each_async/)
+< 
+264,267c150
 < cursor->toArray()
 < array->toArray()
 < cursor->toArray() &rarr; promise
 < array->toArray() &rarr; promise
 ---
 > cursor->toArray() &rarr; array
-208c147
+270c153
 < Retrieve all results and pass them as an array to the given callback.
 ---
 > Retrieve all results and return them as an array.
-214,217c153
+276,279c159
 < $cursor->toArray(function($err, $results) {
 <     if ($err) throw $err;
 <     processResults($results);
 < });
 ---
 > $fullResult = $cursor->toArray()
-240,256d175
-< ## [EventEmitter](event_emitter-cursor/) ##
-< 
-< {% apibody %}
-< cursor->addListener(event, listener)
-< cursor->on(event, listener)
-< cursor->once(event, listener)
-< cursor->removeListener(event, listener)
-< cursor->removeAllListeners([event])
-< cursor->setMaxListeners(n)
-< cursor->listeners(event)
-< cursor->emit(event, [arg1], [arg2], [...])
-< {% endapibody %}
-< 
-< Cursors and feeds implement the same interface as Node's [EventEmitter](http://nodejs.org/api/events.html#events_class_events_eventemitter).
-< 
-< [Read more about this command &rarr;](event_emitter-cursor/)
-< 
-428c347,349
+432c312,315
+< table->indexCreate(indexName[, indexFunction][, array('multi' => false, 'geo' => false)]) &rarr; object
+---
+> table->indexCreate(indexName[, indexFunction]) &rarr; object
+> table->indexCreateMulti(indexName[, indexFunction]) &rarr; object
+> table->indexCreateGeo(indexName[, indexFunction]) &rarr; object
+> table->indexCreateMultiGeo(indexName[, indexFunction]) &rarr; object
+436a320,321
+> The index can be either a regular index, a multi index, a geo index, or a multi geo index.
+> 
+491c376,378
 < table->indexStatus([, index...]) &rarr; array
 ---
 > table->indexStatus() &rarr; array
 > table->indexStatus(index) &rarr; array
 > table->indexStatus(array(index, ...)) &rarr; array
-449c370,372
+512c399,401
 < table->indexWait([, index...]) &rarr; array
 ---
 > table->indexWait() &rarr; array
 > table->indexWait(index) &rarr; array
 > table->indexWait(array(index, ...)) &rarr; array
-494c417
-< table->insert(json | [json][, array('durability' => "hard", 'return_changes' => false, 'conflict' => "error")]) &rarr; object
+542,544c431,434
+< r\table('games')->changes()->run($conn, function($err, $cursor) {
+<   $cursor->each($console->$log)
+< })
 ---
-> table->insert(json | array(json, ...)[, array('durability' => "hard", 'return_changes' => false, 'conflict' => "error")]) &rarr; object
-672c595,596
+> $feed = r\table('games')->changes()->run($conn);
+> foreach ($feed as $change) {
+>   print_r($change);
+> }
+557c447
+< table->insert(object | [object1, object2, ...][, array('durability' => "hard", 'return_changes' => false, 'conflict' => "error")]) &rarr; object
+---
+> table->insert(object | array(object, ...)[, array('durability' => "hard", 'return_changes' => false, 'conflict' => "error")]) &rarr; object
+736c626,627
 < table->getAll(key[, key2...], [, array('index' =>'id')]) &rarr; selection
 ---
 > table->getAll(key[, array('index' =>'id')]) &rarr; selection
 > table->getMultiple(array(key, ...)[, array('index' =>'id')]) &rarr; selection
-675a600
+739a631
 > Use `getMultiple` for retrieving documents under multiple keys at once.
-775c700
+819c711
 <     return marvelRow('strength')->lt(dcRow('strength'))
 ---
->     return $marvelRow('strength')->lt(dcRow('strength'));
-824,827c749,754
-< sequence1->map([sequence2, ...], mappingFunction) &rarr; stream
-< array1->map([sequence2, ...], mappingFunction) &rarr; array
-< r\map(sequence1[, sequence2, ...], mappingFunction) &rarr; stream
-< r\map(array1[, array2, ...], mappingFunction) &rarr; array
+>     return $marvelRow('strength')->lt($dcRow('strength'));
+838c730
+<     return marvelRow('strength')->lt(dcRow('strength'))
+---
+>     return $marvelRow('strength')->lt($dcRow('strength'));
+873,875c765,767
+< ```
+< r.table('marvel').eqJoin('main_dc_collaborator', r.table('dc'))
+<     .zip().run(conn, callback)
+---
+> ```php
+> r\table('marvel')->eqJoin('main_dc_collaborator', r\table('dc'))
+>     ->zip()->run($conn)
+888,891c780,785
+< sequence1->map([sequence2, ...], function) &rarr; stream
+< array1->map([array2, ...], function) &rarr; array
+< r\map(sequence1[, sequence2, ...], function) &rarr; stream
+< r\map(array1[, array2, ...], function) &rarr; array
 ---
 > sequence->map(mappingFunction) &rarr; stream
 > array->map(mappingFunction) &rarr; array
@@ -209,75 +270,79 @@
 > array1->mapMultiple(array(array2, ...), mappingFunction) &rarr; array
 > r\mapMultiple(array(sequence1, sequence2, ...), mappingFunction) &rarr; stream
 > r\mapMultiple(array(array1, array2, ...), mappingFunction) &rarr; array
-830c757
+894c788
 < Transform each element of one or more sequences by applying a mapping function to them. If `map` is run with two or more sequences, it will iterate for as many items as there are in the shortest sequence.
 ---
 > Transform each element of one or more sequences by applying a mapping function to them. For mapping over multiple sequences, `mapMultiple` must be used. `mapMultiple` will iterate for as many items as there are in the shortest sequence.
-835c762
+899c793
 < r\expr(array(1, 2, 3, 4, 5))->map(function ($val) {
 ---
 > $result = r\expr(array(1, 2, 3, 4, 5))->map(function ($val) {
-838c765
+902c796
 < // Result passed to callback
 ---
 > // Result
-847,848c774,775
+911,912c805,806
 < sequence->withFields([selector1, selector2...]) &rarr; stream
 < array->withFields([selector1, selector2...]) &rarr; array
 ---
 > sequence->withFields(selector | array(selector1, selector2...)) &rarr; stream
 > array->withFields(selector | array(selector1, selector2...)) &rarr; array
-856c783
+920c814
 < r\table('users')->withFields('id', 'username', 'posts')->run($conn)
 ---
 > r\table('users')->withFields(array('id', 'username', 'posts'))->run($conn)
-874c801
+938c832
 <     return hero('defeatedMonsters')
 ---
 >     return $hero('defeatedMonsters');
-883,885c810,812
-< table->orderBy([key1...], array('index' => index_name)) &rarr; selection<stream>
-< selection->orderBy(key1, [key2...]) &rarr; selection<array>
-< sequence->orderBy(key1, [key2...]) &rarr; array
+947,949c841,843
+< table->orderBy([key | function...], {'index' => index_name}) &rarr; table_slice
+< selection->orderBy(key | function[, ...]) &rarr; selection<array>
+< sequence->orderBy(key | function[, ...]) &rarr; array
 ---
-> table->orderBy(key2 | array(key2, ...), array('index' => index_name)) &rarr; selection<stream>
-> selection->orderBy(key | array(key1, ,,,)) &rarr; selection<array>
-> sequence->orderBy(key | array(key1, ...)) &rarr; array
-1017,1018c944,945
+> table->orderBy(keyOrFunction2 | array(keyOrFunction2, ...), array('index' => index_name)) &rarr; table_slice
+> selection->orderBy(keyOrFunction | array(keyOrFunction1, ,,,)) &rarr; selection<array>
+> sequence->orderBy(keyOrFunction | array(keyOrFunction1, ...)) &rarr; array
+953c847
+< the ordering, wrap the attribute with either `r.asc` or `r.desc`
+---
+> the ordering, wrap the attribute with either `r\asc` or `r\desc`
+957c851
+< memory, and is limited to 100,000 documents (or the setting of the `arrayLimit` option for [run](/api/javascript/run)). Sorting with an index can
+---
+> memory, and is limited to 100,000 documents (or the setting of the `array_limit` option for run). Sorting with an index can
+1081,1082c975,976
 < stream->union(sequence[, sequence, ...]) &rarr; stream
 < array->union(sequence[, sequence, ...]) &rarr; array
 ---
 > stream->union(sequence) &rarr; stream
 > array->union(sequence) &rarr; array
-1021c948
-< Concatenate two or more sequences.
+1085c979
+< Merge two or more sequences. (Note that ordering is not guaranteed by `union`.)
 ---
-> Concatenate two sequences.
-1057c984
-< sequence->group(fieldOrFunction..., [array('index' => "indexName", 'multi' => false)]) &rarr; grouped_stream
+> Merge two sequences. (Note that ordering is not guaranteed by `union`.)
+1121c1015
+< sequence->group(field | function..., [{'index' => <indexname>, 'multi' => false}]) &rarr; grouped_stream
 ---
 > sequence->group(fieldOrFunction[, array('index' => "indexName", 'multi' => false)]) &rarr; grouped_stream
-1091c1018
-<     ->group('player')->max('points')array('points')
----
->     ->group('player')->max('points')
-1113c1040
+1177c1071
 <     return 1
 ---
 >     return 1;
-1115c1042
+1179c1073
 <     return $left->add($right)
 ---
 >     return $left->add($right);
-1240c1167
+1303c1197
 <     return hero('villainList')
 ---
 >     return $hero('villainList');
-1250c1177
-< sequence->contains(value1[, value2...]) &rarr; bool
+1313c1207
+< sequence->contains([value | predicate_function, ...]) &rarr; bool
 ---
 > sequence->contains(value | function) &rarr; bool
-1253,1255c1180,1182
+1316,1318c1210,1212
 < Returns whether or not a sequence contains all the specified values, or if functions are
 < provided instead, returns whether or not a sequence contains values matching all the
 < specified functions.
@@ -285,11 +350,11 @@
 > Returns whether or not a sequence contains the specified value, or if functions are
 > provided instead, returns whether or not a sequence contains values matching the
 > specified function.
-1275c1202
+1338c1232
 < r\row &rarr; value
 ---
 > r\row([field]) &rarr; value
-1292,1295c1219,1222
+1355,1358c1249,1252
 < sequence->pluck([selector1, selector2...]) &rarr; stream
 < array->pluck([selector1, selector2...]) &rarr; array
 < object->pluck([selector1, selector2...]) &rarr; object
@@ -299,11 +364,11 @@
 > array->pluck(selector | array(selector1, selector2...)) &rarr; array
 > object->pluck(selector | array(selector1, selector2...)) &rarr; object
 > singleSelection->pluck(selector | array(selector1, selector2...)) &rarr; object
-1305c1232
+1368c1262
 < r\table('marvel')->get('IronMan')->pluck('reactorState', 'reactorPower')->run($conn)
 ---
 > r\table('marvel')->get('IronMan')->pluck(array('reactorState', 'reactorPower'))->run($conn)
-1313,1316c1240,1243
+1376,1379c1270,1273
 < sequence->without([selector1, selector2...]) &rarr; stream
 < array->without([selector1, selector2...]) &rarr; array
 < singleSelection->without([selector1, selector2...]) &rarr; object
@@ -313,20 +378,12 @@
 > array->without(selector | array(selector1, selector2...)) &rarr; array
 > singleSelection->without(selector | array(selector1, selector2...)) &rarr; object
 > object->without(selector | array(selector1, selector2...)) &rarr; object
-1473c1400,1401
+1537c1431,1432
 < r\table('marvel')->get('IronMan')->getField('firstAppearance')->run($conn)
 ---
 > $ironMan = r\table('marvel')->get('IronMan');
 > $ironMan('firstAppearance')->run($conn)
-1481,1483c1409,1411
-< sequence(attr) &rarr; sequence
-< singleSelection(attr) &rarr; value
-< object(attr) &rarr; value
----
-> sequence->getField(attr) &rarr; sequence
-> singleSelection->getField(attr) &rarr; value
-> object->getField(attr) &rarr; value
-1499,1501c1427,1429
+1563,1565c1458,1460
 < sequence->hasFields([selector1, selector2...]) &rarr; stream
 < array->hasFields([selector1, selector2...]) &rarr; array
 < object->hasFields([selector1, selector2...]) &rarr; boolean
@@ -334,59 +391,85 @@
 > sequence->hasFields(selector | array(selector1, selector2...)) &rarr; stream
 > array->hasFields(selector | array(selector1, selector2...)) &rarr; array
 > object->hasFields(selector | array(selector1, selector2...)) &rarr; boolean
-1609c1537
+1621c1516
+< // result passed to callback
+---
+> // result
+1656c1551
+< // Result passed to callback
+---
+> // Result
+1677c1572
+< // Result passed to callback
+---
+> // Result
+1698c1593
 < r\object([key, value,]...) &rarr; object
 ---
 > r\object(array(key, value,...)) &rarr; object
-1613c1541
+1702c1597
 < be strings.  `r.object(A, B, C, D)` is equivalent to
 ---
 > be strings.  `r.object(array(A, B, C, D))` is equivalent to
-1619c1547
+1708c1603
 < r\object('id', 5, 'data', array('foo', 'bar'))->run($conn)
 ---
 > r\object(r.array('id', 5, 'data', array('foo', 'bar')))->run($conn)
-1647c1575
+1736c1631
 <     return doc('name')->match("^A")
 ---
 >     return $doc('name')->match("^A");
-1801c1729
+1888c1783
 < ## [and](and/) ##
 ---
 > ## [rAnd](rAnd/) ##
-1804,1805c1732,1733
-< bool->and(bool[, bool, ...]) &rarr; bool
-< r\and(bool[, bool, ...]) &rarr; bool
+1891,1892c1786,1787
+< bool->and([bool, bool, ...]) &rarr; bool
+< r\and([bool, bool, ...]) &rarr; bool
 ---
 > bool->rAnd(bool) &rarr; bool
-> r\rAnd(bool) &rarr; bool
-1808c1736
-< Compute the logical "and" of two or more values.
+> r\rAnd(bool, bool) &rarr; bool
+1895c1790
+< Compute the logical "and" of one or more values.
 ---
 > Compute the logical "and" of two values.
-1814c1742
+1901,1902c1796,1797
 < r\expr($a)->and($b)->run($conn);
+< // result passed to callback
 ---
 > r\expr($a)->rAnd($b)->run($conn);
-1819c1747
+> // result
+1906c1801
 < ## [or](or/) ##
 ---
 > ## [rOr](rOr/) ##
-1822,1823c1750,1751
-< bool->or(bool[, bool, ...]) &rarr; bool
-< r\or(bool[, bool, ...]) &rarr; bool
+1909,1910c1804,1805
+< bool->or([bool, bool, ...]) &rarr; bool
+< r\or([bool, bool, ...]) &rarr; bool
 ---
 > bool->rOr(bool) &rarr; bool
-> r\rOr(bool) &rarr; bool
-1827c1755
-< Compute the logical "or" of two or more values.
+> r\rOr(bool, bool) &rarr; bool
+1913c1808
+< Compute the logical "or" of one or more values.
 ---
 > Compute the logical "or" of two values.
-1833c1761
+1919,1920c1814,1815
 < r\expr($a)->or($b)->run($conn);
+< // result passed to callback
 ---
 > r\expr($a)->rOr($b)->run($conn);
-2309,2328d2236
+> // result
+1949,1950c1844,1845
+< ```rb
+< r.table('users').get(1)('role').ne('administrator').run(conn, callback);
+---
+> ```php
+> r\table('users')->get(1)->getField('role')->ne('administrator')->run($conn);
+2424c2319
+< // Result passed to callback
+---
+> // Result
+2450,2469d2344
 < ## [args](args/) ##
 < 
 < {% apibody %}
@@ -407,7 +490,7 @@
 < r\table('people')->getAll(r\args(array('Alice', 'Bob')))->run($conn)
 < ```
 < 
-2340,2350c2248,2251
+2481,2491c2356,2359
 < var $fs = require('fs');
 < $fs->readFile('./defaultAvatar.png', function ($err, $avatarImage) {
 <     if ($err) array(
@@ -424,11 +507,11 @@
 > r\table('users')->get(100)->update(array(
 >     'avatar' => r\binary($avatarImage)
 > ))->run($conn)
-2355c2256
+2496c2364
 < ## [do](do/) ##
 ---
 > ## [rDo](rDo/) ##
-2358,2361c2259,2262
+2499,2502c2367,2370
 < any->do(function) &rarr; any
 < r\do([args]*, function) &rarr; any
 < any->do(expr) &rarr; any
@@ -438,133 +521,137 @@
 > r\rDo(arg | array(arg,...), function) &rarr; any
 > any->rDo(expr) &rarr; any
 > r\rDo(arg | array(arg,...), expr) &rarr; any
-2369c2270
+2510c2378
 < r\table('players')->get('f19b5f16-ef14-468f-bd48-e194761df255')->do(
 ---
 > r\table('players')->get('f19b5f16-ef14-468f-bd48-e194761df255')->rDo(
-2371c2272
+2512c2380
 <         return player('gross_score')->sub(player('course_handicap'));
 ---
 >         return $player('gross_score')->sub($player('course_handicap'));
-2402c2303
+2534c2402
+< // Result passed to callback
+---
+> // Result
+2540c2408
 < ## [forEach](for_each/) ##
 ---
 > ## [rForeach](rForeach/) ##
-2405c2306
-< sequence->forEach(write_query) &rarr; object
+2543c2411
+< sequence->forEach(write_function) &rarr; object
 ---
-> sequence->rForeach(write_query) &rarr; object
-2413,2414c2314,2315
+> sequence->rForeach(write_function) &rarr; object
+2551,2552c2419,2420
 < r\table('marvel')->forEach(function($hero) {
 <     return r\table('villains')->get(hero('villainDefeated'))->delete()
 ---
 > r\table('marvel')->rForeach(function($hero) {
 >     return r\table('villains')->get($hero('villainDefeated'))->delete()
-2448c2349
+2586c2454
 <     return r\branch(ironman('victories')->lt(ironman('battles')),
 ---
 >     return r\branch($ironman('victories')->lt($ironman('battles')),
-2476,2477c2377,2378
+2608,2609c2476,2477
 <         'title' => post("title"),
 <         'author' => post("author")->default("Anonymous")
 ---
 >         'title' => $post("title"),
 >         'author' => $post("author")->default("Anonymous")
-2495c2396
+2627c2495
 < r\expr(array('a' =>'b'))->merge(array('b' =>array(1,2,3)))->run($conn)
 ---
 > r\expr(array('a' => 'b'))->merge(array('b' => array(1,2,3)))->run($conn)
-2581c2482
+2716c2584
 < ## [toJsonString, toJSON](to_json_string/) ##
 ---
 > ## [toJsonString](to_json_string/) ##
-2585d2485
+2720d2587
 < value->toJSON() &rarr; string
-2588c2488
+2723c2590
 < Convert a ReQL value or object to a JSON string. You may use either `toJsonString` or `toJSON`.
 ---
 > Convert a ReQL value or object to a JSON string.
-2593,2594c2493,2494
-< > r\table('hero')->get(1)->toJson()
+2728,2729c2595,2596
+< > r\table('hero')->get(1)->toJSON()
 < // result returned to callback
 ---
 > > r\table('hero')->get(1)->toJsonString()
 > // result
-2626c2526
+2761c2628
 < // result returned to callback
 ---
 > // result
-2637c2537
+2774c2641
 < r\circle([longitude, latitude], radius[, array('num_vertices' => 32, 'geo_system' => 'WGS84', 'unit' => 'm', 'fill' => true)]) &rarr; geometry
 ---
 > r\circle(array(longitude, latitude), radius[, array('num_vertices' => 32, 'geo_system' => 'WGS84', 'unit' => 'm', 'fill' => true)]) &rarr; geometry
-2669c2569
+2807c2674
 < // result returned to callback 
 ---
 > // result
-2688c2588
+2826c2693
 <     'rectangle' => r\line(
 ---
 >     'rectangle' => r\line(array(
-2693c2593
+2831c2698
 <     )
 ---
 >     ))
-2743c2643
+2879c2746
 < // result passed to callback
 ---
 > // result
-2763c2663
+2899c2766
 < var $circle1 = r\circle(array(-117.220406,32.719464), 10, array('unit' => 'mi'));
 ---
 > $circle1 = r\circle(array(-117.220406,32.719464), 10, array('unit' => 'mi'));
-2780c2680
+2916c2783
 < var $secretBase = r\point(-122.422876,37.777128);
 ---
 > $secretBase = r\point(-122.422876,37.777128);
-2803c2703
+2939c2806
 < // result returned to callback 
 ---
 > // result
-2824c2724
+2962c2829
 < // result returned to callback 
 ---
 > // result
-2833,2834c2733,2734
+2971,2972c2838,2839
 < r\line([lon1, lat1], [lon2, lat1], ...) &rarr; line
 < r\line(point1, point2, ...) &rarr; line
 ---
 > r\line(array(array(lon1, lat1), array(lon2, lat2), ...)) &rarr; line
 > r\line(array(point1, point2, ...)) &rarr; line
-2847c2747
+2985c2852
 <     'route' => r\line(array(-122.423246,37.779388), array(-121.886420,37.329898))
 ---
 >     'route' => r\line(array(array(-122.423246,37.779388), array(-121.886420,37.329898)))
-2876,2877c2776,2777
-< r\polygon([lon1, lat1], [lon2, lat2], ...) &rarr; polygon
-< r\polygon(point1, point2, ...) &rarr; polygon
+3014,3015c2881,2882
+< r\polygon([lon1, lat1], [lon2, lat2], [lon3, lat3], ...) &rarr; polygon
+< r\polygon(point1, point2, point3, ...) &rarr; polygon
 ---
 > r\polygon(array(array(lon1, lat1), array(lon2, lat2), ...)) &rarr; polygon
 > r\polygon(array(point1, point2, ...)) &rarr; polygon
-2890c2790
+3028c2895
 <     'rectangle' => r\polygon(
 ---
 >     'rectangle' => r\polygon(array(
-2895c2795
+3033c2900
 <     )
 ---
 >     ))
-2913c2813
+3051c2918
 < var $outerPolygon = r\polygon(
 ---
 > var $outerPolygon = r\polygon(array(
-2918,2919c2818,2819
+3056,3057c2923,2924
 < );
 < var $innerPolygon = r\polygon(
 ---
 > ));
 > var $innerPolygon = r\polygon(array(
-2924c2824
+3062c2929
 < );
 ---
 > ));
