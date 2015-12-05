@@ -7,7 +7,7 @@ PHP-RQL is licensed under the terms of the Apache License 2.0 http://www.apache.
 
 Continuous Integration
 -----------------------
-[![wercker status](https://app.wercker.com/status/931a7097f0ad9c272bd489f4dd16ab3e/s/master "wercker status")](https://app.wercker.com/project/bykey/931a7097f0ad9c272bd489f4dd16ab3e)
+[![wercker status](https://app.wercker.com/status/931a7097f0ad9c272bd489f4dd16ab3e/m "wercker status")](https://app.wercker.com/project/bykey/931a7097f0ad9c272bd489f4dd16ab3e)
 
 To run the tests at the command line, issue `composer install` and then `composer test` at the package root. This requires `composer` to be available in `$PATH`.
 
