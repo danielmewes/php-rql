@@ -20,7 +20,7 @@ spl_autoload_register(function ($class) {
     $prefix = 'r\\';
 
     // base directory for the namespace prefix
-    $base_dir = __DIR__ . '/../../src/';
+    $base_dir = __DIR__ . '/';
 
     // does the class use the namespace prefix?
     $len = strlen($prefix);
@@ -44,4 +44,4 @@ spl_autoload_register(function ($class) {
 });
 
 require_once(__DIR__ . '/global.php');
-require_once(__DIR__ . '../../version.php');
+require_once(__DIR__ . '/version.php');

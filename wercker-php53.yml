@@ -24,7 +24,7 @@ build:
           name: phplint
           code: ./vendor/bin/parallel-lint --exclude vendor .
         #- mbrevda/phpcs:
-        #-     directory: src/
+        #-     directory: rdb/
       - script:
           name: phpunit
           code: composer test

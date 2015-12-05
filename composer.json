@@ -21,9 +21,9 @@
         "jakub-onderka/php-parallel-lint": "dev-master"
     },
     "autoload": {
-        "files": ["src/rdb/rdb.php"],
+        "files": ["rdb/rdb.php"],
         "psr-4": {
-            "r\\": "src/",
+            "r\\": "rdb/",
             "r\\Tests\\": "tests/"
         }
     },

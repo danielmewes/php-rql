@@ -23,7 +23,7 @@ build:
           name: phplint
           code: ./vendor/bin/parallel-lint --exclude vendor .
       - mbrevda/phpcs:
-          directory: src/
+          directory: rdb/
           standard: PSR2
       - script:
           name: phpunit
