@@ -6,5 +6,5 @@ $rdbProtocolParser = new \PBParser();
 $rdbProtocolParser->parse(
     __DIR__ . '/ql2.proto',
     'r\ProtocolBuffer', // namespace
-    __DIR__ . '/../src/ProtocolBuffer' //destination dir
+    __DIR__ . '/../rdb/ProtocolBuffer' //destination dir
 );

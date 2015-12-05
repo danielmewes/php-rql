@@ -101,4 +101,10 @@ class ConnectionTest extends TestCase
 
         $this->assertLessThan(0.5, time(true) - $t);
     }
+
+    public function testServer()
+    {
+        $this->assertArrayHasKey("id", $this->conn->server());
+        $this->assertArrayHasKey("name", $this->conn->server());
+    }
 }

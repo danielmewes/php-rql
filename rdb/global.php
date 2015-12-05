@@ -408,9 +408,9 @@ function distance($g1, $g2, $opts = null)
     return new Distance($g1, $g2, $opts);
 }
 
-function uuid()
+function uuid($str = null)
 {
-    return new Uuid();
+    return new Uuid($str);
 }
 
 function minval()

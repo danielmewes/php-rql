@@ -53,6 +53,7 @@ use r\Queries\Manipulation\GetField;
 use r\Queries\Manipulation\HasFields;
 use r\Queries\Manipulation\InsertAt;
 use r\Queries\Manipulation\Keys;
+use r\Queries\Manipulation\Values;
 use r\Queries\Manipulation\Merge;
 use r\Queries\Manipulation\Pluck;
 use r\Queries\Manipulation\Prepend;
@@ -306,6 +307,10 @@ abstract class ValuedQuery extends Query
     public function keys()
     {
         return new Keys($this);
+    }
+    public function values()
+    {
+        return new Values($this);
     }
     public function add($other)
     {

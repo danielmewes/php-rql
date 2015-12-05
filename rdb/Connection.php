@@ -166,6 +166,30 @@ class Connection extends DatumConverter
         }
     }
 
+    public function server()
+    {
+        if (!$this->isOpen()) {
+            throw new RqlDriverError("Not connected.");
+        }
+
+        // Generate a token for the request
+        $token = $this->generateToken();
+
+        // Send the request
+        $jsonQuery = array(QueryQueryType::PB_SERVER_INFO);
+        $this->sendQuery($token, $jsonQuery);
+
+        // Await the response
+        $response = $this->receiveResponse($token);
+
+        if ($response['t'] != ResponseResponseType::PB_SERVER_INFO) {
+            throw new RqlDriverError("Unexpected response type to server info query.");
+        }
+
+        $toNativeOptions = array();
+        return $this->createDatumFromResponse($response)->toNative($toNativeOptions);
+    }
+
     public function run(Query $query, $options = array(), &$profile = '')
     {
         if (isset($options) && !is_array($options)) {

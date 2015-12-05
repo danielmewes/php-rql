@@ -331,6 +331,13 @@ class ManipulationsTest extends TestCase
         $this->assertEquals(array('a', 'b', 'c'), (array)$res);
     }
 
+    public function testValues()
+    {
+        $res = \r\expr(array('a' => 1, 'b' => 2, 'c' => 3))->values()->run($this->conn);
+
+        $this->assertEquals(array(1, 2, 3), (array)$res);
+    }
+
     public function testInsertAt()
     {
         $res = \r\expr(array('Iron Man', 'Spider-Man'))->insertAt(1, 'Hulk')->run($this->conn);

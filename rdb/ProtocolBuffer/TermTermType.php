@@ -172,6 +172,7 @@ class TermTermType
     const PB_UPCASE              = 141;
     const PB_UPDATE              = 53;
     const PB_UUID                = 169;
+    const PB_VALUES              = 186;
     const PB_VAR                 = 10;
     const PB_WAIT                = 177;
     const PB_WEDNESDAY           = 109;
