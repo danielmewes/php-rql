@@ -27,5 +27,5 @@ install:
 
 script:
   - php vendor/bin/parallel-lint --exclude vendor .
-  - php vendor/bin/phpcs --standard=PSR2 rdb/
+  - php vendor/bin/phpcs -n --standard=PSR2 rdb/
   - composer test
