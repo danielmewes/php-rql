@@ -152,19 +152,19 @@ class JoinTest extends TestCase
         $excpected = array(
             array(
                 'left' => array('id' => 1, 'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
+                'right' => array('id' => 'b', 'other' => 1 )
             ),
             array(
                 'left' => array('id' => 1, 'other' => 'a'),
-                'right' => array('id' => 'b', 'other' => 1 )
-            )
+                'right' => array('id' => 'a', 'other' => 1 )
+            ),
         );
 
         $res = $this->db()->table('t1')
             ->eqJoin('id', $this->db()->table('t2'), array('index' => 'other'))
             ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->orderArrayByLeftId($res));
+        $this->assertEquals($excpected, $this->toArray($res->toArray()));
     }
 
     public function testEqJoinFunc()
