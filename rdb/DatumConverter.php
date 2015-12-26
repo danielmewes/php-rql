@@ -34,12 +34,7 @@ class DatumConverter
                 if (!is_numeric($key) && !is_string($key)) {
                     throw new RqlDriverError("Key must be a string.");
                 }
-                if (
-                    (is_object($val)
-                    && is_subclass_of($val, "\\r\\Query"))
-                    && !(is_object($val)
-                    && is_subclass_of($val, '\r\Datum\Datum'))
-                ) {
+                if (is_subclass_of($val, "\\r\\Query") && !is_subclass_of($val, '\r\Datum\Datum')) {
                     $subDatum = $val;
                     $mustUseMakeTerm = true;
                 } else {
