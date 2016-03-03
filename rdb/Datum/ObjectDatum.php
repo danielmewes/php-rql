@@ -4,6 +4,7 @@ namespace r\Datum;
 
 use r\Datum\Datum;
 use r\DatumConverter;
+use r\Exceptions\RqlDriverError;
 
 class ObjectDatum extends Datum
 {

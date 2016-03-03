@@ -3,6 +3,7 @@
 namespace r;
 
 use Iterator;
+use r\Exceptions\RqlDriverError;
 use r\ProtocolBuffer\ResponseResponseType;
 use r\DatumConverter;
 

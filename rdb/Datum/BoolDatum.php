@@ -3,6 +3,7 @@
 namespace r\Datum;
 
 use r\Datum\Datum;
+use r\Exceptions\RqlDriverError;
 
 class BoolDatum extends Datum
 {
