@@ -2,6 +2,7 @@
 
 namespace r\ValuedQuery;
 
+use r\Exceptions\RqlDriverError;
 use r\ValuedQuery\ValuedQuery;
 use r\Datum\NumberDatum;
 use r\ProtocolBuffer\TermTermType;

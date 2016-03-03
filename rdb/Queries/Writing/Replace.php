@@ -2,6 +2,7 @@
 
 namespace r\Queries\Writing;
 
+use r\Exceptions\RqlDriverError;
 use r\ValuedQuery\ValuedQuery;
 use r\ValuedQuery\Json;
 use r\ProtocolBuffer\TermTermType;
