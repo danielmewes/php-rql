@@ -36,6 +36,7 @@ Example
     $document = array('someKey' => 'someValue');
     $result = r\table("tablePhpTest")->insert($document)
         ->run($conn);
+    $result = json_encode($result);
     echo "Insert: $result\n";
 
     // How many documents are in the table?
