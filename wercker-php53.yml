@@ -1,0 +1,30 @@
+box: h4cc/ubuntu1204-php53
+services:
+    - rethinkdb
+build:
+    steps:
+      - script:
+          name: echo php information
+          code: |
+            echo "php version $(php --version) running"
+            echo "from location $(which php)"
+            composer self-update;
+            composer --version 
+      - script:
+          name: remove stale assets
+          code: >
+              if [ -f composer.lock ]; then rm composer.lock; fi;
+              if [ -d vendor        ]; then rm -r vendor; fi;
+      - script:
+          name: install composer dependencies
+          code: >
+            composer config cache-dir $WERCKER_CACHE_DIR/composer;
+            composer install --no-interaction
+      - script:
+          name: phplint
+          code: ./vendor/bin/parallel-lint --exclude vendor .
+        #- mbrevda/phpcs:
+        #-     directory: rdb/
+      - script:
+          name: phpunit
+          code: composer test

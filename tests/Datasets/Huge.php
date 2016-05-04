@@ -1,22 +1,29 @@
 <?php
 
+namespace r\Tests\Datasets;
+
+// use function r\db;
+// use function r\dbCreate;
+// use function r\dbDrop;
+
 class Huge extends Dataset
 {
-    protected function create()
+    public function create()
+    {
+        //dbCreate('Huge')->run($this->conn);
+    }
+
+    public function populate()
     {
         // Prepare a table with 5000 rows
-        r\dbCreate('Huge')->run($this->conn);
-        r\db('Huge')->tableCreate('t5000', array('durability' => 'soft'))->run($this->conn);
-        
+
         $doc = array('key' => str_repeat("var", 1000));
         $docs = array_fill(0, 5000, $doc);
-        r\db('Huge')->table('t5000')->insert($docs)->run($this->conn);        
-    }    
-    
-    protected function delete()
+        \r\db($this->db)->table('t5000')->insert($docs)->run($this->conn);
+    }
+
+    public function truncate()
     {
-        r\dbDrop('Huge')->run($this->conn);
+        \r\db($this->db)->table('t5000')->delete()->run($this->conn);
     }
 }
-
-?>

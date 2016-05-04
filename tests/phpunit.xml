@@ -1,0 +1,20 @@
+<phpunit
+    color="true"
+    backupGlobals="false"
+    bootstrap="../vendor/autoload.php"
+    >
+    <testsuites>
+        <testsuite name="Functional">
+            <directory>./Functional</directory>
+        </testsuite>
+    </testsuites>
+     <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../rdb</directory>
+        </whitelist>
+    </filter>
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <ini name="date.timezone" value="UTC"/>
+    </php>
+</phpunit>

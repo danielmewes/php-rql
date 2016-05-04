@@ -1,17 +1,22 @@
 <?php
 
+namespace r\Tests\Datasets;
+
+//use function r\db;
+
+
 class Control extends Dataset
 {
-    protected function create()
+    public function populate()
     {
-        r\dbCreate('Control')->run($this->conn);
-        r\db('Control')->tableCreate('t1')->run($this->conn);
-    }    
-    
-    protected function delete()
+    }
+    public function truncate()
     {
-        r\dbDrop('Control')->run($this->conn);
+        \r\db($this->db)->table('t1')->delete()->run($this->conn);
+    }
+
+    public function create()
+    {
+        \r\db($this->db)->tableCreate('t1')->run($this->conn);
     }
 }
-
-?>
