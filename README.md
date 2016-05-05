@@ -7,7 +7,10 @@ PHP-RQL is licensed under the terms of the Apache License 2.0 http://www.apache.
 
 Continuous Integration
 -----------------------
+Master branch:
 [![master branch](https://travis-ci.org/danielmewes/php-rql.svg?branch=master)](https://travis-ci.org/danielmewes/php-rql)
+
+Development branch:
 [![dev branch](https://travis-ci.org/danielmewes/php-rql.svg?branch=dev)](https://travis-ci.org/danielmewes/php-rql)
 
 To run the tests at the command line, issue `composer install` and then `composer test` at the package root. This requires `composer` to be available in `$PATH`.
