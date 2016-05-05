@@ -60,46 +60,46 @@ class ConnectionTest extends TestCase
     public function testNoReplyWait()
     {
         \r\js('while(true) {}', 2.0)->run($this->conn, array('noreply' => true));
-        $t = time(true);
+        $t = microtime(true);
         $this->conn->noreplyWait();
 
-        $this->assertGreaterThan(1.5, time(true) - $t);
+        $this->assertGreaterThan(1.5, microtime(true) - $t);
     }
 
     public function testNoReplyReconnect()
     {
         \r\js('while(true) {}', 2.0)->run($this->conn, array('noreply' => true));
-        $t = time(true);
+        $t = microtime(true);
         $this->conn->reconnect();
 
-        $this->assertGreaterThan(1.5, time(true) - $t);
+        $this->assertGreaterThan(1.5, microtime(true) - $t);
     }
 
     public function testNoReplyClose()
     {
         \r\js('while(true) {}', 2.0)->run($this->conn, array('noreply' => true));
-        $t = time(true);
+        $t = microtime(true);
         $this->conn->close();
 
-        $this->assertGreaterThan(1.5, time(true) - $t);
+        $this->assertGreaterThan(1.5, microtime(true) - $t);
     }
 
     public function testNoReplyCloseImmediately()
     {
         \r\js('while(true) {}', 2.0)->run($this->conn, array('noreply' => true));
-        $t = time(true);
+        $t = microtime(true);
         $this->conn->close(false);
 
-        $this->assertLessThan(0.5, time(true) - $t);
+        $this->assertLessThan(0.5, microtime(true) - $t);
     }
 
     public function testNoReplyReconnectImmediately()
     {
         \r\js('while(true) {}', 2.0)->run($this->conn, array('noreply' => true));
-        $t = time(true);
+        $t = microtime(true);
         $this->conn->reconnect(false);
 
-        $this->assertLessThan(0.5, time(true) - $t);
+        $this->assertLessThan(0.5, microtime(true) - $t);
     }
 
     public function testServer()
