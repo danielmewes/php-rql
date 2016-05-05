@@ -16,13 +16,15 @@ class Handshake
     private $clientFirstMessage;
     private $serverSignature;
 
-    public function __construct($username,$password) {
+    public function __construct($username, $password)
+    {
         $this->username = str_replace(",", "=2C", str_replace("=", "=3D", $username));
         $this->password = $password;
         $this->state = 0;
     }
 
-    public function nextMessage($response) {
+    public function nextMessage($response)
+    {
         if ($this->state == 0) {
             $response == null or die("Illegal handshake state");
 
@@ -34,11 +36,15 @@ class Handshake
             $this->state = 1;
             return
                 $binaryVersion
-                . json_encode(array("protocol_version" => $this->protocol_version,
-                                     "authentication_method" => "SCRAM-SHA-256",
-                                     "authentication" => "n,," . $this->clientFirstMessage))
+                . json_encode(
+                    array(
+                        "protocol_version" => $this->protocol_version,
+                        "authentication_method" => "SCRAM-SHA-256",
+                        "authentication" => "n,," . $this->clientFirstMessage
+                    )
+                )
                 . chr(0);
-        } else if ($this->state == 1) {
+        } elseif ($this->state == 1) {
             if (strpos($response, "ERROR") === 0) {
                 throw new RqlDriverError("Received an unexpected reply. You may be attempting to connect to "
                                           . "a RethinkDB server that is too old for this driver. The minimum "
@@ -56,7 +62,7 @@ class Handshake
 
             $this->state = 2;
             return "";
-        } else if ($this->state == 2) {
+        } elseif ($this->state == 2) {
             $json = json_decode($response, true);
             if ($json["success"] === false) {
                 throw new RqlDriverError("Handshake failed: " . $json["error"]);
@@ -79,7 +85,8 @@ class Handshake
             $clientKey = hash_hmac("sha256", "Client Key", $saltedPassword, true);
             $storedKey = hash("sha256", $clientKey, true);
 
-            $authMessage = $this->clientFirstMessage . "," . $serverFirstMessage . "," . $clientFinalMessageWithoutProof;
+            $authMessage =
+                $this->clientFirstMessage . "," . $serverFirstMessage . "," . $clientFinalMessageWithoutProof;
 
             $clientSignature = hash_hmac("sha256", $authMessage, $storedKey, true);
 
@@ -91,9 +98,13 @@ class Handshake
 
             $this->state = 3;
             return
-                json_encode(array("authentication" => $clientFinalMessageWithoutProof . ",p=" . base64_encode($clientProof)))
+                json_encode(
+                    array(
+                        "authentication" => $clientFinalMessageWithoutProof . ",p=" . base64_encode($clientProof)
+                    )
+                )
                 . chr(0);
-        } else if ($this->state == 3) {
+        } elseif ($this->state == 3) {
             $json = json_decode($response, true);
             if ($json["success"] === false) {
                 throw new RqlDriverError("Handshake failed: " . $json["error"]);
@@ -118,7 +129,8 @@ class Handshake
         }
     }
 
-    private function pkbdf2Hmac($password, $salt, $iterations) {
+    private function pkbdf2Hmac($password, $salt, $iterations)
+    {
         $t = hash_hmac("sha256", $salt . "\x00\x00\x00\x01", $password, true);
         $u = $t;
         for ($i = 0; $i < $iterations - 1; ++$i) {
