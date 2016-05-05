@@ -1,0 +1,35 @@
+language: php
+
+sudo: true
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+  - hhvm
+
+matrix:
+  allow_failures:
+    - php: hhvm
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_install:
+  - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+  - wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
+  - sudo apt-get update
+  - sudo apt-get install -y rethinkdb
+  - nohup rethinkdb &
+  - travis_retry composer self-update
+
+install:
+  - travis_retry composer update --no-interaction --prefer-source
+
+script:
+  - php vendor/bin/parallel-lint --exclude vendor .
+  - php vendor/bin/phpcs -n --standard=PSR2 rdb/
+  - composer test
