@@ -24,7 +24,7 @@ class TableTest extends TestCase
     public function testCreateTable()
     {
         $res = $this->db()->tableCreate(
-            't1_' . time(),
+            't1_' . rand(),
             array('durability' => 'soft', 'primary_key' => 'p')
         )
             ->pluck('tables_created')
@@ -179,7 +179,7 @@ class TableTest extends TestCase
 
     public function testTableDrop()
     {
-        $table = 't1_' . time();
+        $table = 't2_' . rand();
 
         $this->db()->tableCreate($table)->run($this->conn);
 
