@@ -41,9 +41,11 @@ class JoinTest extends TestCase
                 function ($r1, $r2) {
                     return $r1('other')->eq($r2('id'));
                 }
-            )->run($this->conn);
+            )
+            ->orderBy(array(r\row("left")->getField("id"), r\row("right")->getField("id")))
+            ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->orderArrayByLeftId($res));
+        $this->assertEquals($excpected, $this->orderArrayByLeftAndRightId($res));
     }
 
     public function testInnerJoinT2()
@@ -65,9 +67,11 @@ class JoinTest extends TestCase
                 function ($r1, $r2) {
                     return $r1('other')->eq($r2('id'));
                 }
-            )->run($this->conn);
+            )
+            ->orderBy(array(r\row("left")->getField("id"), r\row("right")->getField("id")))
+            ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->orderArrayByLeftId($res));
+        $this->assertEquals($excpected, $this->orderArrayByLeftAndRightId($res));
     }
 
     public function testOuterJoinT1()
@@ -93,9 +97,11 @@ class JoinTest extends TestCase
                 function ($r1, $r2) {
                     return $r1('other')->eq($r2('id'));
                 }
-            )->run($this->conn);
+            )
+            ->orderBy(array(r\row("left")->getField("id"), r\row("right")->getField("id")))
+            ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->orderArrayByLeftId($res));
+        $this->assertEquals($excpected, $this->orderArrayByLeftAndRightId($res));
     }
 
     public function testOuterJoinT2()
@@ -118,9 +124,11 @@ class JoinTest extends TestCase
                 function ($r1, $r2) {
                     return $r1('other')->eq($r2('id'));
                 }
-            )->run($this->conn);
+            )
+            ->orderBy(array(r\row("left")->getField("id"), r\row("right")->getField("id")))
+            ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->orderArrayByLeftId($res));
+        $this->assertEquals($excpected, $this->orderArrayByLeftAndRightId($res));
     }
 
     public function testEqJoinOther()
@@ -142,9 +150,10 @@ class JoinTest extends TestCase
 
         $res = $this->db()->table('t1')
             ->eqJoin('other', $this->db()->table('t2'))
+            ->orderBy(array(r\row("left")->getField("id"), r\row("right")->getField("id")))
             ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->orderArrayByLeftId($res));
+        $this->assertEquals($excpected, $this->orderArrayByLeftAndRightId($res));
     }
 
     public function testEqJoinId()
@@ -162,9 +171,10 @@ class JoinTest extends TestCase
 
         $res = $this->db()->table('t1')
             ->eqJoin('id', $this->db()->table('t2'), array('index' => 'other'))
+            ->orderBy(array(r\row("left")->getField("id"), r\row("right")->getField("id")))
             ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->toArray($res->toArray()));
+        $this->assertEquals($excpected, $this->orderArrayByLeftAndRightId($res));
     }
 
     public function testEqJoinFunc()
@@ -188,9 +198,10 @@ class JoinTest extends TestCase
             ->eqJoin(function ($x) {
                 return $x('other');
             }, $this->db()->table('t2'))
+            ->orderBy(array(r\row("left")->getField("id"), r\row("right")->getField("id")))
             ->run($this->conn);
 
-        $this->assertEquals($excpected, $this->orderArrayByLeftId($res));
+        $this->assertEquals($excpected, $this->orderArrayByLeftAndRightId($res));
     }
 
     public function testEqJoinZip()
@@ -203,15 +214,19 @@ class JoinTest extends TestCase
         $res = $this->db()->table('t1')
             ->eqJoin('id', $this->db()->table('t2'), array('index' => 'other'))
             ->zip()
+            ->orderBy("id")
             ->run($this->conn);
 
         $this->assertEquals($excpected, $this->orderArrayById($res));
     }
 
-    protected function orderArrayByLeftId($data)
+    protected function orderArrayByLeftAndRightId($data)
     {
-        $data = $this->toArray($data->toArray());
+        $data = $this->toArray($data);
         usort($data, function ($a, $b) {
+            if ($a['left']['id'] == $b['left']['id']) {
+                return $a['right']['id'] > $b['right']['id'];
+            }
             return $a['left']['id'] > $b['left']['id'];
         });
 
@@ -220,7 +235,7 @@ class JoinTest extends TestCase
 
     protected function orderArrayById($data)
     {
-        $data = $this->toArray($data->toArray());
+        $data = $this->toArray($data);
         usort($data, function ($a, $b) {
             return strcmp($a['id'], $b['id']);
         });
