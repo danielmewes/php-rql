@@ -68,7 +68,19 @@ class ObjectDatum extends Datum
             && isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
             $time = $native['epoch_time'];
             $format = (strpos($time, '.') !== false) ? 'Y-m-d H:i:s.u' : 'Y-m-d H:i:s';
-            $datetime = new \DateTime(date($format, $time));
+            $datetime = new \DateTime(date($format, $time)  . " " . $native['timezone']);
+
+            // This is horrible. Just because in PHP 5.3.something parsing "+01:00" as a date interval doesn't work. :(
+            $tzSign = $native['timezone'][0];
+            $tzHours = $native['timezone'][1] . $native['timezone'][2];
+            $tzMinutes = $native['timezone'][4] . $native['timezone'][5];
+            if ($tzSign == "+") {
+                $datetime->add(new \DateInterval("PT" . $tzHours . "H" . $tzMinutes . "M"));
+            } elseif ($tzSign == "-") {
+                $datetime->sub(new \DateInterval("PT" . $tzHours . "H" . $tzMinutes . "M"));
+            } else {
+                throw new RqlDriverError("Timezone not understood: " . $native['timezone']);
+            }
 
             return $datetime;
         }
