@@ -161,11 +161,11 @@ class JoinTest extends TestCase
         $excpected = array(
             array(
                 'left' => array('id' => 1, 'other' => 'a'),
-                'right' => array('id' => 'b', 'other' => 1 )
+                'right' => array('id' => 'a', 'other' => 1 )
             ),
             array(
                 'left' => array('id' => 1, 'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
+                'right' => array('id' => 'b', 'other' => 1 )
             ),
         );
 
