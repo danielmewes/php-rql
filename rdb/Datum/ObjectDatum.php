@@ -68,7 +68,7 @@ class ObjectDatum extends Datum
             && isset($native['$reql_type$']) && $native['$reql_type$'] == 'TIME') {
             $time = $native['epoch_time'];
             $format = (strpos($time, '.') !== false) ? 'Y-m-d H:i:s.u' : 'Y-m-d H:i:s';
-            $datetime = new \DateTime(date($format, $time)  . " " . $native['timezone']);
+            $datetime = new \DateTime(date($format, $time)  . " " . $native['timezone'], new \DateTimeZone('UTC'));
 
             // This is horrible. Just because in PHP 5.3.something parsing "+01:00" as a date interval doesn't work. :(
             $tzSign = $native['timezone'][0];
