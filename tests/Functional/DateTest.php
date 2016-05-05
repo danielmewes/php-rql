@@ -371,6 +371,14 @@ class DateTest extends TestCase
     public function testTime()
     {
         $this->assertEquals(
+            new DateTime('1969-01-01 -0000'),
+            \r\time(1969, 1, 1, 0, 0, 0, "+00:00")->run($this->conn)
+        );
+    }
+
+    public function testNegativeTime()
+    {
+        $this->assertEquals(
             new DateTime('2000-01-01 -0000'),
             \r\time(2000, 1, 1, 0, 0, 0, "+00:00")->run($this->conn)
         );
