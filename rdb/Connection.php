@@ -3,6 +3,7 @@
 namespace r;
 
 use r\DatumConverter;
+use r\Handshake;
 use r\Queries\Dbs\Db;
 use r\ProtocolBuffer\QueryQueryType;
 use r\ProtocolBuffer\ResponseResponseType;
@@ -17,7 +18,8 @@ class Connection extends DatumConverter
     private $host;
     private $port;
     private $defaultDb;
-    private $apiKey;
+    private $user;
+    private $password;
     private $activeTokens;
     private $timeout;
     private $ssl;
@@ -40,6 +42,8 @@ class Connection extends DatumConverter
         }
 
         $ssl = null;
+        $user = null;
+        $password = null;
 
         if (isset($opts)) {
             if (isset($opts['host'])) {
@@ -54,6 +58,12 @@ class Connection extends DatumConverter
             if (isset($opts['apiKey'])) {
                 $apiKey = $opts['apiKey'];
             }
+            if (isset($opts['user'])) {
+                $user = $opts['user'];
+            }
+            if (isset($opts['password'])) {
+                $password = $opts['password'];
+            }
             if (isset($opts['timeout'])) {
                 $timeout = $opts['timeout'];
             }
@@ -65,7 +75,25 @@ class Connection extends DatumConverter
         if (isset($apiKey) && !is_string($apiKey)) {
             throw new RqlDriverError("The API key must be a string.");
         }
+        if (isset($user) && !is_string($user)) {
+            throw new RqlDriverError("The user name must be a string.");
+        }
+        if (isset($password) && !is_string($password)) {
+            throw new RqlDriverError("The password must be a string.");
+        }
 
+        if (!isset($user)) {
+            $user = "admin";
+        }
+        if (isset($apiKey) && isset($password)) {
+            throw new RqlDriverError("Either user or apiKey can be specified, but not both.");
+        }
+        if (isset($apiKey) && !isset($password)) {
+            $password = $apiKey;
+        }
+        if (!isset($password)) {
+            $password = "";
+        }
         if (!isset($host)) {
             $host = "localhost";
         }
@@ -75,10 +103,8 @@ class Connection extends DatumConverter
 
         $this->host = $host;
         $this->port = $port;
-        if (!isset($apiKey)) {
-            $apiKey = "";
-        }
-        $this->apiKey = $apiKey;
+        $this->user = $user;
+        $this->password = $password;
         $this->timeout = null;
         $this->ssl = $ssl;
 
@@ -436,51 +462,39 @@ class Connection extends DatumConverter
             $this->applyTimeout($this->timeout);
         }
 
-        $this->sendHandshake();
-        $this->receiveHandshakeResponse();
-    }
-
-    private function sendHandshake()
-    {
-        if (!$this->isOpen()) {
-            throw new RqlDriverError("Not connected");
-        }
-
-        $binaryVersion = pack("V", VersionDummyVersion::PB_V0_3); // "V" is little endian, 32 bit unsigned integer
-        $handshake = $binaryVersion;
-
-        $binaryKeyLength = pack("V", strlen($this->apiKey));
-        $handshake .= $binaryKeyLength . $this->apiKey;
-
-        $binaryProtocol = pack("V", VersionDummyProtocol::PB_JSON);
-        $handshake .= $binaryProtocol;
-
-        $this->sendStr($handshake);
-    }
-
-    private function receiveHandshakeResponse()
-    {
-        if (!$this->isOpen()) {
-            throw new RqlDriverError("Not connected");
-        }
-
-        $response = "";
+        $handshake = new Handshake($this->user, $this->password);
+        $handshakeResponse = null;
         while (true) {
-            $ch = stream_get_contents($this->socket, 1);
-            if ($ch === false || strlen($ch) < 1) {
+            if (!$this->isOpen()) {
+                throw new RqlDriverError("Not connected");
+            }
+            try {
+                $msg = $handshake->nextMessage($handshakeResponse);
+            } catch (Exception $e) {
                 $this->close(false);
-                throw new RqlDriverError("Unable to read from socket during handshake. Disconnected.");
+                throw $e;
             }
-            if ($ch === chr(0)) {
+            if ($msg === null) {
+                // Handshake is complete
                 break;
-            } else {
-                $response .= $ch;
             }
-        }
-
-        if ($response != "SUCCESS") {
-            $this->close(false);
-            throw new RqlDriverError("Handshake failed: $response Disconnected.");
+            if ($msg != "") {
+                $this->sendStr($msg);
+            }
+            // Read null-terminated response
+            $handshakeResponse = "";
+            while (true) {
+                $ch = stream_get_contents($this->socket, 1);
+                if ($ch === false || strlen($ch) < 1) {
+                    $this->close(false);
+                    throw new RqlDriverError("Unable to read from socket during handshake. Disconnected.");
+                }
+                if ($ch === chr(0)) {
+                    break;
+                } else {
+                    $handshakeResponse .= $ch;
+                }
+            }
         }
     }
 
