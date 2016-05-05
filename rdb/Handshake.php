@@ -46,9 +46,11 @@ class Handshake
                 . chr(0);
         } elseif ($this->state == 1) {
             if (strpos($response, "ERROR") === 0) {
-                throw new RqlDriverError("Received an unexpected reply. You may be attempting to connect to "
-                                          . "a RethinkDB server that is too old for this driver. The minimum "
-                                          . "supported server version is 2.3.0.");
+                throw new RqlDriverError(
+                    "Received an unexpected reply. You may be attempting to connect to "
+                    . "a RethinkDB server that is too old for this driver. The minimum "
+                    . "supported server version is 2.3.0."
+                );
             }
 
             $json = json_decode($response, true);
