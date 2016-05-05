@@ -48,7 +48,7 @@ class ValueTest extends TestCase
 
     public function testFloatMax()
     {
-        $this->assertEquals((float)PHP_INT_MAX, \r\expr((float)PHP_INT_MAX)->run($this->conn));
+        $this->assertLessThan(10, (float)PHP_INT_MAX - \r\expr(PHP_INT_MAX)->run($this->conn));
     }
 
     public function testString()
