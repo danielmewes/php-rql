@@ -17,6 +17,7 @@ class Cursor implements Iterator
     private $currentData;
     private $currentSize;
     private $currentIndex;
+    private $resetIndex = 0;
     private $isComplete;
     private $wasIterated;
 
@@ -57,10 +58,12 @@ class Cursor implements Iterator
         $this->requestMoreIfNecessary();
         return !$this->isComplete || ($this->currentIndex < $this->currentSize);
     }
+
     public function key()
     {
-        return null;
+        return $this->currentIndex + $this->resetIndex;
     }
+
     public function current()
     {
         $this->requestMoreIfNecessary();
@@ -87,13 +90,14 @@ class Cursor implements Iterator
             $this->isComplete = true;
         }
         $this->currentIndex = 0;
+        $this->resetIndex = 0;
         $this->currentSize = 0;
         $this->currentData = array();
     }
 
     public function bufferedCount()
     {
-        $this->currentSize - $this->currentIndex;
+        return $this->currentSize - $this->currentIndex;
     }
 
     public function getNotes()
@@ -143,6 +147,9 @@ class Cursor implements Iterator
     {
         $dc = new DatumConverter;
         $this->isComplete = $response['t'] == ResponseResponseType::PB_SUCCESS_SEQUENCE;
+        if ($this->currentIndex) {
+            $this->resetIndex += $this->currentIndex;
+        }
         $this->currentIndex = 0;
         $this->currentSize = \count($response['r']);
         $this->currentData = array();
