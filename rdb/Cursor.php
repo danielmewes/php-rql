@@ -17,7 +17,7 @@ class Cursor implements Iterator
     private $currentData;
     private $currentSize;
     private $currentIndex;
-    private $resetIndex = 0;
+    private $totalIndex = 0;
     private $isComplete;
     private $wasIterated;
 
@@ -52,6 +52,7 @@ class Cursor implements Iterator
         }
         $this->wasIterated = true;
         $this->currentIndex++;
+        $this->totalIndex++;
     }
     public function valid()
     {
@@ -61,7 +62,7 @@ class Cursor implements Iterator
 
     public function key()
     {
-        return $this->currentIndex + $this->resetIndex;
+        return $this->totalIndex;
     }
 
     public function current()
@@ -90,7 +91,7 @@ class Cursor implements Iterator
             $this->isComplete = true;
         }
         $this->currentIndex = 0;
-        $this->resetIndex = 0;
+        $this->totalIndex = 0;
         $this->currentSize = 0;
         $this->currentData = array();
     }
@@ -147,9 +148,6 @@ class Cursor implements Iterator
     {
         $dc = new DatumConverter;
         $this->isComplete = $response['t'] == ResponseResponseType::PB_SUCCESS_SEQUENCE;
-        if ($this->currentIndex) {
-            $this->resetIndex += $this->currentIndex;
-        }
         $this->currentIndex = 0;
         $this->currentSize = \count($response['r']);
         $this->currentData = array();
