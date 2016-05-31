@@ -214,6 +214,27 @@ class TransformationsTest extends TestCase
         );
     }
 
+    public function testGlobalUnion()
+    {
+        $this->assertEquals(
+            array(1, 3, 2, 4),
+            \r\union(\r\expr(array(1, 3)), \r\expr(array(2, 4)), array('interleave' => false))
+            ->run($this->conn)
+        );
+    }
+
+    public function testGlobalUnionInterleave()
+    {
+        $this->assertEquals(
+            array(1, 2, 3, 4),
+            \r\union(\r\expr(array(array('a' => 1), array('a' => 3))),
+                \r\expr(array(array('a' => 2), array('a' => 4))),
+                array('interleave' => 'a'))
+            ->getField('a')
+            ->run($this->conn)
+        );
+    }
+
     public function testWithFields()
     {
         $res = $this->db()->table('marvel')

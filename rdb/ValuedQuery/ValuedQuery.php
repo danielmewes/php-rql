@@ -7,6 +7,7 @@ use r\Queries\Aggregations\Avg;
 use r\Queries\Aggregations\Contains;
 use r\Queries\Aggregations\Count;
 use r\Queries\Aggregations\Distinct;
+use r\Queries\Aggregations\Fold;
 use r\Queries\Aggregations\Group;
 use r\Queries\Aggregations\Max;
 use r\Queries\Aggregations\Min;
@@ -189,9 +190,9 @@ abstract class ValuedQuery extends Query
     {
         return new IsEmpty($this);
     }
-    public function union(ValuedQuery $otherSequence)
+    public function union(ValuedQuery $otherSequence, $opts = null)
     {
-        return new Union($this, $otherSequence);
+        return new Union($this, $otherSequence, $opts);
     }
     public function sample($n)
     {
@@ -200,6 +201,10 @@ abstract class ValuedQuery extends Query
     public function reduce($reductionFunction)
     {
         return new Reduce($this, $reductionFunction);
+    }
+    public function fold($base, $fun, $opts = null)
+    {
+        return new Fold($this, $base, $fun, $opts);
     }
     public function count($filter = null)
     {

@@ -28,7 +28,7 @@ class Insert extends ValuedQuery
         $this->setPositionalArg(1, $document);
         if (isset($opts)) {
             foreach ($opts as $opt => $val) {
-                $this->setOptionalArg($opt, $this->nativeToDatum($val));
+                $this->setOptionalArg($opt, $this->nativeToDatumOrFunction($val));
             }
         }
     }

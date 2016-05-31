@@ -188,7 +188,7 @@ class DatumConverter
             if (!isset($result)) {
                 // In case of null, assume that the user forgot to add a return.
                 // If null is the intended value, r\expr() should be wrapped around the return value.
-                throw new RqlDriverError("The function did not evaluate to a query (missing return?).");
+                throw new RqlDriverError("The function did not evaluate to a value (missing return?). If the function is intended to return `null,` please use `return r\expr(null);`.");
             } else {
                 $result = $this->nativeToDatum($result);
             }
@@ -197,7 +197,7 @@ class DatumConverter
         return new RFunction($args, $result);
     }
 
-    public function nativeToDatumOrFunction($f)
+    public function nativeToDatumOrFunction($f, $wrapImplicit = true)
     {
         if (!(is_object($f) && is_subclass_of($f, '\r\Query'))) {
             try {
@@ -210,6 +210,10 @@ class DatumConverter
                 $f = $this->nativeToFunction($f);
             }
         }
-        return $this->wrapImplicitVar($f);
+        if ($wrapImplicit) {
+            return $this->wrapImplicitVar($f);
+        } else {
+            return $f;
+        }
     }
 }

@@ -6,6 +6,7 @@ use r\DatumConverter;
 use r\Exceptions\RqlDriverError;
 use r\Ordering\Asc;
 use r\Ordering\Desc;
+use r\Queries\Control\Args;
 use r\Queries\Control\Branch;
 use r\Queries\Control\Error;
 use r\Queries\Control\Http;
@@ -72,6 +73,7 @@ use r\Queries\Tables\TableCreate;
 use r\Queries\Tables\TableDrop;
 use r\Queries\Tables\TableList;
 use r\Queries\Transformations\MapMultiple;
+use r\Queries\Transformations\Union;
 use r\ValuedQuery\ImplicitVar;
 use r\Queries\Control\Js;
 use r\ValuedQuery\Json;
@@ -126,6 +128,11 @@ function tableList()
 function rDo($args, $inExpr)
 {
     return new RDo($args, $inExpr);
+}
+
+function args($args)
+{
+    return new Args($args);
 }
 
 function branch(Query $test, $trueBranch, $falseBranch)
@@ -437,6 +444,11 @@ function mapMultiple($sequences, $mappingFunction)
         throw new RqlDriverError("At least one sequence must be passed into r\mapMultiple.");
     }
     return new MapMultiple($sequences[0], array_slice($sequences, 1), $mappingFunction);
+}
+
+function union($sequence, $otherSequence, $opts = null)
+{
+    return new Union($sequence, $otherSequence, $opts);
 }
 
 function ceil($value)

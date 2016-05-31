@@ -54,6 +54,7 @@ class TermTermType
     const PB_FILL                = 167;
     const PB_FILTER              = 39;
     const PB_FLOOR               = 183;
+    const PB_FOLD                = 187;
     const PB_FOR_EACH            = 68;
     const PB_FRIDAY              = 111;
     const PB_FUNC                = 69;
