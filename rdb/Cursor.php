@@ -17,6 +17,7 @@ class Cursor implements Iterator
     private $currentData;
     private $currentSize;
     private $currentIndex;
+    private $totalIndex = 0;
     private $isComplete;
     private $wasIterated;
 
@@ -51,16 +52,19 @@ class Cursor implements Iterator
         }
         $this->wasIterated = true;
         $this->currentIndex++;
+        $this->totalIndex++;
     }
     public function valid()
     {
         $this->requestMoreIfNecessary();
         return !$this->isComplete || ($this->currentIndex < $this->currentSize);
     }
+
     public function key()
     {
-        return null;
+        return $this->totalIndex;
     }
+
     public function current()
     {
         $this->requestMoreIfNecessary();
@@ -87,13 +91,14 @@ class Cursor implements Iterator
             $this->isComplete = true;
         }
         $this->currentIndex = 0;
+        $this->totalIndex = 0;
         $this->currentSize = 0;
         $this->currentData = array();
     }
 
     public function bufferedCount()
     {
-        $this->currentSize - $this->currentIndex;
+        return $this->currentSize - $this->currentIndex;
     }
 
     public function getNotes()
