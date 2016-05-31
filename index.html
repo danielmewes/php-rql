@@ -31,7 +31,7 @@
       </header>
       <section>
         <h1>
-<a id="php-rql" class="anchor" href="#php-rql" aria-hidden="true"><span class="octicon octicon-link"></span></a>PHP-RQL</h1>
+<a id="php-rql" class="anchor" href="#php-rql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PHP-RQL</h1>
 
 <p>PHP-RQL provides a driver to access <a href="http://rethinkdb.com">RethinkDB</a> databases from PHP code.
 It is licensed under the terms of the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
@@ -39,24 +39,24 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <p>Read the example below or the <a href="http://danielmewes.dnsalias.net/%7Edaniel/php-rql-api/">API documentation</a> to find out more.</p>
 
 <h2>
-<a id="updates" class="anchor" href="#updates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updates</h2>
+<a id="updates" class="anchor" href="#updates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Updates</h2>
 
 <ul>
+<li>05/30/2016 New release: PHP-RQL 2.3.0. Adds support for <a href="http://rethinkdb.com/blog/2.3-release/">RethinkDB 2.3</a> user authentication and for the new <code>fold</code> term. Also comes with a number of bug fixes and smaller improvements.</li>
 <li>12/04/2015 New release: PHP-RQL 2.2.0. Adds support for the <code>values</code> term, the <code>$conn-&gt;server()</code> command, and the optional <code>r\uuid</code> string argument from <a href="http://rethinkdb.com/blog/2.2-release/">RethinkDB 2.2</a>. PHP-RQL now conforms to PSR2 and PSR4, thanks to a major refactoring by <a href="https://github.com/mbrevda" class="user-mention">@mbrevda</a>. The testing system is now based on PHPUnit.</li>
 <li>09/20/2015 New release: PHP-RQL 2.1.0. Adds support for the <code>floor</code>, <code>ceil</code> and <code>round</code> terms from <a href="http://rethinkdb.com/blog/2.1-release/">RethinkDB 2.1</a>. Added support for SSL connections. To connect to an SSL host, use <code>r\connect(array("host" =&gt; "&lt;hostname&gt;", "port" =&gt; &lt;port&gt;, "apiKey" =&gt; "&lt;api key&gt;", "ssl" =&gt; array("cafile" =&gt; "&lt;path to ca cert&gt;")))</code>.</li>
-<li>08/04/2015 Bug fix release: PHP-RQL 2.0.1. Fixes an issue that caused PHP-RQL to get caught in an infinite loop if a connection was lost.</li>
 </ul>
 
 <h2>
-<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>PHP 5.3</li>
-<li>RethinkDB 2.2</li>
+<li>RethinkDB 2.3</li>
 </ul>
 
 <h2>
-<a id="installing" class="anchor" href="#installing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installing</h2>
+<a id="installing" class="anchor" href="#installing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installing</h2>
 
 <ul>
 <li>Use <a href="http://getcomposer.org">Composer</a>:
@@ -73,7 +73,7 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 </ul>
 
 <h2>
-<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h2>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example</h2>
 
 <div class="highlight highlight-text-html-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s1"></span>
 <span class="pl-s1">    <span class="pl-c">// Load the driver</span></span>
@@ -89,7 +89,8 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <span class="pl-s1">    <span class="pl-smi">$document</span> <span class="pl-k">=</span> <span class="pl-c1">array</span>(<span class="pl-s"><span class="pl-pds">'</span>someKey<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>someValue<span class="pl-pds">'</span></span>);</span>
 <span class="pl-s1">    <span class="pl-smi">$result</span> <span class="pl-k">=</span> <span class="pl-c1">r\</span>table(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>insert(<span class="pl-smi">$document</span>)</span>
 <span class="pl-s1">        <span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
-<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Insert: <span class="pl-smi">$result</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>Insert result:<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>;</span>
+<span class="pl-s1">    <span class="pl-c1">print_r</span>(<span class="pl-smi">$result</span>);</span>
 <span class="pl-s1"></span>
 <span class="pl-s1">    <span class="pl-c">// How many documents are in the table?</span></span>
 <span class="pl-s1">    <span class="pl-smi">$result</span> <span class="pl-k">=</span> <span class="pl-c1">r\</span>table(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>count()<span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
@@ -106,11 +107,10 @@ It is licensed under the terms of the <a href="http://www.apache.org/licenses/LI
 <span class="pl-s1">    }</span>
 <span class="pl-s1"></span>
 <span class="pl-s1">    <span class="pl-c">// Delete the test table</span></span>
-<span class="pl-s1">    <span class="pl-c1">r\</span>db(<span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>tableDrop(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span>
-<span class="pl-s1"></span><span class="pl-pse"><span class="pl-s1">?</span>&gt;</span></pre></div>
+<span class="pl-s1">    <span class="pl-c1">r\</span>db(<span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>tableDrop(<span class="pl-s"><span class="pl-pds">"</span>tablePhpTest<span class="pl-pds">"</span></span>)<span class="pl-k">-&gt;</span>run(<span class="pl-smi">$conn</span>);</span></pre></div>
 
 <h2>
-<a id="attributions" class="anchor" href="#attributions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attributions</h2>
+<a id="attributions" class="anchor" href="#attributions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Attributions</h2>
 
 <ul>
 <li>PHP-RQL uses pb4php <a href="http://code.google.com/p/pb4php/">http://code.google.com/p/pb4php/</a> by Nikolai Kordulla.</li>
