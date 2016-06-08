@@ -8,6 +8,16 @@ use r\Exceptions\RqlDriverError;
 
 class ObjectDatum extends Datum
 {
+    protected $decimalPoint;
+
+    public function __construct($value = null)
+    {
+        parent::__construct($value);
+
+        $localeconv = localeconv();
+        $this->decimalPoint = isset($localeconv['decimal_point']) ? $localeconv['decimal_point'] : '.';
+    }
+
     public function encodeServerRequest()
     {
         $jsonValue = $this->getValue();
@@ -70,10 +80,10 @@ class ObjectDatum extends Datum
             // This is really stupid. It looks like we can either use `date`, which ignores microseconds,
             // or we can use `createFromFormat` which cannot handle negative epoch times.
             if ($time < 0) {
-                $format = (strpos($time, '.') !== false) ? 'Y-m-d\TH:i:s.u' : 'Y-m-d\TH:i:s';
+                $format = (strpos($time, $this->decimalPoint) !== false) ? 'Y-m-d\TH:i:s.u' : 'Y-m-d\TH:i:s';
                 $datetime = new \DateTime(date($format, $time) . $native['timezone'], new \DateTimeZone('UTC'));
             } else {
-                $format = (strpos($time, '.') !== false) ? '!U.u T' : '!U T';
+                $format = (strpos($time, $this->decimalPoint) !== false) ? sprintf('!U%su T', $this->decimalPoint) : '!U T';
                 $datetime = \DateTime::createFromFormat($format, $time . " " . $native['timezone'], new \DateTimeZone('UTC'));
             }
 
