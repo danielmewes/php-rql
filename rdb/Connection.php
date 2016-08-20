@@ -227,7 +227,7 @@ class Connection extends DatumConverter
 
         // Grab PHP-RQL specific options
         $toNativeOptions = array();
-        foreach (array('binaryFormat', 'timeFormat') as $opt) {
+        foreach (array('binaryFormat', 'timeFormat', 'documentFormat') as $opt) {
             if (isset($options) && isset($options[$opt])) {
                 $toNativeOptions[$opt] = $options[$opt];
                 unset($options[$opt]);

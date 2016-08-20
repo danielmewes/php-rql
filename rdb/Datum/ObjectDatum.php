@@ -48,7 +48,11 @@ class ObjectDatum extends Datum
 
     public function toNative($opts)
     {
-        $native = new \ArrayObject();
+        if (isset($opts['documentFormat']) && $opts['documentFormat'] == 'array') {
+            $native = array();
+        } else {
+            $native = new \ArrayObject();
+        }
         foreach ($this->getValue() as $key => $val) {
             $native[$key] = $val->toNative($opts);
         }
