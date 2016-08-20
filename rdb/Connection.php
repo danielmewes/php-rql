@@ -271,7 +271,6 @@ class Connection extends DatumConverter
         } else {
             return $this->createCursorFromResponse($response, $token, $response['n'], $toNativeOptions);
         }
-
     }
 
     public function continueQuery($token)
