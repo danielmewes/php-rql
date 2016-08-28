@@ -337,14 +337,18 @@ abstract class ValuedQuery extends Query
     {
         return new Mod($this, $other);
     }
-    public function rAnd(...$exprs)
+    public function rAnd()
     {
+        $exprs = funct_get_args();
+        
         array_unshift($exprs, $this);
 
         return new RAnd($exprs);
     }
-    public function rOr(...$exprs)
+    public function rOr()
     {
+        $exprs = funct_get_args();
+        
         array_unshift($exprs, $this);
 
         return new ROr($exprs);
