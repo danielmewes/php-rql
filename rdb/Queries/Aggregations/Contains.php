@@ -11,8 +11,7 @@ class Contains extends ValuedQuery
     {
         $this->setPositionalArg(0, $sequence);
 
-        foreach ($values as $k => $value)
-        {
+        foreach ($values as $k => $value) {
             $this->setPositionalArg($k+1, $this->nativeToDatumOrFunction($value));
         }
     }
