@@ -339,7 +339,7 @@ abstract class ValuedQuery extends Query
     }
     public function rAnd()
     {
-        $exprs = funct_get_args();
+        $exprs = func_get_args();
         
         array_unshift($exprs, $this);
 
@@ -347,7 +347,7 @@ abstract class ValuedQuery extends Query
     }
     public function rOr()
     {
-        $exprs = funct_get_args();
+        $exprs = func_get_args();
         
         array_unshift($exprs, $this);
 
