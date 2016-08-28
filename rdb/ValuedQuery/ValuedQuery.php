@@ -240,9 +240,9 @@ abstract class ValuedQuery extends Query
     }
     // Note: The API docs suggest that as of 1.6, contains can accept multiple values.
     //  We do not support that for the time being.
-    public function contains(...$values)
+    public function contains()
     {
-        return new Contains($this, $values);
+        return new Contains($this, func_get_args());
     }
     public function pluck($attributes)
     {
