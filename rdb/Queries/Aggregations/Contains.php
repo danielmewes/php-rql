@@ -7,12 +7,13 @@ use r\ProtocolBuffer\TermTermType;
 
 class Contains extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $value)
+    public function __construct(ValuedQuery $sequence, array $values)
     {
-        $value = $this->nativeToDatumOrFunction($value);
-
         $this->setPositionalArg(0, $sequence);
-        $this->setPositionalArg(1, $value);
+
+        foreach ($values as $k => $value) {
+            $this->setPositionalArg($k+1, $this->nativeToDatumOrFunction($value));
+        }
     }
 
     protected function getTermType()

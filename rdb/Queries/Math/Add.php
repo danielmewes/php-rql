@@ -9,6 +9,6 @@ class Add extends BinaryOp
 {
     public function __construct($value, $other)
     {
-        parent::__construct(TermTermType::PB_ADD, $value, $other);
+        parent::__construct(TermTermType::PB_ADD, array($value, $other));
     }
 }

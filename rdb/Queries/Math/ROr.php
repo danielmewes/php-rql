@@ -6,8 +6,8 @@ use r\ProtocolBuffer\TermTermType;
 
 class ROr extends BinaryOp
 {
-    public function __construct($value, $other)
+    public function __construct(array $exprs)
     {
-        parent::__construct(TermTermType::PB_OR, $value, $other);
+        parent::__construct(TermTermType::PB_OR, $exprs);
     }
 }
