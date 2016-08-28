@@ -238,13 +238,13 @@ function mod($expr1, $expr2)
     return new Mod($expr1, $expr2);
 }
 
-function rAnd(...$exprs)
+function rAnd()
 {
-    return new RAnd($exprs);
+    return new RAnd(func_get_args());
 }
-function rOr(...$exprs)
+function rOr()
 {
-    return new ROr($exprs);
+    return new ROr(func_get_args());
 }
 
 function eq($expr1, $expr2)
