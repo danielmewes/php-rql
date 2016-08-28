@@ -8,6 +8,6 @@ class Mod extends BinaryOp
 {
     public function __construct($value, $other)
     {
-        parent::__construct(TermTermType::PB_MOD, $value, $other);
+        parent::__construct(TermTermType::PB_MOD, [$value, $other]);
     }
 }
