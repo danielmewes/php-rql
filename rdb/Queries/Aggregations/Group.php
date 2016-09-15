@@ -7,7 +7,7 @@ use r\ProtocolBuffer\TermTermType;
 
 class Group extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $fieldOrFunction, $groupOn = [])
+    public function __construct(ValuedQuery $sequence, $fieldOrFunction, $groupOn = array())
     {
         array_unshift($groupOn, $fieldOrFunction);
         
