@@ -31,7 +31,8 @@ class Connection extends DatumConverter
         $port = null,
         $db = null,
         $apiKey = null,
-        $timeout = null
+        $timeout = null,
+        $connect = false
     ) {
         if (is_array($optsOrHost)) {
             $opts = $optsOrHost;
@@ -115,7 +116,9 @@ class Connection extends DatumConverter
             $this->setTimeout($timeout);
         }
 
-        $this->connect();
+        if ($connect) {
+            $this->connect();
+        }
     }
 
     public function __destruct()
@@ -221,6 +224,11 @@ class Connection extends DatumConverter
         if (isset($options) && !is_array($options)) {
             throw new RqlDriverError("Options must be an array.");
         }
+
+        if (!$this->isOpen()) {
+            $this->connect();
+        }
+
         if (!$this->isOpen()) {
             throw new RqlDriverError("Not connected.");
         }
@@ -547,6 +555,7 @@ class Connection extends DatumConverter
         foreach ((array)$options as $key => $value) {
             $opts[$key] = $this->nativeToDatum($value)->encodeServerRequest();
         }
+
         return $opts;
     }
 }

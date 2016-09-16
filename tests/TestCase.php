@@ -17,10 +17,15 @@ class TestCase extends \PHPUnit_Framework_TestCase
         static $connection;
 
         if (!isset($connection)) {
-            $connection = \r\connect(getenv('RDB_HOST'), getenv('RDB_PORT'), getenv('RDB_DB'));
+            $connection = $this->newConnection();
         }
 
         return $connection;
+    }
+
+    protected function newConnection()
+    {
+        return  \r\connect(getenv('RDB_HOST'), getenv('RDB_PORT'), getenv('RDB_DB'));
     }
 
     // enable $this->db(), instead of \rdb('DB_NAME'), in tests

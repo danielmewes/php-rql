@@ -15,6 +15,18 @@ class ConnectionTest extends TestCase
         $this->conn->reconnect();
     }
 
+    public function testConnectionClosedOnConstruct()
+    {
+        $this->assertFalse($this->newConnection()->isOpen());
+    }
+
+    public function testConnect()
+    {
+        $conn = $this->newConnection();
+        \r\expr(true)->run($conn);
+        $this->assertTrue($conn->isOpen());
+    }
+
     public function testReconnect()
     {
         $res1 = \r\expr(true)->run($this->conn);
