@@ -160,6 +160,7 @@ class AggregationsTest extends TestCase
             ->ungroup()
             ->run($this->conn);
 
+
         $this->assertEquals($expected, $this->toArray($res));
     }
 

@@ -214,9 +214,9 @@ abstract class ValuedQuery extends Query
     {
         return new Distinct($this, $opts);
     }
-    public function group($fieldOrFunction, $groupOn = array())
+    public function group($groupOn = array())
     {
-        return new Group($this, $fieldOrFunction, $groupOn);
+        return new Group($this, $groupOn);
     }
     public function ungroup()
     {

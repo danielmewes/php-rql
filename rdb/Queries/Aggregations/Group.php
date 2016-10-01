@@ -7,16 +7,18 @@ use r\ProtocolBuffer\TermTermType;
 
 class Group extends ValuedQuery
 {
-    public function __construct(ValuedQuery $sequence, $fieldOrFunction, $groupOn = array())
+    public function __construct(ValuedQuery $sequence, $groupOn = array())
     {
-        array_unshift($groupOn, $fieldOrFunction);
-        
+        if (!is_array($groupOn)) {
+          $groupOn = array($groupOn);
+        }
+
         if (isset($groupOn['index'])) {
             $this->setOptionalArg('index', $this->nativeToDatum($groupOn['index']));
             unset($groupOn['index']);
         }
-        
-          if (isset($groupOn['multi'])) {
+
+        if (isset($groupOn['multi'])) {
             $this->setOptionalArg('multi', $this->nativeToDatum($groupOn['multi']));
             unset($groupOn['multi']);
         }
