@@ -9,13 +9,13 @@ class NumberDatum extends Datum
 {
     public function encodeServerRequest()
     {
-        return (float)$this->getValue();
+        return $this->getValue();
     }
 
     public static function decodeServerResponse($json)
     {
         $result = new NumberDatum();
-        $result->setValue((float)$json);
+        $result->setValue($json);
         return $result;
     }
 

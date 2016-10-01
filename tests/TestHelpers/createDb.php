@@ -6,7 +6,7 @@ $conn = r\connect(getenv('RDB_HOST'), getenv('RDB_PORT'));
 $db = getenv('RDB_DB');
 $res = r\dbCreate($db)->run($conn);
 
-if ($res['dbs_created'] !== 1.0) {
+if ($res['dbs_created'] !== 1) {
     echo 'Error creating DB' . PHP_EOL;
     exit;
 }
