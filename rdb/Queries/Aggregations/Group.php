@@ -10,7 +10,7 @@ class Group extends ValuedQuery
     public function __construct(ValuedQuery $sequence, $groupOn = array())
     {
         if (!is_array($groupOn)) {
-          $groupOn = array($groupOn);
+            $groupOn = array($groupOn);
         }
 
         if (isset($groupOn['index'])) {
