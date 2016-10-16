@@ -225,10 +225,10 @@ class Connection extends DatumConverter
             throw new RqlDriverError("Not connected.");
         }
 
-        $no_cursor = FALSE;
+        $no_cursor = false;
         if (!empty($options['cursor'])) {
             // Check if we need to create iterate cursor.
-            $no_cursor = TRUE;
+            $no_cursor = true;
             unset($options['cursor']);
         }
 
@@ -282,7 +282,6 @@ class Connection extends DatumConverter
         } else {
             return $this->createCursorFromResponse($response, $token, $response['n'], $toNativeOptions);
         }
-
     }
 
     public function continueQuery($token)
