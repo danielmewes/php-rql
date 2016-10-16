@@ -225,6 +225,13 @@ class Connection extends DatumConverter
             throw new RqlDriverError("Not connected.");
         }
 
+        $no_cursor = FALSE;
+        if (!empty($options['cursor'])) {
+            // Check if we need to create iterate cursor.
+            $no_cursor = TRUE;
+            unset($options['cursor']);
+        }
+
         // Grab PHP-RQL specific options
         $toNativeOptions = array();
         foreach (array('binaryFormat', 'timeFormat') as $opt) {
@@ -264,6 +271,10 @@ class Connection extends DatumConverter
 
         if (isset($response['p'])) {
             $profile = $this->decodedJSONToDatum($response['p'])->toNative($toNativeOptions);
+        }
+
+        if ($no_cursor && !empty($response['r'])) {
+            return $response['r'];
         }
 
         if ($response['t'] == ResponseResponseType::PB_SUCCESS_ATOM) {
