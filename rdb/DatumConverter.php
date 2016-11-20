@@ -158,7 +158,6 @@ class DatumConverter
         }
 
         return false;
-
     }
 
     public function wrapImplicitVar(Query $q)
