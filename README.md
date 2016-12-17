@@ -40,8 +40,10 @@ Example
     $document = array('someKey' => 'someValue');
     $result = r\table("tablePhpTest")->insert($document)
         ->run($conn);
-    echo "Insert: $result\n";
-
+    echo "Insert:\n";
+    print_r($result);
+    echo "\n";
+    
     // How many documents are in the table?
     $result = r\table("tablePhpTest")->count()->run($conn);
     echo "Count: $result\n";
