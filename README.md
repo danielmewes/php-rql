@@ -36,7 +36,6 @@ Example
     $document = array('someKey' => 'someValue');
     $result = r\table("tablePhpTest")->insert($document)
         ->run($conn);
-    $result = json_encode($result);
     echo "Insert:\n";
     print_r($result);
     echo "\n";
