@@ -37,8 +37,10 @@ Example
     $result = r\table("tablePhpTest")->insert($document)
         ->run($conn);
     $result = json_encode($result);
-    echo "Insert: $result\n";
-
+    echo "Insert:\n";
+    print_r($result);
+    echo "\n";
+    
     // How many documents are in the table?
     $result = r\table("tablePhpTest")->count()->run($conn);
     echo "Count: $result\n";
