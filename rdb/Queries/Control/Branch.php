@@ -9,7 +9,7 @@ use r\ProtocolBuffer\TermTermType;
 
 class Branch extends ValuedQuery
 {
-    public function __construct($branches)
+    public function __construct(array $branches)
     {
         if(count($branches) % 2 == 1)
         {
