@@ -135,9 +135,9 @@ function args($args)
     return new Args($args);
 }
 
-function branch(Query $test, $trueBranch, $falseBranch)
+function branch()
 {
-    return new Branch($test, $trueBranch, $falseBranch);
+    return new Branch(func_get_args());
 }
 
 function row($attribute = null)
