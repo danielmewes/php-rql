@@ -11,16 +11,13 @@ class Branch extends ValuedQuery
 {
     public function __construct(array $branches)
     {
-        if(count($branches) % 2 == 1)
-        {
+        if (count($branches) % 2 == 1) {
             // poping 'false' branch from other branches
             $falseBranch = $this->nativeToDatumOrFunction(array_pop($branches), false);
 
             // for each remaning branch, if the index is odd, this is a branch, so we convert, otherwise, we directly position the argument
-            foreach ($branches as $i => $branch)
-            {
-                if($i % 2 == 1)
-                {
+            foreach ($branches as $i => $branch) {
+                if($i % 2 == 1) {
                     // branch, so we convert
                     $branch = $this->nativeToDatumOrFunction($branch, false);
                 }
@@ -30,9 +27,7 @@ class Branch extends ValuedQuery
 
             // pushing the 'false' branch at the end of positional args
             $this->setPositionalArg(count($branches), $falseBranch);
-        }
-        else
-        {
+        } else {
             throw new RqlException(__METHOD__ . ' must have at least 3 parameters, or an odd parameter count.');
         }
     }
