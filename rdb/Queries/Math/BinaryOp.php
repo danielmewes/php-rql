@@ -6,12 +6,13 @@ use r\ValuedQuery\ValuedQuery;
 
 class BinaryOp extends ValuedQuery
 {
-    public function __construct($termType, $value, $other)
+    public function __construct($termType, array $exprs)
     {
         $this->termType = $termType;
 
-        $this->setPositionalArg(0, $this->nativeToDatum($value));
-        $this->setPositionalArg(1, $this->nativeToDatum($other));
+        foreach ($exprs as $k => $expr) {
+            $this->setPositionalArg($k, $this->nativeToDatum($expr));
+        }
     }
 
     protected function getTermType()

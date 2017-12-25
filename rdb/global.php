@@ -135,9 +135,9 @@ function args($args)
     return new Args($args);
 }
 
-function branch(Query $test, $trueBranch, $falseBranch)
+function branch()
 {
-    return new Branch($test, $trueBranch, $falseBranch);
+    return new Branch(func_get_args());
 }
 
 function row($attribute = null)
@@ -238,13 +238,13 @@ function mod($expr1, $expr2)
     return new Mod($expr1, $expr2);
 }
 
-function rAnd($expr1, $expr2)
+function rAnd()
 {
-    return new RAnd($expr1, $expr2);
+    return new RAnd(func_get_args());
 }
-function rOr($expr1, $expr2)
+function rOr()
 {
-    return new ROr($expr1, $expr2);
+    return new ROr(func_get_args());
 }
 
 function eq($expr1, $expr2)

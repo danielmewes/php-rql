@@ -1,15 +1,20 @@
 {
-    "name": "danielmewes/php-rql",
+    "name": "geekimo/php-rql",
     "type": "library",
     "description": "A PHP client driver for the RethinkDB query language (ReQL)",
     "keywords": ["rethinkdb","driver","database","reql"],
-    "homepage": "http://danielmewes.github.io/php-rql/",
+    "homepage": "https://github.com/Geekimo/php-rql/",
     "license": "Apache-2.0",
     "authors": [
         {
             "name": "Daniel Mewes",
             "email": "danielmewes@onlinehome.de",
             "homepage": "http://dmewes.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Morgan Abraham",
+            "email": "morgan@tramicms.net",
             "role": "Developer"
         }
     ],
