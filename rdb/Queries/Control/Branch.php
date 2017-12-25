@@ -9,10 +9,8 @@ use r\ProtocolBuffer\TermTermType;
 
 class Branch extends ValuedQuery
 {
-    public function __construct()
+    public function __construct($branches)
     {
-        $branches = func_get_args();
-
         if(count($branches) % 2 == 1)
         {
             // poping 'false' branch from other branches
