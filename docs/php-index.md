@@ -790,11 +790,11 @@ Transform each element of one or more sequences by applying a mapping function t
 __Example:__ Return the first five squares.
 
 ```php
-$result = r\expr(array(1, 2, 3, 4, 5))->map(function ($val) {
+r\expr([1, 2, 3, 4, 5])->map(function ($val) {
     return $val->mul($val);
 })->run($conn);
 // Result
-array(1, 4, 9, 16, 25)
+[1, 4, 9, 16, 25]
 ```
 
 [Read more about this command &rarr;](map/)
@@ -934,7 +934,7 @@ Get the *nth* element of a sequence, counting from zero. If the argument is nega
 __Example:__ Select the second element in the array.
 
 ```php
-r\expr(array(1,2,3))->nth(1)->run($conn)
+r\expr([1,2,3])->nth(1)->run($conn)
 ```
 
 
@@ -949,7 +949,7 @@ Get the indexes of an element in a sequence. If the argument is a predicate, get
 __Example:__ Find the position of the letter 'c'.
 
 ```php
-r\expr(array('a','b','c'))->offsetsOf('c')->run($conn)
+r\expr(['a','b','c'])->offsetsOf('c')->run($conn)
 ```
 
 [Read more about this command &rarr;](offsets_of/)
@@ -1113,7 +1113,7 @@ results, skipping elements of the sequence where that function returns
 __Example:__ What's 3 + 5 + 7?
 
 ```php
-r\expr(array(3, 5, 7))->sum()->run($conn)
+r\expr([3, 5, 7])->sum()->run($conn)
 ```
 
 [Read more about this command &rarr;](sum/)
@@ -1136,7 +1136,7 @@ function returns `null` or a non-existence error.
 __Example:__ What's the average of 3, 5, and 7?
 
 ```php
-r\expr(array(3, 5, 7))->avg()->run($conn)
+r\expr([3, 5, 7])->avg()->run($conn)
 ```
 
 [Read more about this command &rarr;](avg/)
@@ -1154,7 +1154,7 @@ Finds the minimum element of a sequence.
 __Example:__ Return the minimum value in the list `[3, 5, 7]`.
 
 ```php
-r\expr(array(3, 5, 7))->min()->run($conn);
+r\expr([3, 5, 7])->min()->run($conn);
 ```
 
 
@@ -1174,7 +1174,7 @@ Finds the maximum element of a sequence.
 __Example:__ Return the maximum value in the list `[3, 5, 7]`.
 
 ```php
-r\expr(array(3, 5, 7))->max()->run($conn);
+r\expr([3, 5, 7])->max()->run($conn);
 ```
 
 [Read more about this command &rarr;](max/)
@@ -1349,7 +1349,7 @@ Remove the elements of one array from another array.
 __Example:__ Retrieve Iron Man's equipment list without boots.
 
 ```php
-r\table('marvel')->get('IronMan')->getField('equipment')->difference(array('Boots'))->run($conn)
+r\table('marvel')->get('IronMan')->getField('equipment')->difference(['Boots'])->run($conn)
 ```
 
 
@@ -1379,7 +1379,7 @@ Add a several values to an array and return it as a set (an array with distinct 
 __Example:__ Retrieve Iron Man's equipment list with the addition of some new boots and an arc reactor.
 
 ```php
-r\table('marvel')->get('IronMan')->getField('equipment')->setUnion(array('newBoots', 'arc_reactor'))->run($conn)
+r\table('marvel')->get('IronMan')->getField('equipment')->setUnion(['newBoots', 'arc_reactor'])->run($conn)
 ```
 
 
@@ -1395,7 +1395,7 @@ distinct values).
 __Example:__ Check which pieces of equipment Iron Man has from a fixed list.
 
 ```php
-r\table('marvel')->get('IronMan')->getField('equipment')->setIntersection(array('newBoots', 'arc_reactor'))->run($conn)
+r\table('marvel')->get('IronMan')->getField('equipment')->setIntersection(['newBoots', 'arc_reactor'])->run($conn)
 ```
 
 
@@ -1411,7 +1411,7 @@ distinct values).
 __Example:__ Check which pieces of equipment Iron Man has, excluding a fixed list.
 
 ```php
-r\table('marvel')->get('IronMan')->getField('equipment')->setDifference(array('newBoots', 'arc_reactor'))->run($conn)
+r\table('marvel')->get('IronMan')->getField('equipment')->setDifference(['newBoots', 'arc_reactor'])->run($conn)
 ```
 
 ## [() (bracket)](bracket/) ##
@@ -1482,7 +1482,7 @@ Insert a value in to an array at a given index. Returns the modified array.
 __Example:__ Hulk decides to join the avengers.
 
 ```php
-r\expr(array("Iron Man", "Spider-Man"))->insertAt(1, "Hulk")->run($conn)
+r\expr(["Iron Man", "Spider-Man"])->insertAt(1, "Hulk")->run($conn)
 ```
 
 
@@ -1497,7 +1497,7 @@ Insert several values in to an array at a given index. Returns the modified arra
 __Example:__ Hulk and Thor decide to join the avengers.
 
 ```php
-r\expr(array("Iron Man", "Spider-Man"))->spliceAt(1, array("Hulk", "Thor"))->run($conn)
+r\expr(["Iron Man", "Spider-Man"])->spliceAt(1, ["Hulk", "Thor"])->run($conn)
 ```
 
 
@@ -1512,9 +1512,9 @@ Remove one or more elements from an array at a given index. Returns the modified
 __Example:__ Delete the second element of an array.
 
 ```php
-> r(array('a','b','c','d','e','f'))->deleteAt(1)->run($conn)
+> r(['a','b','c','d','e','f'])->deleteAt(1)->run($conn)
 // result
-array('a', 'c', 'd', 'e', 'f')
+['a', 'c', 'd', 'e', 'f']
 ```
 
 [Read more about this command &rarr;](delete_at/)
@@ -1530,7 +1530,7 @@ Change a value in an array at a given index. Returns the modified array.
 __Example:__ Bruce Banner hulks out.
 
 ```php
-r\expr(array("Iron Man", "Bruce", "Spider-Man"))->changeAt(1, "Hulk")->run($conn)
+r\expr(["Iron Man", "Bruce", "Spider-Man"])->changeAt(1, "Hulk")->run($conn)
 ```
 
 ## [keys](keys/) ##
@@ -1549,7 +1549,7 @@ __Example:__ Get all the keys from a table row.
 
 r\table('users')->get(1)->keys()->run($conn);
 // Result
-array( "id", "mail", "name" )
+[ "id", "mail", "name" ]
 ```
 
 ## [values](values/) ##
@@ -1570,7 +1570,7 @@ __Example:__ Get all of the values from a table row.
 
 r\table('users')->get(1)->values()->run($conn);
 // Result
-array( 1, "fred@example.com", "fred" )
+[ 1, "fred@example.com", "fred" ]
 ```
 
 ## [literal](literal/) ##
@@ -1600,7 +1600,7 @@ be strings.  `r.object(array(A, B, C, D))` is equivalent to
 __Example:__ Create a simple object.
 
 ```php
-r\object(r.array('id', 5, 'data', array('foo', 'bar')))->run($conn)
+r\object('id', 5, 'data', ['foo', 'bar'])->run($conn)
 ```
 
 {% endapisection %}
@@ -2342,6 +2342,26 @@ r\now()->toEpochTime()
 
 {% apisection Control structures %}
 
+## [args](args/) ##
+
+{% apibody %}
+r\args(array) &rarr; special
+{% endapibody %}
+
+`r.args` is a special term that's used to splice an array of arguments
+into another term.  This is useful when you want to call a variadic
+term such as `getAll` with a set of arguments produced at runtime.
+
+This is analogous to using **apply** in JavaScript.
+
+__Example:__ Get Alice and Bob from the table `people`.
+
+```php
+r\table('people')->getAll('Alice', 'Bob')->run($conn)
+// or
+r\table('people')->getAll(r\args(['Alice', 'Bob']))->run($conn)
+```
+
 ## [binary](binary/) ##
 
 {% apibody %}
@@ -2435,7 +2455,7 @@ __Example:__ Return a four-element range of `[0, 1, 2, 3]`.
 ```php
 > r\range(4)->run($conn)
 
-array(0, 1, 2, 3)
+[0, 1, 2, 3]
 ```
 
 
@@ -2492,7 +2512,7 @@ Construct a ReQL JSON object from a native object.
 __Example:__ Objects wrapped with `expr` can then be manipulated by ReQL API functions.
 
 ```php
-r\expr(array('a' => 'b'))->merge(array('b' => array(1,2,3)))->run($conn)
+r\expr(array('a' =>'b'))->merge(array('b' =>[1,2,3]))->run($conn)
 ```
 
 [Read more about this command &rarr;](expr/)
@@ -2650,7 +2670,7 @@ __Example:__ Define a circle.
 r\table('geo')->insert(array(
     'id' => 300,
     'name' => 'Hayes Valley',
-    'neighborhood' => r\circle(array(-122.423246,37.779388), 1000)
+    'neighborhood' => r\circle([-122.423246,37.779388], 1000)
 ))->run($conn);
 ```
 
@@ -2691,10 +2711,10 @@ __Example:__ Create a line object and then convert it to a polygon.
 r\table('geo')->insert(array(
     'id' => 201,
     'rectangle' => r\line(array(
-        array(-122.423246,37.779388),
-        array(-122.423246,37.329898),
-        array(-121.886420,37.329898),
-        array(-121.886420,37.779388)
+        [-122.423246,37.779388],
+        [-122.423246,37.329898],
+        [-121.886420,37.329898],
+        [-121.886420,37.779388]
     ))
 ))->run($conn);
 
@@ -2720,7 +2740,7 @@ __Example:__ Convert a GeoJSON object to a ReQL geometry object.
 ```php
 var $geoJson = array(
     'type' => 'Point',
-    'coordinates' => array( -122.423246, 37.779388 )
+    'coordinates' => [ -122.423246, 37.779388 ]
 );
 r\table('geo')->insert(array(
     'id' => 'sfo',
@@ -2746,7 +2766,7 @@ r\table('geo')->get('sfo')->getField('location')->toGeojson()->run($conn);
 // result
 array(
     'type' => 'Point',
-    'coordinates' => array( -122.423246, 37.779388 )
+    'coordinates' => [ -122.423246, 37.779388 ]
 )
 ```
 
@@ -2763,7 +2783,7 @@ Get all documents where the given geometry object intersects the geometry object
 __Example:__ Which of the locations in a list of parks intersect `circle1`?
 
 ```php
-$circle1 = r\circle(array(-117.220406,32.719464), 10, array('unit' => 'mi'));
+var $circle1 = r\circle([-117.220406,32.719464], 10, array('unit' => 'mi'));
 r\table('parks')->getIntersecting($circle1, array('index' => 'area'))->run($conn);
 ```
 
@@ -2849,7 +2869,7 @@ __Example:__ Define a line.
 ```php
 r\table('geo')->insert(array(
     'id' => 101,
-    'route' => r\line(array(array(-122.423246,37.779388), array(-121.886420,37.329898)))
+    'route' => r\line([-122.423246,37.779388], [-121.886420,37.329898])
 ))->run($conn);
 ```
 
@@ -2893,10 +2913,10 @@ __Example:__ Define a polygon.
 r\table('geo')->insert(array(
     'id' => 101,
     'rectangle' => r\polygon(array(
-        array(-122.423246,37.779388),
-        array(-122.423246,37.329898),
-        array(-121.886420,37.329898),
-        array(-121.886420,37.779388)
+        [-122.423246,37.779388],
+        [-122.423246,37.329898],
+        [-121.886420,37.329898],
+        [-121.886420,37.779388]
     ))
 ))->run($conn);
 ```
@@ -2916,16 +2936,16 @@ __Example:__ Define a polygon with a hole punched in it.
 
 ```php
 var $outerPolygon = r\polygon(array(
-    array(-122.4,37.7),
-    array(-122.4,37.3),
-    array(-121.8,37.3),
-    array(-121.8,37.7)
+    [-122.4,37.7],
+    [-122.4,37.3],
+    [-121.8,37.3],
+    [-121.8,37.7]
 ));
 var $innerPolygon = r\polygon(array(
-    array(-122.3,37.4),
-    array(-122.3,37.6),
-    array(-122.0,37.6),
-    array(-122.0,37.4)
+    [-122.3,37.4],
+    [-122.3,37.6],
+    [-122.0,37.6],
+    [-122.0,37.4]
 ));
 $outerPolygon->polygonSub($innerpolygon)->run($conn);
 ```

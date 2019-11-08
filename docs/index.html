@@ -634,11 +634,11 @@ r\mapMultiple(array(array1, array2, ...), mappingFunction) &rarr; array
 
 <p><strong>Example:</strong> Return the first five squares.</p>
 
-<pre class="example"><code class="php">$result = r\expr(array(1, 2, 3, 4, 5))-&gt;map(function ($val) {
+<pre class="example"><code class="php">r\expr([1, 2, 3, 4, 5])-&gt;map(function ($val) {
     return $val-&gt;mul($val);
 })-&gt;run($conn);
 // Result
-array(1, 4, 9, 16, 25)
+[1, 4, 9, 16, 25]
 </code></pre>
 
 <h3>withFields</h3>
@@ -751,7 +751,7 @@ selection-&gt;nth(index) &rarr; selection&lt;object&gt;
 
 <p><strong>Example:</strong> Select the second element in the array.</p>
 
-<pre class="example"><code class="php">r\expr(array(1,2,3))-&gt;nth(1)-&gt;run($conn)
+<pre class="example"><code class="php">r\expr([1,2,3])-&gt;nth(1)-&gt;run($conn)
 </code></pre>
 
 <h3>offsetsOf</h3>
@@ -763,7 +763,7 @@ selection-&gt;nth(index) &rarr; selection&lt;object&gt;
 
 <p><strong>Example:</strong> Find the position of the letter 'c'.</p>
 
-<pre class="example"><code class="php">r\expr(array('a','b','c'))-&gt;offsetsOf('c')-&gt;run($conn)
+<pre class="example"><code class="php">r\expr(['a','b','c'])-&gt;offsetsOf('c')-&gt;run($conn)
 </code></pre>
 
 <h3>isEmpty</h3>
@@ -890,7 +890,7 @@ results, skipping elements of the sequence where that function returns
 
 <p><strong>Example:</strong> What's 3 + 5 + 7?</p>
 
-<pre class="example"><code class="php">r\expr(array(3, 5, 7))-&gt;sum()-&gt;run($conn)
+<pre class="example"><code class="php">r\expr([3, 5, 7])-&gt;sum()-&gt;run($conn)
 </code></pre>
 
 <h3>avg</h3>
@@ -907,7 +907,7 @@ function returns <code>null</code> or a non-existence error.</p>
 
 <p><strong>Example:</strong> What's the average of 3, 5, and 7?</p>
 
-<pre class="example"><code class="php">r\expr(array(3, 5, 7))-&gt;avg()-&gt;run($conn)
+<pre class="example"><code class="php">r\expr([3, 5, 7])-&gt;avg()-&gt;run($conn)
 </code></pre>
 
 <h3>min</h3>
@@ -920,7 +920,7 @@ sequence-&gt;min(array('index' =&gt; &lt;indexname&gt;)) &rarr; element
 
 <p><strong>Example:</strong> Return the minimum value in the list <code>[3, 5, 7]</code>.</p>
 
-<pre class="example"><code class="php">r\expr(array(3, 5, 7))-&gt;min()-&gt;run($conn);
+<pre class="example"><code class="php">r\expr([3, 5, 7])-&gt;min()-&gt;run($conn);
 </code></pre>
 
 <h3>max</h3>
@@ -933,7 +933,7 @@ sequence-&gt;max(array('index' =&gt; &lt;indexname&gt;)) &rarr; element
 
 <p><strong>Example:</strong> Return the maximum value in the list <code>[3, 5, 7]</code>.</p>
 
-<pre class="example"><code class="php">r\expr(array(3, 5, 7))-&gt;max()-&gt;run($conn);
+<pre class="example"><code class="php">r\expr([3, 5, 7])-&gt;max()-&gt;run($conn);
 </code></pre>
 
 <h3>distinct</h3>
@@ -1066,7 +1066,7 @@ array-&gt;merge([object | function, object | function, ...]) &rarr; array
 
 <p><strong>Example:</strong> Retrieve Iron Man's equipment list without boots.</p>
 
-<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;difference(array('Boots'))-&gt;run($conn)
+<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;difference(['Boots'])-&gt;run($conn)
 </code></pre>
 
 <h3>setInsert</h3>
@@ -1090,7 +1090,7 @@ array-&gt;merge([object | function, object | function, ...]) &rarr; array
 
 <p><strong>Example:</strong> Retrieve Iron Man's equipment list with the addition of some new boots and an arc reactor.</p>
 
-<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setUnion(array('newBoots', 'arc_reactor'))-&gt;run($conn)
+<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setUnion(['newBoots', 'arc_reactor'])-&gt;run($conn)
 </code></pre>
 
 <h3>setIntersection</h3>
@@ -1103,7 +1103,7 @@ distinct values).</p>
 
 <p><strong>Example:</strong> Check which pieces of equipment Iron Man has from a fixed list.</p>
 
-<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setIntersection(array('newBoots', 'arc_reactor'))-&gt;run($conn)
+<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setIntersection(['newBoots', 'arc_reactor'])-&gt;run($conn)
 </code></pre>
 
 <h3>setDifference</h3>
@@ -1116,7 +1116,7 @@ distinct values).</p>
 
 <p><strong>Example:</strong> Check which pieces of equipment Iron Man has, excluding a fixed list.</p>
 
-<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setDifference(array('newBoots', 'arc_reactor'))-&gt;run($conn)
+<pre class="example"><code class="php">r\table('marvel')-&gt;get('IronMan')-&gt;getField('equipment')-&gt;setDifference(['newBoots', 'arc_reactor'])-&gt;run($conn)
 </code></pre>
 
 <h3>() (bracket)</h3>
@@ -1173,7 +1173,7 @@ object-&gt;hasFields(selector | array(selector1, selector2...)) &rarr; boolean
 
 <p><strong>Example:</strong> Hulk decides to join the avengers.</p>
 
-<pre class="example"><code class="php">r\expr(array("Iron Man", "Spider-Man"))-&gt;insertAt(1, "Hulk")-&gt;run($conn)
+<pre class="example"><code class="php">r\expr(["Iron Man", "Spider-Man"])-&gt;insertAt(1, "Hulk")-&gt;run($conn)
 </code></pre>
 
 <h3>spliceAt</h3>
@@ -1185,7 +1185,7 @@ object-&gt;hasFields(selector | array(selector1, selector2...)) &rarr; boolean
 
 <p><strong>Example:</strong> Hulk and Thor decide to join the avengers.</p>
 
-<pre class="example"><code class="php">r\expr(array("Iron Man", "Spider-Man"))-&gt;spliceAt(1, array("Hulk", "Thor"))-&gt;run($conn)
+<pre class="example"><code class="php">r\expr(["Iron Man", "Spider-Man"])-&gt;spliceAt(1, ["Hulk", "Thor"])-&gt;run($conn)
 </code></pre>
 
 <h3>deleteAt</h3>
@@ -1197,9 +1197,9 @@ object-&gt;hasFields(selector | array(selector1, selector2...)) &rarr; boolean
 
 <p><strong>Example:</strong> Delete the second element of an array.</p>
 
-<pre class="example"><code class="php">&gt; r(array('a','b','c','d','e','f'))-&gt;deleteAt(1)-&gt;run($conn)
+<pre class="example"><code class="php">&gt; r(['a','b','c','d','e','f'])-&gt;deleteAt(1)-&gt;run($conn)
 // result
-array('a', 'c', 'd', 'e', 'f')
+['a', 'c', 'd', 'e', 'f']
 </code></pre>
 
 <h3>changeAt</h3>
@@ -1211,7 +1211,7 @@ array('a', 'c', 'd', 'e', 'f')
 
 <p><strong>Example:</strong> Bruce Banner hulks out.</p>
 
-<pre class="example"><code class="php">r\expr(array("Iron Man", "Bruce", "Spider-Man"))-&gt;changeAt(1, "Hulk")-&gt;run($conn)
+<pre class="example"><code class="php">r\expr(["Iron Man", "Bruce", "Spider-Man"])-&gt;changeAt(1, "Hulk")-&gt;run($conn)
 </code></pre>
 
 <h3>keys</h3>
@@ -1228,7 +1228,7 @@ object-&gt;keys() &rarr; array
 
 r\table('users')-&gt;get(1)-&gt;keys()-&gt;run($conn);
 // Result
-array( "id", "mail", "name" )
+[ "id", "mail", "name" ]
 </code></pre>
 
 <h3>values</h3>
@@ -1247,7 +1247,7 @@ object-&gt;values() &rarr; array
 
 r\table('users')-&gt;get(1)-&gt;values()-&gt;run($conn);
 // Result
-array( 1, "fred@example.com", "fred" )
+[ 1, "fred@example.com", "fred" ]
 </code></pre>
 
 <h3>literal</h3>
@@ -1271,7 +1271,7 @@ be strings.  <code>r.object(array(A, B, C, D))</code> is equivalent to
 
 <p><strong>Example:</strong> Create a simple object.</p>
 
-<pre class="example"><code class="php">r\object(r.array('id', 5, 'data', array('foo', 'bar')))-&gt;run($conn)
+<pre class="example"><code class="php">r\object('id', 5, 'data', ['foo', 'bar'])-&gt;run($conn)
 </code></pre>
 
 <p></p>
@@ -1876,6 +1876,24 @@ will be rounded to three decimal places (millisecond-precision).</p>
 
 <p><h2 id="Control+structures">Control structures</h2></p>
 
+<h3>args</h3>
+
+<pre class="syntax"><code class="syntax">r\args(array) &rarr; special
+</code></pre>
+
+<p><code>r.args</code> is a special term that's used to splice an array of arguments
+into another term.  This is useful when you want to call a variadic
+term such as <code>getAll</code> with a set of arguments produced at runtime.</p>
+
+<p>This is analogous to using <strong>apply</strong> in JavaScript.</p>
+
+<p><strong>Example:</strong> Get Alice and Bob from the table <code>people</code>.</p>
+
+<pre class="example"><code class="php">r\table('people')-&gt;getAll('Alice', 'Bob')-&gt;run($conn)
+// or
+r\table('people')-&gt;getAll(r\args(['Alice', 'Bob']))-&gt;run($conn)
+</code></pre>
+
 <h3>binary</h3>
 
 <pre class="syntax"><code class="syntax">r\binary(data) &rarr; binary
@@ -1953,7 +1971,7 @@ r\range([startValue, ]endValue) &rarr; stream
 
 <pre class="example"><code class="php">&gt; r\range(4)-&gt;run($conn)
 
-array(0, 1, 2, 3)
+[0, 1, 2, 3]
 </code></pre>
 
 <h3>error</h3>
@@ -2001,7 +2019,7 @@ In the case where the author field is missing or <code>null</code>, we want to r
 
 <p><strong>Example:</strong> Objects wrapped with <code>expr</code> can then be manipulated by ReQL API functions.</p>
 
-<pre class="example"><code class="php">r\expr(array('a' =&gt; 'b'))-&gt;merge(array('b' =&gt; array(1,2,3)))-&gt;run($conn)
+<pre class="example"><code class="php">r\expr(array('a' =&gt;'b'))-&gt;merge(array('b' =&gt;[1,2,3]))-&gt;run($conn)
 </code></pre>
 
 <h3>js</h3>
@@ -2131,7 +2149,7 @@ r\circle(point, radius[, array('num_vertices' =&gt; 32, 'geo_system' =&gt; 'WGS8
 <pre class="example"><code class="php">r\table('geo')-&gt;insert(array(
     'id' =&gt; 300,
     'name' =&gt; 'Hayes Valley',
-    'neighborhood' =&gt; r\circle(array(-122.423246,37.779388), 1000)
+    'neighborhood' =&gt; r\circle([-122.423246,37.779388], 1000)
 ))-&gt;run($conn);
 </code></pre>
 
@@ -2164,10 +2182,10 @@ r\distance($point1, $point2, array('unit' =&gt; 'km'))-&gt;run($conn);
 <pre class="example"><code class="php">r\table('geo')-&gt;insert(array(
     'id' =&gt; 201,
     'rectangle' =&gt; r\line(array(
-        array(-122.423246,37.779388),
-        array(-122.423246,37.329898),
-        array(-121.886420,37.329898),
-        array(-121.886420,37.779388)
+        [-122.423246,37.779388],
+        [-122.423246,37.329898],
+        [-121.886420,37.329898],
+        [-121.886420,37.779388]
     ))
 ))-&gt;run($conn);
 
@@ -2187,7 +2205,7 @@ r\table('geo')-&gt;get(201)-&gt;update(array(
 
 <pre class="example"><code class="php">var $geoJson = array(
     'type' =&gt; 'Point',
-    'coordinates' =&gt; array( -122.423246, 37.779388 )
+    'coordinates' =&gt; [ -122.423246, 37.779388 ]
 );
 r\table('geo')-&gt;insert(array(
     'id' =&gt; 'sfo',
@@ -2209,7 +2227,7 @@ r\table('geo')-&gt;insert(array(
 // result
 array(
     'type' =&gt; 'Point',
-    'coordinates' =&gt; array( -122.423246, 37.779388 )
+    'coordinates' =&gt; [ -122.423246, 37.779388 ]
 )
 </code></pre>
 
@@ -2222,7 +2240,7 @@ array(
 
 <p><strong>Example:</strong> Which of the locations in a list of parks intersect <code>circle1</code>?</p>
 
-<pre class="example"><code class="php">$circle1 = r\circle(array(-117.220406,32.719464), 10, array('unit' =&gt; 'mi'));
+<pre class="example"><code class="php">var $circle1 = r\circle([-117.220406,32.719464], 10, array('unit' =&gt; 'mi'));
 r\table('parks')-&gt;getIntersecting($circle1, array('index' =&gt; 'area'))-&gt;run($conn);
 </code></pre>
 
@@ -2294,7 +2312,7 @@ r\line(array(point1, point2, ...)) &rarr; line
 
 <pre class="example"><code class="php">r\table('geo')-&gt;insert(array(
     'id' =&gt; 101,
-    'route' =&gt; r\line(array(array(-122.423246,37.779388), array(-121.886420,37.329898)))
+    'route' =&gt; r\line([-122.423246,37.779388], [-121.886420,37.329898])
 ))-&gt;run($conn);
 </code></pre>
 
@@ -2332,10 +2350,10 @@ r\polygon(array(point1, point2, ...)) &rarr; polygon
 <pre class="example"><code class="php">r\table('geo')-&gt;insert(array(
     'id' =&gt; 101,
     'rectangle' =&gt; r\polygon(array(
-        array(-122.423246,37.779388),
-        array(-122.423246,37.329898),
-        array(-121.886420,37.329898),
-        array(-121.886420,37.779388)
+        [-122.423246,37.779388],
+        [-122.423246,37.329898],
+        [-121.886420,37.329898],
+        [-121.886420,37.779388]
     ))
 ))-&gt;run($conn);
 </code></pre>
@@ -2350,16 +2368,16 @@ r\polygon(array(point1, point2, ...)) &rarr; polygon
 <p><strong>Example:</strong> Define a polygon with a hole punched in it.</p>
 
 <pre class="example"><code class="php">var $outerPolygon = r\polygon(array(
-    array(-122.4,37.7),
-    array(-122.4,37.3),
-    array(-121.8,37.3),
-    array(-121.8,37.7)
+    [-122.4,37.7],
+    [-122.4,37.3],
+    [-121.8,37.3],
+    [-121.8,37.7]
 ));
 var $innerPolygon = r\polygon(array(
-    array(-122.3,37.4),
-    array(-122.3,37.6),
-    array(-122.0,37.6),
-    array(-122.0,37.4)
+    [-122.3,37.4],
+    [-122.3,37.6],
+    [-122.0,37.6],
+    [-122.0,37.4]
 ));
 $outerPolygon-&gt;polygonSub($innerpolygon)-&gt;run($conn);
 </code></pre>

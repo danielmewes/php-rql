@@ -6,11 +6,16 @@ use r\Connection;
 
 abstract class Dataset
 {
+
     abstract public function create();
+
     abstract public function populate();
+
     abstract public function truncate();
 
     protected $conn;
+
+    protected $db;
 
     private $mustDelete = true;
 

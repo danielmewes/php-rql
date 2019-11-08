@@ -4,24 +4,22 @@ namespace r\Tests\Functional;
 
 use r\Tests\TestCase;
 
-// use function db;
-
 class NoreplyTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Control');
+        $this->dataset = $this->useDataset('Control');
     }
 
     public function testNoReply()
     {
         $this->db()->table('t1')
-            ->insert(array('id' => 1, 'key' => 'val'))
-            ->run($this->conn, array('noreply' => true));
+            ->insert(['id' => 1, 'key' => 'val'])
+            ->run($this->conn, ['noreply' => true]);
 
         $res = $this->db()->table('t1')->getField('key')->run($this->conn);
 
-        $this->assertEquals(array('val'), $res->toArray());
+        $this->assertEquals(['val'], $res->toArray());
     }
 }

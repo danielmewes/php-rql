@@ -1,38 +1,42 @@
 <?php
 
-include __DIR__ . '../../../vendor/autoload.php';
+use function r\connect;
+use function r\db;
+use function r\dbCreate;
+use function r\expr;
 
-$conn = r\connect(getenv('RDB_HOST'), getenv('RDB_PORT'));
+include __DIR__.'../../../vendor/autoload.php';
+
+$conn = connect(getenv('RDB_HOST'), getenv('RDB_PORT'));
 $db = getenv('RDB_DB');
-$res = r\dbCreate($db)->run($conn);
+$res = dbCreate($db)->run($conn);
 
-if ($res['dbs_created'] !== 1.0) {
-    echo 'Error creating DB' . PHP_EOL;
+if (1.0 !== $res['dbs_created']) {
+    echo 'Error creating DB'.PHP_EOL;
     exit;
 }
 
-r\db($db)->tableCreate('marvel', array('primary_key' => 'superhero'))->run($conn);
-r\db($db)->tableCreate('dc_universe', array('primary_key' => 'name'))->run($conn);
-r\db($db)->tableCreate('t5000', array('durability' => 'soft'))->run($conn);
+db($db)->tableCreate('marvel', ['primary_key' => 'superhero'])->run($conn);
+db($db)->tableCreate('dc_universe', ['primary_key' => 'name'])->run($conn);
+db($db)->tableCreate('t5000', ['durability' => 'soft'])->run($conn);
 
-$tables = array(
+$tables = [
     't1',
     't2',
-    'geo'
-);
+    'geo',
+];
 
 foreach ($tables as $table) {
-    r\db($db)->tableCreate($table)->run($conn);
+    db($db)->tableCreate($table)->run($conn);
 }
 
-r\db($db)->table('t1')->indexCreate('other')->run($conn);
-r\db($db)->table('t2')->indexCreate('other')->run($conn);
+db($db)->table('t1')->indexCreate('other')->run($conn);
+db($db)->table('t2')->indexCreate('other')->run($conn);
 
-$geoTable = r\db($db)->table('geo');
+$geoTable = db($db)->table('geo');
 $geoTable->indexCreateGeo('geo')->run($conn);
 $geoTable->indexCreateMultiGeo('mgeo', function ($x) {
-    return r\expr(array($x('geo')));
-
+    return expr([$x('geo')]);
 })->run($conn);
 $geoTable->indexWait('geo')->run($conn);
 $geoTable->indexWait('mgeo')->run($conn);

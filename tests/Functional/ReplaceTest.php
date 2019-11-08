@@ -1,43 +1,41 @@
 <?php
 
-
 namespace r\Tests\Functional;
 
+use function r\js;
 use r\Tests\TestCase;
-
-// use function \r\js;
 
 class ReplaceTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Heroes');
-        $this->data->populate();
+        $this->dataset = $this->useDataset('Heroes');
+        $this->dataset->populate();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testReplace()
     {
         $res = $this->db()->table('marvel')
             ->get('Wolverine')
-            ->replace(array('superhero' => 'Wolverine', 'age' => 30))
+            ->replace(['superhero' => 'Wolverine', 'age' => 30])
             ->run($this->conn);
 
-        $this->assertObStatus(array('replaced' => 1), $res);
+        $this->assertObStatus(['replaced' => 1], $res);
     }
 
     public function testReplaceNonAtomic()
     {
         $res = $this->db()->table('marvel')
             ->get('Wolverine')
-            ->replace(array('superhero' => 'Wolverine', 'age' => \r\js('35')))
-            ->run($this->conn, array('non_atomic' => true));
+            ->replace(['superhero' => 'Wolverine', 'age' => js('35')])
+            ->run($this->conn, ['non_atomic' => true]);
 
-        $this->assertObStatus(array('replaced' => 1), $res);
+        $this->assertObStatus(['replaced' => 1], $res);
     }
 }

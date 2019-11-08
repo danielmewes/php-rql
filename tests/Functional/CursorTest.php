@@ -6,19 +6,19 @@ use r\Tests\TestCase;
 
 class CursorTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Huge');
-        $this->data->populate();
+        $this->dataset = $this->useDataset('Huge');
+        $this->dataset->populate();
 
-        $this->doc = array('key' => str_repeat('var', 1000));
+        $this->doc = ['key' => str_repeat('var', 1000)];
         $this->docs = array_fill(0, 5000, $this->doc);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testCursor()
@@ -27,7 +27,7 @@ class CursorTest extends TestCase
 
         $i = 0;
         foreach ($cursor as $val) {
-            $this->assertEquals($this->doc, (array)$val);
+            $this->assertEquals($this->doc, (array) $val);
             if ($i++ >= 100) {
                 break;
             }

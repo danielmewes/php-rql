@@ -2,69 +2,50 @@
 
 namespace r\Tests\Functional;
 
+use function r\js;
+use function r\row;
 use r\Tests\TestCase;
-
-// use function \r\row;
-// use function \r\js;
 
 class UpdateTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Heroes');
-        $this->data->populate();
-        $this->opts = array('conflict' => 'replace');
+        $this->dataset = $this->useDataset('Heroes');
+        $this->dataset->populate();
+        $this->opts = ['conflict' => 'replace'];
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testUpdateUpdate()
     {
-        $res = $this->db()->table('marvel')->get('Wolverine')->update(
-            array('age' => 30)
-        )->run($this->conn);
-
-        $this->assertObStatus(array('replaced' => 1), $res);
+        $res = $this->db()->table('marvel')->get('Wolverine')->update(['age' => 30])->run($this->conn);
+        $this->assertObStatus(['replaced' => 1], $res);
     }
 
     public function testUpdateViaMethod()
     {
-        $res = $this->db()->table('marvel')->update(
-            function ($r) {
-                return $r->merge(array('age' => 5));
-            }
-        )->run($this->conn, $this->opts);
-
-        $this->assertObStatus(array('replaced' => 3), $res);
+        $res = $this->db()->table('marvel')->update(function ($r) {
+            return $r->merge(['age' => 5]);
+        })->run($this->conn, $this->opts);
+        $this->assertObStatus(['replaced' => 3], $res);
     }
 
     public function testUpdateRow()
     {
-        $this->db()->table('marvel')->update(
-            array('age' => 30)
-        )->run($this->conn, $this->opts);
-
-        $res = $this->db()->table('marvel')->update(
-            array('age' => \r\row('age')->add(1))
-        )->run($this->conn, $this->opts);
-
-        $this->assertObStatus(array('replaced' => 3), $res);
+        $this->db()->table('marvel')->update(['age' => 30])->run($this->conn, $this->opts);
+        $res = $this->db()->table('marvel')->update(['age' => row('age')->add(1)])->run($this->conn, $this->opts);
+        $this->assertObStatus(['replaced' => 3], $res);
     }
 
     public function testUpdateRowAdd()
     {
-        $this->db()->table('marvel')->update(
-            array('age' => 30)
-        )->run($this->conn, $this->opts);
-
-        $res = $this->db()->table('marvel')->update(
-            array('age' => \r\row('age')->add(\r\js('1')))
-        )->run($this->conn, array('durability' => 'soft', 'non_atomic' => true));
-
-        $this->assertObStatus(array('replaced' => 3), $res);
+        $this->db()->table('marvel')->update(['age' => 30])->run($this->conn, $this->opts);
+        $res = $this->db()->table('marvel')->update(['age' => row('age')->add(js('1'))])->run($this->conn, ['durability' => 'soft', 'non_atomic' => true]);
+        $this->assertObStatus(['replaced' => 3], $res);
     }
 }

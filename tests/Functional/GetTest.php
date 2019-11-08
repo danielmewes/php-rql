@@ -2,38 +2,37 @@
 
 namespace r\Tests\Functional;
 
+use function r\expr;
 use r\Tests\TestCase;
-
-// use function \r\expr;
 
 class GetTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Heroes');
-        $this->data->populate();
+        $this->dataset = $this->useDataset('Heroes');
+        $this->dataset->populate();
 
         $this->db()->table('marvel')->indexCreate(
             'test',
             function ($x) {
-                return \r\expr('5');
+                return expr('5');
             }
         )->run($this->conn);
 
         $this->db()->table('marvel')->indexWait('test')->run($this->conn);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->db()->table('marvel')->indexDrop('test')->run($this->conn);
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testGetAllIndex()
     {
         $res = $this->db()->table('marvel')
-            ->getAll('5', array('index' => 'test'))
+            ->getAll('5', ['index' => 'test'])
             ->count()
             ->run($this->conn);
 
@@ -53,7 +52,7 @@ class GetTest extends TestCase
     public function testGetMultiple()
     {
         $res = $this->db()->table('marvel')
-            ->getMultiple(array('Iron Man', 'Wolverine'))
+            ->getMultiple(['Iron Man', 'Wolverine'])
             ->count()
             ->run($this->conn);
 
@@ -67,13 +66,13 @@ class GetTest extends TestCase
             ->run($this->conn);
 
         $this->assertEquals(
-            array(
+            [
                 'superhero' => 'Iron Man',
                 'superpower' => 'Arc Reactor',
                 'combatPower' => 2.0,
-                'compassionPower' => 1.5
-            ),
-            (array)$res
+                'compassionPower' => 1.5,
+            ],
+            (array) $res
         );
     }
 }

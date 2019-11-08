@@ -2,155 +2,95 @@
 
 namespace r\Tests\Functional;
 
+use function \r\row;
+use function \r\expr;
+use function \r\range;
+use function \r\branch;
+use function \r\mapMultiple;
 use r\Tests\TestCase;
-
-// use function \r\row;
-// use function \r\expr;
-// use function \r\range;
-// use function \r\branch;
-// use function \r\mapMultiple;
 
 class MapTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Heroes');
-        $this->data->populate();
+        $this->dataset = $this->useDataset('Heroes');
+        $this->dataset->populate();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testMap()
     {
+        $x = 1;
         $res = $this->db()->table('marvel')->map(function ($hero) {
-                return $hero('combatPower')->add($hero('compassionPower')->mul(2));
-        })
-            ->run($this->conn);
-
-        $this->assertEquals(array(7.0, 9.0, 5.0), $res->toArray());
+            return $hero('combatPower')->add($hero('compassionPower')->mul(2));
+        })->run($this->conn);
+        $this->assertEquals([7.0, 9.0, 5.0], $res->toArray());
     }
 
     public function testMapRow()
     {
-        $res = $this->db()->table('marvel')
-            ->map(\r\row('combatPower')->add(\r\row('compassionPower')->mul(2)))
-            ->run($this->conn);
-
-        $this->assertEquals(array(7.0, 9.0, 5.0), $res->toArray());
+        $res = $this->db()->table('marvel')->map(row('combatPower')->add(row('compassionPower')->mul(2)))->run($this->conn);
+        $this->assertEquals([7.0, 9.0, 5.0], $res->toArray());
     }
 
     public function testCoerceToMapFunc()
     {
-        $res = \r\expr(
-            array(
-                    $this->db()->table('marvel')->coerceTo('array'),
-                    $this->db()->table('marvel')->coerceTo('array')
-                )
-        )->concatMap(function ($hero) {
+        $res = expr([$this->db()->table('marvel')->coerceTo('array'), $this->db()->table('marvel')->coerceTo('array')])->concatMap(function ($hero) {
             return $hero->pluck('superhero');
-        })
-            ->map(\r\row('superhero'))
-            ->run($this->conn);
-
-        $this->assertEquals(
-            array('Spiderman', 'Wolverine', 'Iron Man', 'Spiderman', 'Wolverine', 'Iron Man'),
-            (array)$res
-        );
+        })->map(row('superhero'))->run($this->conn);
+        $this->assertEquals(['Spiderman', 'Wolverine', 'Iron Man', 'Spiderman', 'Wolverine', 'Iron Man'], (array) $res);
     }
 
     public function testCoerceToMap()
     {
-        $res = \r\expr(
-            array(
-                    $this->db()->table('marvel')->coerceTo('array'),
-                    $this->db()->table('marvel')->coerceTo('array')
-                )
-        )->concatMap(\r\row()->pluck('superhero'))
-            ->map(\r\row('superhero'))
-            ->run($this->conn);
-
-        $this->assertEquals(
-            array('Spiderman', 'Wolverine', 'Iron Man', 'Spiderman', 'Wolverine', 'Iron Man'),
-            (array)$res
-        );
+        $res = expr([$this->db()->table('marvel')->coerceTo('array'), $this->db()->table('marvel')->coerceTo('array')])->concatMap(row()->pluck('superhero'))->map(row('superhero'))->run($this->conn);
+        $this->assertEquals(['Spiderman', 'Wolverine', 'Iron Man', 'Spiderman', 'Wolverine', 'Iron Man'], (array) $res);
     }
 
     public function testRegression62()
     {
-        $res = \r\expr(array(1, 2, 3))
-            ->map(
-                \r\branch(
-                    \r\expr(true),
-                    function ($x) {
-                        return $x;
-                    },
-                    function ($x) {
-                        return $x;
-                    }
-                )
-            )->run($this->conn);
-
-        $this->assertEquals(array(1.0, 2.0, 3.0), (array)$res);
+        $res = expr([1, 2, 3])->map(branch(expr(true), function ($x) {
+            return $x;
+        }, function ($x) {
+            return $x;
+        }))->run($this->conn);
+        $this->assertEquals([1.0, 2.0, 3.0], (array) $res);
     }
 
     public function testMapMultipleRange()
     {
-        $res = \r\mapMultiple(
-            array(
-                    \r\range(1, 4),
-                    \r\range(2, 5)
-                ),
-            function ($x, $y) {
-                return $x->add($y);
-            }
-        )->run($this->conn);
-
-        $this->assertEquals(array(3, 5, 7), $res->toArray());
+        $res = mapMultiple([range(1, 4), range(2, 5)], function ($x, $y) {
+            return $x->add($y);
+        })->run($this->conn);
+        $this->assertEquals([3, 5, 7], $res->toArray());
     }
 
     public function tesRangetMapMultiple()
     {
-        $res = \r\range(1, 4)
-            ->mapMultiple(
-                array(
-                    \r\range(2, 5)
-                ),
-                function ($x, $y) {
-                    return $x->add($y);
-                }
-            )->run($this->conn);
-
-        $this->assertEquals(array(3, 5, 7), (array)$res);
+        $res = range(1, 4)->mapMultiple([range(2, 5)], function ($x, $y) {
+            return $x->add($y);
+        })->run($this->conn);
+        $this->assertEquals([3, 5, 7], (array) $res);
     }
 
     public function tesRangetMapMultipleFunc()
     {
-        $res = \r\range(1, 4)
-            ->mapMultiple(\r\range(2, 5), function ($x, $y) {
-                return $x->add($y);
-            })
-            ->run($this->conn);
-
-        $this->assertEquals(array(3, 5, 7), $res->toArray());
+        $res = range(1, 4)->mapMultiple(range(2, 5), function ($x, $y) {
+            return $x->add($y);
+        })->run($this->conn);
+        $this->assertEquals([3, 5, 7], $res->toArray());
     }
 
     public function testMapMultipleRangeAddSub()
     {
-        $res = \r\range(1, 4)
-            ->mapMultiple(
-                array(
-                    \r\range(2, 5),
-                    \r\range(1, 4)
-                ),
-                function ($x, $y, $z) {
-                    return $x->add($y)->sub($z);
-                }
-            )->run($this->conn);
-
-        $this->assertEquals(array(2, 3, 4), $res->toArray());
+        $res = range(1, 4)->mapMultiple([range(2, 5), range(1, 4)], function ($x, $y, $z) {
+            return $x->add($y)->sub($z);
+        })->run($this->conn);
+        $this->assertEquals([2, 3, 4], $res->toArray());
     }
 }

@@ -2,34 +2,35 @@
 
 namespace r\Tests\Functional;
 
+use function r\expr;
 use r\Tests\TestCase;
 
 class InsertTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Heroes');
-        $this->data->populate();
-        $this->opts = array();
+        $this->dataset = $this->useDataset('Heroes');
+        $this->dataset->populate();
+        $this->opts = [];
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testCustomConflict()
     {
         $res = $this->db()->table('marvel')->insert(
-            array(
+            [
                     'superhero' => 'Iron Man',
-                ),
-            array(
-                    'conflict' => function($x, $k, $o) { return \r\expr(null); }
-                )
+                ],
+            [
+                    'conflict' => function ($x, $k, $o) { return expr(null); },
+                ]
         )->run($this->conn, $this->opts);
 
-        $this->assertObStatus(array('deleted' => 1), $res);
+        $this->assertObStatus(['deleted' => 1], $res);
     }
 }

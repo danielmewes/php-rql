@@ -6,54 +6,57 @@ use r\Tests\TestCase;
 
 class UpsertTest extends TestCase
 {
-    public function setUp()
+    /** @var array */
+    protected $opts;
+
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Heroes');
-        $this->data->populate();
-        $this->opts = array('conflict' => 'replace');
+        $this->dataset = $this->useDataset('Heroes');
+        $this->dataset->populate();
+        $this->opts = ['conflict' => 'replace'];
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testUpsertUnchanged()
     {
         $res = $this->db()->table('marvel')->insert(
-            array(
+            [
                     'superhero' => 'Iron Man',
                     'superpower' => 'Arc Reactor',
                     'combatPower' => 2.0,
-                    'compassionPower' => 1.5
-                )
+                    'compassionPower' => 1.5,
+                ]
         )->run($this->conn, $this->opts);
 
-        $this->assertObStatus(array('unchanged' => 1), $res);
+        $this->assertObStatus(['unchanged' => 1], $res);
     }
 
     public function testUpsertReplaced()
     {
         $res = $this->db()->table('marvel')->insert(
-            array(
+            [
                     'superhero' => 'Iron Man',
-                    'superpower' => 'Suit'
-                )
+                    'superpower' => 'Suit',
+                ]
         )->run($this->conn, $this->opts);
 
-        $this->assertObStatus(array('replaced' => 1), $res);
+        $this->assertObStatus(['replaced' => 1], $res);
     }
 
     public function testUpsertInserted()
     {
         $res = $this->db()->table('marvel')->insert(
-            array(
+            [
                     'superhero' => 'Pepper',
-                    'superpower' => 'Stark Industries'
-                )
+                    'superpower' => 'Stark Industries',
+                ]
         )->run($this->conn, $this->opts);
 
-        $this->assertObStatus(array('inserted' => 1), $res);
+        $this->assertObStatus(['inserted' => 1], $res);
     }
 }

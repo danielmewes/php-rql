@@ -6,34 +6,34 @@ use r\Tests\TestCase;
 
 class JoinTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Joins');
-        $this->data->populate();
+        $this->dataset = $this->useDataset('Joins');
+        $this->dataset->populate();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testInnerJoinT1()
     {
-        $expected = array(
-            array(
-                'left'  => array('id' => 1,   'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left'  => array('id' => 2,   'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left'  => array('id' => 3,   'other' => 'b'),
-                'right' => array('id' => 'b', 'other' => 1 )
-            )
-        );
+        $expected = [
+            [
+                'left' => ['id' => 1,   'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 2,   'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 3,   'other' => 'b'],
+                'right' => ['id' => 'b', 'other' => 1],
+            ],
+        ];
 
         $res = $this->db()->table('t1')
             ->innerJoin(
@@ -49,16 +49,16 @@ class JoinTest extends TestCase
 
     public function testInnerJoinT2()
     {
-        $expected = array(
-            array(
-                'right' => array('id' => 1,   'other' => 'a'),
-                'left'  => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'right' => array('id' => 1,   'other' => 'a'),
-                'left'  => array('id' => 'b', 'other' => 1 )
-            )
-        );
+        $expected = [
+            [
+                'right' => ['id' => 1,   'other' => 'a'],
+                'left' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'right' => ['id' => 1,   'other' => 'a'],
+                'left' => ['id' => 'b', 'other' => 1],
+            ],
+        ];
 
         $res = $this->db()->table('t2')
             ->innerJoin(
@@ -74,20 +74,20 @@ class JoinTest extends TestCase
 
     public function testOuterJoinT1()
     {
-        $expected = array(
-            array(
-                'left'  => array('id' => 1,   'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left'  => array('id' => 2,   'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left'  => array('id' => 3,   'other' => 'b'),
-                'right' => array('id' => 'b', 'other' => 1 )
-            )
-        );
+        $expected = [
+            [
+                'left' => ['id' => 1,   'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 2,   'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 3,   'other' => 'b'],
+                'right' => ['id' => 'b', 'other' => 1],
+            ],
+        ];
 
         $res = $this->db()->table('t1')
             ->outerJoin(
@@ -103,17 +103,17 @@ class JoinTest extends TestCase
 
     public function testOuterJoinT2()
     {
-        $expected = array(
-            array(
-                'right' => array('id' => 1, 'other' => 'a'),
-                'left' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'right' => array('id' => 1, 'other' => 'a'),
-                'left' => array('id' => 'b', 'other' => 1 )
-            ),
-            array('left' => array('id' => 'c', 'other' => 5 ))
-        );
+        $expected = [
+            [
+                'right' => ['id' => 1, 'other' => 'a'],
+                'left' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'right' => ['id' => 1, 'other' => 'a'],
+                'left' => ['id' => 'b', 'other' => 1],
+            ],
+            ['left' => ['id' => 'c', 'other' => 5]],
+        ];
 
         $res = $this->db()->table('t2')
             ->outerJoin(
@@ -129,20 +129,20 @@ class JoinTest extends TestCase
 
     public function testEqJoinOther()
     {
-        $expected = array(
-            array(
-                'left' => array('id' => 1, 'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left' => array('id' => 2, 'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left' => array('id' => 3, 'other' => 'b'),
-                'right' => array('id' => 'b', 'other' => 1 )
-            )
-        );
+        $expected = [
+            [
+                'left' => ['id' => 1, 'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 2, 'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 3, 'other' => 'b'],
+                'right' => ['id' => 'b', 'other' => 1],
+            ],
+        ];
 
         $res = $this->db()->table('t1')
             ->eqJoin('other', $this->db()->table('t2'))
@@ -153,19 +153,19 @@ class JoinTest extends TestCase
 
     public function testEqJoinId()
     {
-        $expected = array(
-            array(
-                'left' => array('id' => 1, 'other' => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left' => array('id' => 1, 'other' => 'a'),
-                'right' => array('id' => 'b', 'other' => 1 )
-            ),
-        );
+        $expected = [
+            [
+                'left' => ['id' => 1, 'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 1, 'other' => 'a'],
+                'right' => ['id' => 'b', 'other' => 1],
+            ],
+        ];
 
         $res = $this->db()->table('t1')
-            ->eqJoin('id', $this->db()->table('t2'), array('index' => 'other'))
+            ->eqJoin('id', $this->db()->table('t2'), ['index' => 'other'])
             ->run($this->conn);
 
         $this->assertEquals($expected, $this->orderArrayByLeftAndRightId($res));
@@ -173,20 +173,20 @@ class JoinTest extends TestCase
 
     public function testEqJoinFunc()
     {
-        $expected = array(
-            array(
-                'left' => array('id'  => 1, 'other'   => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left' => array('id'  => 2, 'other'   => 'a'),
-                'right' => array('id' => 'a', 'other' => 1 )
-            ),
-            array(
-                'left' => array('id'  => 3, 'other'   => 'b'),
-                'right' => array('id' => 'b', 'other' => 1 )
-            )
-        );
+        $expected = [
+            [
+                'left' => ['id' => 1, 'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 2, 'other' => 'a'],
+                'right' => ['id' => 'a', 'other' => 1],
+            ],
+            [
+                'left' => ['id' => 3, 'other' => 'b'],
+                'right' => ['id' => 'b', 'other' => 1],
+            ],
+        ];
 
         $res = $this->db()->table('t1')
             ->eqJoin(function ($x) {
@@ -199,13 +199,13 @@ class JoinTest extends TestCase
 
     public function testEqJoinZip()
     {
-        $expected = array(
-            array('id' => 'a', 'other' => 1 ),
-            array('id' => 'b', 'other' => 1 )
-        );
+        $expected = [
+            ['id' => 'a', 'other' => 1],
+            ['id' => 'b', 'other' => 1],
+        ];
 
         $res = $this->db()->table('t1')
-            ->eqJoin('id', $this->db()->table('t2'), array('index' => 'other'))
+            ->eqJoin('id', $this->db()->table('t2'), ['index' => 'other'])
             ->zip()
             ->run($this->conn);
 
@@ -219,6 +219,7 @@ class JoinTest extends TestCase
             if ($a['left']['id'] == $b['left']['id']) {
                 return $a['right']['id'] > $b['right']['id'];
             }
+
             return $a['left']['id'] > $b['left']['id'];
         });
 

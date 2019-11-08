@@ -2,101 +2,68 @@
 
 namespace r\Tests\Functional;
 
+use function r\error;
+use function r\expr;
+use function r\row;
 use r\Tests\TestCase;
-
-// use function \r\row;
-// use function \r\error;
-// use function \r\expr;
 
 class FilterTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Heroes');
-        $this->data->populate();
+        $this->dataset = $this->useDataset('Heroes');
+        $this->dataset->populate();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testFilter()
     {
-        $res = $this->db()->table('marvel')
-            ->filter(\r\row('superhero')->eq('Iron Man'))
-            ->count()
-            ->run($this->conn);
-
+        $res = $this->db()->table('marvel')->filter(row('superhero')->eq('Iron Man'))->count()->run($this->conn);
         $this->assertEquals(1.0, $res);
     }
 
     public function testFilterFunction()
     {
-        $res = $this->db()->table('marvel')
-            ->filter(function ($x) {
-                return $x('superhero')->ne('Iron Man');
-            })
-            ->count()
-            ->run($this->conn);
-
+        $res = $this->db()->table('marvel')->filter(function ($x) {
+            return $x('superhero')->ne('Iron Man');
+        })->count()->run($this->conn);
         $this->assertEquals(2.0, $res);
     }
 
     public function testFilterRowEq()
     {
-        $res = $this->db()->table('marvel')
-            ->filter(\r\row('foo')->eq('naaa'))
-            ->count()
-            ->run($this->conn);
-
+        $res = $this->db()->table('marvel')->filter(row('foo')->eq('naaa'))->count()->run($this->conn);
         $this->assertEquals(0.0, $res);
     }
 
     public function testFilterError()
     {
-        $this->setExpectedException(
-            '\r\Exceptions\RqlServerError',
-            'Runtime error: No attribute `foo` in object:'
-        );
-
-        $res = $this->db()->table('marvel')
-            ->filter(\r\row('foo')->eq('naaa'), \r\error())
-            ->count()
-            ->run($this->conn);
+        $this->expectException('\r\Exceptions\RqlServerError');
+        $this->expectExceptionMessage('Runtime error: No attribute `foo` in object:');
+        $res = $this->db()->table('marvel')->filter(row('foo')->eq('naaa'), error())->count()->run($this->conn);
     }
 
     public function testFilterErrorMsg()
     {
-        $this->setExpectedException(
-            '\r\Exceptions\RqlServerError',
-            'msg'
-        );
-
-        $res = $this->db()->table('marvel')
-            ->filter(\r\row('foo')->eq('naaa'), \r\error('msg'))
-            ->count()
-            ->run($this->conn);
+        $this->expectException('\r\Exceptions\RqlServerError');
+        $this->expectExceptionMessage('msg');
+        $res = $this->db()->table('marvel')->filter(row('foo')->eq('naaa'), error('msg'))->count()->run($this->conn);
     }
 
     public function testFilterMissing()
     {
-        $res = $this->db()->table('marvel')
-            ->filter(\r\row('foo')->eq('naaa'), true)
-            ->count()
-            ->run($this->conn);
-
+        $res = $this->db()->table('marvel')->filter(row('foo')->eq('naaa'), true)->count()->run($this->conn);
         $this->assertEquals(3.0, $res);
     }
 
     public function testFilterMissingViaExpr()
     {
-        $res = $this->db()->table('marvel')
-            ->filter(\r\row('foo')->eq('naaa'), \r\expr('true'))
-            ->count()
-            ->run($this->conn);
-
+        $res = $this->db()->table('marvel')->filter(row('foo')->eq('naaa'), expr('true'))->count()->run($this->conn);
         $this->assertEquals(3.0, $res);
     }
 }

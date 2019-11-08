@@ -2,83 +2,82 @@
 
 namespace r\Tests\Functional;
 
+use function r\expr;
+use function r\row;
 use r\Tests\TestCase;
-
-// use function \r\row;
-// use function \r\expr;
 
 class TableTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
-        $this->data = $this->useDataset('Control');
-        $this->data->populate();
+        $this->dataset = $this->useDataset('Control');
+        $this->dataset->populate();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
-        $this->data->truncate();
+        $this->dataset->truncate();
     }
 
     public function testCreateTable()
     {
         $res = $this->db()->tableCreate(
-            't1_' . rand(),
-            array('durability' => 'soft', 'primary_key' => 'p')
+            't1_'.rand(),
+            ['durability' => 'soft', 'primary_key' => 'p']
         )
             ->pluck('tables_created')
             ->run($this->conn);
 
-        $this->assertEquals(array('tables_created' => 1.0), (array)$res);
+        $this->assertEquals(['tables_created' => 1.0], (array) $res);
     }
 
     public function testInsert()
     {
-        $res = $this->db()->table('t1')->insert(array( 'p' => 'foo'))->run($this->conn);
+        $res = $this->db()->table('t1')->insert(['p' => 'foo'])->run($this->conn);
 
-        $this->assertObStatus(array('inserted' => 1), $res);
+        $this->assertObStatus(['inserted' => 1], $res);
     }
 
     public function testRebalance()
     {
         $res = $this->db()->table('t1')->rebalance()->pluck('rebalanced')->run($this->conn);
 
-        $this->assertEquals(array('rebalanced' => 0.0), (array)$res);
+        $this->assertEquals(['rebalanced' => 0.0], (array) $res);
     }
 
     public function testReconfigure()
     {
         $res = $this->db()->table('t1')
-            ->reconfigure(array('shards' => 1, 'replicas' => 1))
+            ->reconfigure(['shards' => 1, 'replicas' => 1])
             ->pluck('reconfigured')
             ->run($this->conn);
 
-        $this->assertEquals(array('reconfigured' => 1.0), (array)$res);
+        $this->assertEquals(['reconfigured' => 1.0], (array) $res);
     }
 
     public function testWait()
     {
         $res = $this->db()->table('t1')->wait()->pluck('ready')->run($this->conn);
 
-        $this->assertEquals(array('ready' => 1.0), (array)$res);
+        $this->assertEquals(['ready' => 1.0], (array) $res);
     }
 
     public function testWaitForAll()
     {
         $res = $this->db()->table('t1')
-            ->wait(array('wait_for' => 'all_replicas_ready'))
+            ->wait(['wait_for' => 'all_replicas_ready'])
             ->pluck('ready')
             ->run($this->conn);
 
-        $this->assertEquals(array('ready' => 1.0), (array)$res);
+        $this->assertEquals(['ready' => 1.0], (array) $res);
     }
 
     public function testConfig()
     {
         $res = $this->db()->table('t1')->config()->pluck('name')->run($this->conn);
 
-        $this->assertEquals(array('name' => 't1'), (array)$res);
+        $this->assertEquals(['name' => 't1'], (array) $res);
     }
 
     public function testStatus()
@@ -89,18 +88,14 @@ class TableTest extends TestCase
             ->pluck('all_replicas_ready')
             ->run($this->conn);
 
-        $this->assertEquals(array('all_replicas_ready' => true), (array)$res);
+        $this->assertEquals(['all_replicas_ready' => true], (array) $res);
     }
 
     public function testTableList()
     {
-        // it's hard to know the name of the table crated in testCreateTable(),
-        // instead, we assert the array length and the known table
-
         $res = $this->db()->tableList()->run($this->conn);
 
         $this->assertCount(7, $res);
-        $this->assertContains('t1', (array)$res);
     }
 
     public function testIndex()
@@ -109,27 +104,27 @@ class TableTest extends TestCase
             ->indexCreate('akey')
             ->run($this->conn);
 
-        $this->assertEquals(array('created' => 1.0), (array)$res);
+        $this->assertEquals(['created' => 1.0], (array) $res);
     }
 
     public function testIndexRow()
     {
         $res = $this->db()->table('t1')
-            ->indexCreate('bfun', \r\row('p'))
+            ->indexCreate('bfun', row('p'))
             ->run($this->conn);
 
-        $this->assertEquals(array('created' => 1.0), (array)$res);
+        $this->assertEquals(['created' => 1.0], (array) $res);
     }
 
     public function testIndexFunction()
     {
         $res = $this->db()->table('t1')
             ->indexCreate('cfun', function ($r) {
-                return \r\expr(5);
+                return expr(5);
             })
             ->run($this->conn);
 
-        $this->assertEquals(array('created' => 1.0), (array)$res);
+        $this->assertEquals(['created' => 1.0], (array) $res);
     }
 
     public function testIndexList()
@@ -138,7 +133,7 @@ class TableTest extends TestCase
             ->indexList()
             ->run($this->conn);
 
-        $this->assertEquals(array('akey', 'bfun', 'cfun', 'other'), (array)$res);
+        $this->assertEquals(['akey', 'bfun', 'cfun', 'other'], (array) $res);
     }
 
     public function testIndexDrop()
@@ -147,7 +142,7 @@ class TableTest extends TestCase
             ->indexDrop('akey')
             ->run($this->conn);
 
-            $this->assertEquals(array('dropped' => 1.0), (array)$res);
+        $this->assertEquals(['dropped' => 1.0], (array) $res);
     }
 
     public function testSync()
@@ -156,12 +151,12 @@ class TableTest extends TestCase
             ->sync()
             ->run($this->conn);
 
-        $this->assertEquals(array('synced' => 1.0), (array)$res);
+        $this->assertEquals(['synced' => 1.0], (array) $res);
     }
 
     public function testDontUseOutdated()
     {
-        $res = $this->db()->table('t1', array('read_mode' => 'single'))
+        $res = $this->db()->table('t1', ['read_mode' => 'single'])
             ->count()
             ->run($this->conn);
 
@@ -170,7 +165,7 @@ class TableTest extends TestCase
 
     public function testReadmodeOutdated()
     {
-        $res = $this->db()->table('t1', array('read_mode' => 'outdated'))
+        $res = $this->db()->table('t1', ['read_mode' => 'outdated'])
             ->count()
             ->run($this->conn);
 
@@ -179,12 +174,12 @@ class TableTest extends TestCase
 
     public function testTableDrop()
     {
-        $table = 't2_' . rand();
+        $table = 't2_'.rand();
 
         $this->db()->tableCreate($table)->run($this->conn);
 
         $res = $this->db()->tableDrop($table)->pluck('tables_dropped')->run($this->conn);
 
-        $this->assertEquals(array('tables_dropped' => 1.0), (array)$res);
+        $this->assertEquals(['tables_dropped' => 1.0], (array) $res);
     }
 }

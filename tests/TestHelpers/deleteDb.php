@@ -1,7 +1,11 @@
 <?php
 
-include __DIR__ . '../../../vendor/autoload.php';
+use function r\connect;
+use function r\dbDrop;
 
-$conn = r\connect(getenv('RDB_HOST'), getenv('RDB_PORT'));
+include __DIR__.'../../../vendor/autoload.php';
 
-$res = r\dbDrop(getenv('RDB_DB'))->run($conn);
+$conn = connect(getenv('RDB_HOST'), getenv('RDB_PORT'));
+
+$res = dbDrop(getenv('RDB_DB'))->run($conn);
+

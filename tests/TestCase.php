@@ -2,31 +2,44 @@
 
 namespace r\Tests;
 
-class TestCase extends \PHPUnit_Framework_TestCase
-{
-    protected $datasets = array();
+use r\Connection;
+use r\Queries\Dbs\Db;
+use r\Tests\Datasets\Dataset;
+use function r\connect;
+use function r\db;
 
-    public function setUp()
+class TestCase extends \PHPUnit\Framework\TestCase
+{
+    /** @var array<string, Dataset> */
+    protected $datasets = [];
+
+    /** @var Dataset */
+    protected $dataset;
+
+    /** @var Connection */
+    protected $conn;
+
+    protected function setUp(): void
     {
         $this->conn = $this->getConnection();
     }
 
     // return the current db connection
-    protected function getConnection()
+    protected function getConnection(): Connection
     {
         static $connection;
 
         if (!isset($connection)) {
-            $connection = \r\connect(getenv('RDB_HOST'), getenv('RDB_PORT'), getenv('RDB_DB'));
+            $connection = connect(getenv('RDB_HOST'), getenv('RDB_PORT'), getenv('RDB_DB'));
         }
 
         return $connection;
     }
 
     // enable $this->db(), instead of \rdb('DB_NAME'), in tests
-    protected function db()
+    protected function db(): Db
     {
-        return \r\db(getenv('RDB_DB'));
+        return db(getenv('RDB_DB'));
     }
 
     // returns the requested dataset
@@ -35,7 +48,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
         static $datasets;
 
         if (!isset($datasets[$name])) {
-            $ds = 'r\Tests\Datasets\\' . $name;
+            $ds = 'r\Tests\Datasets\\'.$name;
             $datasets[$name] = new $ds($this->conn);
         }
 
@@ -45,24 +58,23 @@ class TestCase extends \PHPUnit_Framework_TestCase
     // test the results status
     protected function assertObStatus($status, $data)
     {
-        $statuses =  array(
+        $statuses = [
             'unchanged',
             'skipped',
             'replaced',
             'inserted',
             'errors',
-            'deleted'
-        );
+            'deleted',
+        ];
 
         foreach ($statuses as $s) {
             $status[$s] = isset($status[$s]) ? $status[$s] : 0;
         }
 
-
         $data->setFlags($data::ARRAY_AS_PROPS);
 
         foreach ($statuses as $s) {
-            $res[$s] = isset($data->$s) ? $data->$s : 0;
+            $res[$s] = $data->$s ?? 0;
         }
 
         $this->assertEquals($status, $res);

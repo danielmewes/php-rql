@@ -52,8 +52,8 @@ function convertExample($js, $inApiBody = false) {
 		        }
 		    }
 		    // apibody uses [ ] to mark optional arguments
-		    else if (!$inApiBody && $s == "[") $s = "array(";
-		    else if (!$inApiBody && $s == "]") $s = ")";
+		    else if (!$inApiBody && $s == "[") $s = "[";
+		    else if (!$inApiBody && $s == "]") $s = "]";
 		    else if ($s == "{") {
 		        if (!$inFunction || $objectsOpenInFunction != 0) {
     		        $s = "array(";
