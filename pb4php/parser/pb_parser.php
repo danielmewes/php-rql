@@ -306,7 +306,7 @@ class PBParser
         $myarray = array();
         $match = preg_match_all('/(.*);\s?/', $content, $matches);
         if (!$match) {
-            throw new Execption('Semantic error in Enum!');
+            throw new Exception('Semantic error in Enum!');
         }
         foreach ($matches[1] as $match) {
             $split = explode("=", $match);
