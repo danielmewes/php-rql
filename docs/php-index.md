@@ -1609,10 +1609,10 @@ r\object(r.array('id', 5, 'data', array('foo', 'bar')))->run($conn)
 {% apisection String manipulation %}
 These commands provide string operators.
 
-## [match](match/) ##
+## [match_](match_/) ##
 
 {% apibody %}
-string->match(regexp) &rarr; null/object
+string->match_(regexp) &rarr; null/object
 {% endapibody %}
 
 Matches against a regular expression. If there is a match, returns an object with the fields:
@@ -1634,7 +1634,7 @@ r\table('users')->filter(function($doc){
 
 
 
-[Read more about this command &rarr;](match/)
+[Read more about this command &rarr;](match_/)
 
 ## [split](split/) ##
 
