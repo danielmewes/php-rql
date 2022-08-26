@@ -176,7 +176,7 @@ class GeoTest extends TestCase
             ->coerceTo("STRING")
             ->run($this->conn);
 
-        $this->assertContains('1113026493394308', str_replace('.', '', $res));
+        $this->assertStringContainsString('1113026493394308', str_replace('.', '', $res));
     }
 
     public function testDistanceKm()
@@ -186,7 +186,7 @@ class GeoTest extends TestCase
             array('unit' => 'km')
         )->coerceTo("STRING")->run($this->conn);
 
-        $this->assertContains('1113026493394308', str_replace('.', '', $res));
+        $this->assertStringContainsString('1113026493394308', str_replace('.', '', $res));
     }
 
     public function testPolygonIntersects()
@@ -272,7 +272,7 @@ class GeoTest extends TestCase
             )->map(\r\row('dist')->coerceTo('STRING'))
             ->run($this->conn);
 
-        $this->assertContains('111319490793273', str_replace('.', '', $res[0]));
-        $this->assertContains('156899568291340', str_replace('.', '', $res[1]));
+        $this->assertStringContainsString('111319490793273', str_replace('.', '', $res[0]));
+        $this->assertStringContainsString('156899568291340', str_replace('.', '', $res[1]));
     }
 }
