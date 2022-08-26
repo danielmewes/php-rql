@@ -217,9 +217,9 @@ class JoinTest extends TestCase
         $data = $this->toArray($data->toArray());
         usort($data, function ($a, $b) {
             if ($a['left']['id'] == $b['left']['id']) {
-                return $a['right']['id'] > $b['right']['id'];
+                return $a['right']['id'] <=> $b['right']['id'];
             }
-            return $a['left']['id'] > $b['left']['id'];
+            return $a['left']['id'] <=> $b['left']['id'];
         });
 
         return $data;
