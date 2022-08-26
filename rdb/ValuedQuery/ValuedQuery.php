@@ -74,7 +74,7 @@ use r\Queries\Math\Ge;
 use r\Queries\Math\Gt;
 use r\Queries\Math\Le;
 use r\Queries\Math\Lt;
-use r\Queries\Math\Match;
+use r\Queries\Math\Match_;
 use r\Queries\Math\Mod;
 use r\Queries\Math\Mul;
 use r\Queries\Math\Ne;
@@ -373,9 +373,9 @@ abstract class ValuedQuery extends Query
     {
         return new Not($this);
     }
-    public function match($expression)
+    public function match_($expression)
     {
-        return new Match($this, $expression);
+        return new Match_($this, $expression);
     }
     public function upcase()
     {
