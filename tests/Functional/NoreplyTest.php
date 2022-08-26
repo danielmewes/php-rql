@@ -8,7 +8,7 @@ use r\Tests\TestCase;
 
 class NoreplyTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Control');

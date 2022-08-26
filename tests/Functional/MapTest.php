@@ -12,14 +12,14 @@ use r\Tests\TestCase;
 
 class MapTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Heroes');
         $this->data->populate();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->data->truncate();
     }

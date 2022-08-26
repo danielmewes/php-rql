@@ -14,14 +14,14 @@ use r\Tests\TestCase;
 
 class GeoTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Geo');
         $this->data->populate();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->data->truncate();
     }

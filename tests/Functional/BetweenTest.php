@@ -10,7 +10,7 @@ use r\Tests\TestCase;
 
 class BetweenTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Heroes');
@@ -23,7 +23,7 @@ class BetweenTest extends TestCase
         $this->db()->table('marvel')->indexWait('test')->run($this->conn);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->db()->table('marvel')->indexDrop('test')->run($this->conn);
         $this->data->truncate();

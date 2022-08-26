@@ -6,7 +6,7 @@ use r\Tests\TestCase;
 
 class UpsertTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Heroes');
@@ -14,7 +14,7 @@ class UpsertTest extends TestCase
         $this->opts = array('conflict' => 'replace');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->data->truncate();
     }

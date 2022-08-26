@@ -13,7 +13,7 @@ use r\Tests\TestCase;
 
 class ControlTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Heroes');
@@ -21,7 +21,7 @@ class ControlTest extends TestCase
         $this->data->populate();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->data->truncate();
         $this->data2->truncate();

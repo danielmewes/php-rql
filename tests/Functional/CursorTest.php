@@ -6,7 +6,7 @@ use r\Tests\TestCase;
 
 class CursorTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Huge');
@@ -16,7 +16,7 @@ class CursorTest extends TestCase
         $this->docs = array_fill(0, 5000, $this->doc);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->data->truncate();
     }

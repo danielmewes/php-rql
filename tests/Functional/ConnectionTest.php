@@ -9,7 +9,7 @@ use r\Tests\TestCase;
 
 class ConnectionTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->conn->reconnect();

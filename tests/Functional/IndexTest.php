@@ -9,7 +9,7 @@ use r\Exceptions\RqlServerError;
 
 class IndexTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Heroes');
@@ -19,7 +19,7 @@ class IndexTest extends TestCase
         $this->index2 = 'index_' . time() . rand(999, 9999);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         try {
             $this->db()->table('marvel')->indexDrop($this->index)->run($this->conn);

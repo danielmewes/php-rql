@@ -9,7 +9,7 @@ use r\Tests\TestCase;
 
 class UpdateTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
         $this->data = $this->useDataset('Heroes');
@@ -17,7 +17,7 @@ class UpdateTest extends TestCase
         $this->opts = array('conflict' => 'replace');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->data->truncate();
     }

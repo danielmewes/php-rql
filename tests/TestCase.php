@@ -2,11 +2,11 @@
 
 namespace r\Tests;
 
-class TestCase extends \PHPUnit_Framework_TestCase
+class TestCase extends \PHPUnit\Framework\TestCase
 {
     protected $datasets = array();
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->conn = $this->getConnection();
     }
