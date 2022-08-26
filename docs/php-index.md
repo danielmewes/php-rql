@@ -1628,7 +1628,7 @@ __Example:__ Get all users whose name starts with "A".
 
 ```php
 r\table('users')->filter(function($doc){
-    return $doc('name')->match("^A");
+    return $doc('name')->match_("^A");
 })->run($conn)
 ```
 

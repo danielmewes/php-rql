@@ -418,7 +418,7 @@
 1736c1631
 <     return doc('name')->match("^A")
 ---
->     return $doc('name')->match("^A");
+>     return $doc('name')->match_("^A");
 1888c1783
 < ## [and](and/) ##
 ---

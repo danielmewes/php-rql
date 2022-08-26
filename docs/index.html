@@ -1298,7 +1298,7 @@ These commands provide string operators.</p>
 <p><strong>Example:</strong> Get all users whose name starts with "A".</p>
 
 <pre class="example"><code class="php">r\table('users')-&gt;filter(function($doc){
-    return $doc('name')-&gt;match("^A");
+    return $doc('name')-&gt;match_("^A");
 })-&gt;run($conn)
 </code></pre>
 
