@@ -87,8 +87,8 @@ class ControlTest extends TestCase
 
     public function testError()
     {
-        $this->setExpectedException(
-            '\r\Exceptions\RqlServerError',
+        $this->expectException(\r\Exceptions\RqlServerError::class);
+        $this->expectExceptionMessage(
             'Runtime error: ERRRRRR'
         );
 

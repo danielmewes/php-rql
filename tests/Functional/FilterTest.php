@@ -56,8 +56,8 @@ class FilterTest extends TestCase
 
     public function testFilterError()
     {
-        $this->setExpectedException(
-            '\r\Exceptions\RqlServerError',
+        $this->expectException(\r\Exceptions\RqlServerError::class);
+        $this->expectExceptionMessage(
             'Runtime error: No attribute `foo` in object:'
         );
 
@@ -69,8 +69,8 @@ class FilterTest extends TestCase
 
     public function testFilterErrorMsg()
     {
-        $this->setExpectedException(
-            '\r\Exceptions\RqlServerError',
+        $this->expectException(\r\Exceptions\RqlServerError::class);
+        $this->expectExceptionMessage(
             'msg'
         );
 
