@@ -1279,9 +1279,9 @@ be strings.  <code>r.object(array(A, B, C, D))</code> is equivalent to
 <p><h2 id="String+manipulation">String manipulation</h2>
 These commands provide string operators.</p>
 
-<h3>match_</h3>
+<h3>rMatch</h3>
 
-<pre class="syntax"><code class="syntax">string-&gt;match_(regexp) &rarr; null/object
+<pre class="syntax"><code class="syntax">string-&gt;rMatch(regexp) &rarr; null/object
 </code></pre>
 
 <p>Matches against a regular expression. If there is a match, returns an object with the fields:</p>
@@ -1298,7 +1298,7 @@ These commands provide string operators.</p>
 <p><strong>Example:</strong> Get all users whose name starts with "A".</p>
 
 <pre class="example"><code class="php">r\table('users')-&gt;filter(function($doc){
-    return $doc('name')-&gt;match_("^A");
+    return $doc('name')-&gt;rMatch("^A");
 })-&gt;run($conn)
 </code></pre>
 

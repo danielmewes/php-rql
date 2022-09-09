@@ -28,20 +28,20 @@ class MathTest extends TestCase
 {
     public function testMatchNull()
     {
-        $this->assertNull(\r\expr('a')->match_('b')->run($this->conn));
+        $this->assertNull(\r\expr('a')->rMatch('b')->run($this->conn));
     }
 
     public function testMatch()
     {
         $this->assertEquals(
             array('str' => 'b', 'start' => 0, 'groups' => array(), 'end' => 1),
-            (array)\r\expr('b')->match_('b')->run($this->conn)
+            (array)\r\expr('b')->rMatch('b')->run($this->conn)
         );
     }
 
     public function testMatchRegex()
     {
-        $res = \r\expr('id:0,name:mlucy,foo:bar')->match_('name:(\w+)')->run($this->conn);
+        $res = \r\expr('id:0,name:mlucy,foo:bar')->rMatch('name:(\w+)')->run($this->conn);
 
         $res = (array)$res;
         $res['groups'][0] = (array)$res['groups'][0];

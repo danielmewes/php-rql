@@ -5,7 +5,7 @@ namespace r\Queries\Math;
 use r\ValuedQuery\ValuedQuery;
 use r\ProtocolBuffer\TermTermType;
 
-class Match_ extends ValuedQuery
+class RMatch extends ValuedQuery
 {
     public function __construct(ValuedQuery $value, $expression)
     {

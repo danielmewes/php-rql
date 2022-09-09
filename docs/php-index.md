@@ -1609,10 +1609,10 @@ r\object(r.array('id', 5, 'data', array('foo', 'bar')))->run($conn)
 {% apisection String manipulation %}
 These commands provide string operators.
 
-## [match_](match_/) ##
+## [rMatch](rMatch/) ##
 
 {% apibody %}
-string->match_(regexp) &rarr; null/object
+string->rMatch(regexp) &rarr; null/object
 {% endapibody %}
 
 Matches against a regular expression. If there is a match, returns an object with the fields:
@@ -1628,13 +1628,13 @@ __Example:__ Get all users whose name starts with "A".
 
 ```php
 r\table('users')->filter(function($doc){
-    return $doc('name')->match_("^A");
+    return $doc('name')->rMatch("^A");
 })->run($conn)
 ```
 
 
 
-[Read more about this command &rarr;](match_/)
+[Read more about this command &rarr;](rMatch/)
 
 ## [split](split/) ##
 
